@@ -2198,6 +2198,19 @@
     setCatView(saved, true);
   }
 
+  /* 把某一首帶進頂欄與播放列之間的可見區域；總表列存在時定位到列本身，
+     否則退回整個總表 */
+  function revealTrack(albumId, n) {
+    var row = $('.cat-track [data-play="' + albumId + ':' + n + '"]');
+    var li = row && row.closest ? row.closest('.cat-track') : null;
+    var target = li || $('#tracks');
+    if (!target) return;
+    target.scrollIntoView({
+      behavior: REDUCED.matches ? 'auto' : 'smooth',
+      block: li ? 'center' : 'start'
+    });
+  }
+
   /* ── random: 顶栏按钮与窄屏选单共用 ─────────────────────────────────── */
   function pickRandom() {
     var pool = JC.tracks.filter(function (t) {
@@ -2212,9 +2225,13 @@
        目录视图保持用户当前的选择——随机试听的目标是曲目总表，
        它不在三视图内，切视图只会打断用户的浏览位置 */
     plSelect(t.album, t.n);
-    var panel = $('#tracks');
-    if (panel)
-      panel.scrollIntoView({ behavior: REDUCED.matches ? 'auto' : 'smooth', block: 'start' });
+    /* 搜尋條件可能把這一首篩掉了：先還原完整清單，否則定位不到那一行，
+       播放位置會被留在被篩選隱藏的地方 */
+    if (searchInput && searchInput.value) {
+      searchInput.value = '';
+      renderCat('');
+    }
+    revealTrack(t.album, t.n);
     toast('隨機試聽：' + t.zh + '（' + t.albumTitle + '）');
   }
 
