@@ -1022,10 +1022,13 @@ main { padding-top: var(--nav-h); }
   opacity: .62;
   cursor: pointer;
   transition: stroke-dashoffset 1.15s var(--ease),
-              opacity .45s var(--ease), stroke-width .45s var(--ease);
+              opacity .2s var(--ease), stroke-width .2s var(--ease);
   transition-delay: calc(var(--i) * 55ms);
 }
 .rings-stage svg.is-drawn .ring-path { stroke-dashoffset: 0; }
+/* 入场错峰的 delay 只服务于入场：入场结束后清零，否则悬停要等
+   「序号 × 55ms」（张学友页第 40 圈要等两秒多）才有反应 */
+.rings-stage svg.is-settled .ring-path { transition-delay: 0ms; }
 .rings-stage .ring-path.is-live { opacity: 1; }
 .rings-stage .ring-path.is-dim { opacity: .26; }
 
@@ -1056,7 +1059,7 @@ main { padding-top: var(--nav-h); }
   display: grid; grid-template-columns: 9px 2.7rem minmax(0, 1fr) auto;
   align-items: center; gap: 10px; width: 100%; text-align: left;
   padding: 7px 9px; border-radius: 4px;
-  transition: background .3s var(--ease);
+  transition: background .16s var(--ease);
 }
 .rl-row:hover, .rl-row.is-live { background: rgba(255, 255, 255, .055); }
 .rl-swatch { width: 9px; height: 9px; border-radius: 50%; }

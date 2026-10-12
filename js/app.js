@@ -643,11 +643,25 @@
     setRingLive(0);
 
     // rings draw in once the figure is on screen
+    var svgEl = stage.querySelector('svg');
+    var settleTimer = 0;
+    var settle = function () {
+      if (settleTimer) {
+        clearTimeout(settleTimer);
+        settleTimer = 0;
+      }
+      if (!svgEl) return;
+      svgEl.classList.add('is-settled');
+    };
     var draw = function () {
-      stage.querySelector('svg').classList.add('is-drawn');
+      if (!svgEl || svgEl.classList.contains('is-drawn')) return;
+      svgEl.classList.add('is-drawn');
+      /* 错峰 delay 只服务于入场；入场走完就清零，否则悬停要等「序号 × 55ms」 */
+      settleTimer = setTimeout(settle, 55 * Math.max(0, ringNodes.length - 1) + 1150);
     };
     if (REDUCED.matches || !('IntersectionObserver' in window)) {
       draw();
+      settle();
       return;
     }
     var ro = new IntersectionObserver(
@@ -667,11 +681,14 @@
     if (!isTouch) {
       ringNodes.forEach(function (n) {
         n.addEventListener('pointerenter', function () {
+          /* 用户已经在交互：立刻结束错峰，别让悬停等入场延迟 */
+          settle();
           setRingLive(+n.dataset.ring);
         });
       });
       legendNodes.forEach(function (n) {
         n.addEventListener('pointerenter', function () {
+          settle();
           setRingLive(+n.dataset.ring);
         });
       });
