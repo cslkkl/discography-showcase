@@ -16,31 +16,66 @@
 </head>
 <body>
 
-<a class="skip" href="#top">跳至主要內容</a>
+<a class="skip" href="#ldShelf">跳至歌手選擇</a>
 
 <div class="grain" aria-hidden="true"></div>
 
-<main id="top">
+<main id="top" class="ld-main">
 
-  <!-- 入口主視覺 -->
+  <!-- 入口：立體唱片架 -->
   <section class="ld-hero">
-    <div class="ld-inner">
-      <p class="ld-eyebrow"><span class="ld-seal" aria-hidden="true">
-        <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">聲</text></svg>
-      </span>聲之年輪</p>
-      <h1 class="ld-title">
-        <span class="ht-line"><span>選</span><span>一</span><span>位</span><span>歌</span><span>手</span></span>
-      </h1>
-      <p class="ld-sub"><span>以年輪與數據陳列歌手的完整錄音室目錄。</span><span>封面為軸，年份為序，全部可試聽。</span></p>
-    </div>
-  </section>
 
-  <!-- 歌手索引 -->
-  <section class="ld-index" aria-label="歌手索引">
-    <div class="ld-inner">
-      <ol class="ld-list" id="artistList"></ol>
-      <p class="ld-empty" id="ldEmpty" hidden>目前沒有可顯示的歌手資料。</p>
+    <div class="ld-inner ld-brandrow">
+      <p class="ld-brand">
+        <span class="ld-seal" aria-hidden="true">
+          <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">聲</text></svg>
+        </span>
+        <span class="ld-brandname">聲之年輪</span>
+        <span class="ld-brandsub">歌手唱片陳列</span>
+      </p>
+      <button class="lang ld-lang" id="ldLang" type="button" aria-label="切換繁體與簡體">
+        <span class="lang-opt" data-opt="s">簡</span><span class="lang-opt" data-opt="t">繁</span>
+      </button>
     </div>
+
+    <div class="ld-shelf" id="ldShelf">
+
+      <div class="ld-inner ld-headrow">
+        <h1 class="ld-title">
+          <span class="ht-line"><span style="--i:0">選</span><span style="--i:1">一</span><span style="--i:2">位</span><span style="--i:3">歌</span><span style="--i:4">手</span></span>
+        </h1>
+        <p class="ld-counter"><b id="ldPos">01</b><span class="ld-slash" aria-hidden="true">/</span><span id="ldTotal">05</span></p>
+      </div>
+
+      <div class="ld-stage" id="ldStage" role="group" aria-label="歌手封面組">
+        <span class="ld-glow" aria-hidden="true"></span>
+        <ul class="ld-groups" id="ldGroups"></ul>
+      </div>
+
+      <div class="ld-inner ld-info">
+        <p class="ld-en" id="ldEn"></p>
+        <h2 class="ld-name" id="ldName"></h2>
+        <p class="ld-stats" id="ldStats"></p>
+        <a class="ld-cta" id="ldCta" href="#"></a>
+      </div>
+
+      <div class="ld-inner ld-controls" id="ldControls" role="group" aria-label="切換歌手">
+        <button class="ld-arrow is-prev" id="ldPrev" type="button" aria-label="上一位歌手">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+        </button>
+        <ul class="ld-tabs" id="ldTabs"></ul>
+        <button class="ld-arrow is-next" id="ldNext" type="button" aria-label="下一位歌手">
+          <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+        </button>
+      </div>
+
+      <p class="ld-hint">左右翻閱，選擇歌手進入唱片目錄</p>
+      <p class="ld-sr" id="ldLive" role="status" aria-live="polite"></p>
+
+    </div>
+
+    <p class="ld-empty" id="ldEmpty" hidden>目前沒有可顯示的歌手資料。</p>
+
   </section>
 
   <!-- 說明 -->
