@@ -65,10 +65,11 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用（五位歌手各實測）
 - 全站小字下限 12px（實測 <12px 為 0）；歌手頁首屏露出下一段 23–36px
 - 入口頁桌面首屏 2 位歌手、手機 4 位；開場動畫首次 900ms，同會話切換歌手直接呈現
-- 截圖 18 張，見 `screenshots/`
+- 站點截圖 18 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`
 
 ## 待辦
 
+- [ ] 首頁採用已確認的「立體唱片架」歌手選擇，執行規劃與驗收見 [歌手入口實作計畫](docs/artist-selector-plan.md)
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
 - [ ] 決定是否把 `assets/fonts/` 210 個 subset 改為按需子集化
 - [ ] 母題只做氛圍層；五套母題（spotlight/ink/midnight/aria/neon）可再按人細修
@@ -100,6 +101,7 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 
 - 架構與設計決策 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - 進行中計畫與 UI 改進待辦 → [docs/PLAN.md](docs/PLAN.md)
+- 首頁立體唱片架執行規劃 → [docs/artist-selector-plan.md](docs/artist-selector-plan.md)
 - 決策與依據記錄 → [.agents/notes/](.agents/notes/)
 - 樣式手冊 → [css/README.md](css/README.md)
 - 腳本手冊 → [js/README.md](js/README.md)
