@@ -56,6 +56,9 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 
 - 背景分頁的 CSS transition 會被凍結在 `currentTime: 0`，此時 `getComputedStyle` 回傳起始值。
   用 Playwright 驗樣式前必須先 `bringToFront()`，否則會把測量假象誤判成 bug。見 [.agents/notes/](.agents/notes/)
+- 現代 Chrome 給普通 CSSStyleRule 也掛了空的 `cssRules` 屬性：遍歷樣式表時若以
+  `if (r.cssRules)` 判斷是否下鑽，會把全部規則當嵌套規則跳過，得到「選擇器不存在」的假象。
+  判斷必須用 `r.selectorText !== undefined`（本專案曾因此誤判級聯失效）
 - `body { overflow-x: hidden }` 會讓 `body` 成為捲動容器，導致全部 `position: sticky` 失效。
   必須用 `overflow-x: clip`，並以 `@supports not (overflow: clip)` 回退
 - 本環境截圖對 `sticky` / `fixed` 圖層不可靠，常整片回傳背景色。
