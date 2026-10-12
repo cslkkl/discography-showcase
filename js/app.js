@@ -201,21 +201,47 @@
   function finishBoot() {
     bootEl.classList.add('is-done');
     document.body.classList.add('is-ready');
+    document.documentElement.classList.add('is-ready');
+    document.documentElement.classList.remove('is-booting');
+    try {
+      /* 记一笔：同一会话里再进歌手页（切歌手）直接呈现内容，不再走开场 */
+      sessionStorage.setItem('jc-booted', '1');
+    } catch {
+      /* 隐私模式下写入会抛错，忽略 */
+    }
     setTimeout(function () {
       bootEl.style.display = 'none';
     }, 800);
   }
 
+  /* 是否跳过开场：同会话内已经看过一次就跳过（首次进入仍保留短开场） */
+  function bootSeen() {
+    try {
+      return sessionStorage.getItem('jc-booted') === '1';
+    } catch {
+      return false;
+    }
+  }
+
   function runBoot() {
-    if (REDUCED.matches) {
+    if (REDUCED.matches || bootSeen()) {
       bootYear.textContent = String(JC.stats.to);
       bootBar.style.width = '100%';
-      finishBoot();
+      bootEl.classList.add('is-done');
+      bootEl.style.display = 'none';
+      document.body.classList.add('is-ready');
+      document.documentElement.classList.add('is-ready');
+      document.documentElement.classList.remove('is-booting');
+      try {
+        sessionStorage.setItem('jc-booted', '1');
+      } catch {
+        /* 忽略 */
+      }
       return;
     }
     var from = JC.stats.from,
       to = JC.stats.to,
-      dur = 1600,
+      dur = 900,
       t0 = performance.now();
     (function step(t) {
       var p = clamp((t - t0) / dur, 0, 1);
@@ -223,7 +249,7 @@
       bootYear.textContent = String(Math.round(from + (to - from) * e));
       bootBar.style.width = p * 100 + '%';
       if (p < 1) requestAnimationFrame(step);
-      else setTimeout(finishBoot, 240);
+      else setTimeout(finishBoot, 180);
     })(t0);
   }
 
