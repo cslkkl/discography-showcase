@@ -1321,17 +1321,16 @@
     return (
       '' +
       '<div class="sheet-inner">' +
-      '<div class="sheet-art">' +
+      /* 封面 + 标题并排：窄屏也不会让大封面把试听入口推到下方 */
+      '<div class="sheet-head">' +
       '<div class="sheet-cover"><img src="' +
       a.cover +
       '" srcset="' +
       srcset(a) +
-      '" sizes="(max-width: 1100px) 92vw, 34vw" alt="' +
+      '" sizes="(max-width: 860px) 34vw, 34vw" alt="' +
       esc(a.title) +
       ' 專輯封面"></div>' +
-      facts +
-      '</div>' +
-      '<div class="sheet-main">' +
+      '<div class="sheet-headtext">' +
       '<p class="sheet-no">' +
       a.no +
       ' / ' +
@@ -1346,20 +1345,25 @@
       ' · ' +
       a.year +
       '</p>' +
-      '<p class="sheet-blurb">' +
-      esc(a.blurb) +
-      '</p>' +
       '<button class="sheet-playall" type="button" data-playall="' +
       a.id +
       '">' +
       '<svg class="ico pl-ico" viewBox="0 0 256 256" aria-hidden="true">' +
       P_PLAY +
       '</svg>' +
-      '<span>試聽整張</span></button>' +
+      '<span>試聽整張 · 30 秒</span></button>' +
+      '</div>' +
+      '</div>' +
+      '<div class="sheet-body">' +
       '<p class="sheet-sect">曲目列表</p>' +
       '<ol class="sheet-tracks">' +
       rows +
       '</ol>' +
+      /* 编辑文字与发行资料放在曲目之后：先能被听到，再被读到 */
+      '<p class="sheet-blurb">' +
+      esc(a.blurb) +
+      '</p>' +
+      facts +
       '</div>' +
       '</div>'
     );

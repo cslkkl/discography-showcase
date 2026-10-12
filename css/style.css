@@ -928,11 +928,17 @@ html.ld-booting .ht-line span {
 }
 .sheet-inner {
   max-width: var(--page); margin: 0 auto;
-  padding: clamp(30px, 4.6vw, 68px) var(--gutter) clamp(60px, 8vw, 110px);
-  display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
-  gap: clamp(30px, 5vw, 82px); align-items: start;
+  padding: clamp(24px, 3.6vw, 56px) var(--gutter) clamp(60px, 8vw, 110px);
+  display: flex; flex-direction: column;
+  gap: clamp(20px, 2.6vw, 34px);
 }
 
+/* 封面与标题并排：宽屏封面稍大，窄屏缩到 116px，试听入口始终在第一屏 */
+.sheet-head {
+  display: grid; grid-template-columns: minmax(0, 232px) minmax(0, 1fr);
+  gap: clamp(18px, 3vw, 40px); align-items: start;
+}
+.sheet-headtext { min-width: 0; }
 .sheet-art { position: sticky; top: clamp(24px, 4vh, 48px); }
 .sheet-cover {
   position: relative; border-radius: var(--r); overflow: hidden;
@@ -941,9 +947,12 @@ html.ld-booting .ht-line span {
 }
 .sheet-cover img { width: 100%; height: 100%; object-fit: cover; }
 .sheet-facts {
-  margin-top: 26px;
+  margin-top: clamp(20px, 2.6vw, 30px);
+  padding-top: clamp(18px, 2.2vw, 26px);
+  border-top: 1px solid var(--line);
   display: grid; grid-template-columns: auto 1fr; gap: 9px 22px;
   font-size: .8rem; align-items: baseline;
+  max-width: 40rem;
 }
 .sheet-facts dt { color: var(--paper-3); letter-spacing: .14em; white-space: nowrap; }
 .sheet-facts dd { color: var(--paper-2); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
@@ -1761,6 +1770,14 @@ html { scroll-padding-bottom: 96px; }
      否则 390px 下「随机一曲」会被挤出画面 */
   .tools > .lang, .tools > #randomBtn { display: none; }
   .am-tool { display: grid; }
+  /* 详情抽屉：小封面与标题并排，试听入口与曲目紧贴首屏 */
+  .sheet-inner { padding-top: 14px; gap: 16px; }
+  .sheet-head { grid-template-columns: 92px minmax(0, 1fr); gap: 14px; }
+  .sheet-title { font-size: clamp(1.5rem, 7.4vw, 2.1rem); }
+  .sheet-no { margin-bottom: 6px; font-size: .78rem; }
+  .sheet-en { margin-top: 6px; }
+  .sheet-playall { margin-top: 12px; width: 100%; justify-content: center; }
+  .sheet-sect { margin-top: 6px; }
   /* landing: 單欄，封面疊放縮小，箭頭退場 */
   .ld-link { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .lds { width: 132px; }
