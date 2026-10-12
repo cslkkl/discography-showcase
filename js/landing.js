@@ -151,4 +151,15 @@
   document.documentElement.setAttribute('data-lang', lang);
   paint();
   walk(document.body);
+
+  /* 入口的短入场：动画由 CSS 自完成（.ld-booting），这里只负责收尾，
+     去掉类名后由基础态接管，脚本失败也不会让标题停在透明 */
+  var settle = function () {
+    document.documentElement.classList.remove('ld-booting');
+    document.documentElement.classList.add('is-ready');
+  };
+  requestAnimationFrame(function () {
+    requestAnimationFrame(settle);
+  });
+  setTimeout(settle, 1400);
 })();

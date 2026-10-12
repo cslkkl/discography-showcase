@@ -371,16 +371,28 @@ main { padding-top: var(--nav-h); }
 .ht-line { display: block; padding-bottom: .1em; }
 .ht-line span {
   display: inline-block; white-space: pre;
-  transform: translateY(112%) rotate(3deg); opacity: 0;
   transition: transform 1s var(--ease), opacity 1s var(--ease);
   transition-delay: calc(var(--i, 0) * 85ms + 150ms);
 }
-.is-ready .ht-line span { transform: none; opacity: 1; }
+/* 入场前的隐藏态只挂在「确实要走开场流程」的页面（根元素 is-booting）：
+   基础态可见，脚本失败或换页遗漏都不会让标题永久透明。
+   歌手页由 boot 流程控制（is-booting → is-ready）；
+   入口页用自完成的 CSS 动画，不依赖脚本也能显示。 */
+html.is-booting .ht-line span { transform: translateY(112%) rotate(3deg); opacity: 0; }
+html.is-ready .ht-line span { transform: none; opacity: 1; }
+@keyframes ht-rise {
+  from { transform: translateY(112%) rotate(3deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+html.ld-booting .ht-line span {
+  animation: ht-rise 1s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 85ms + 140ms);
+}
 
 .hero-sub {
   font-size: clamp(.95rem, 1.15vw, 1.06rem);
-  line-height: 1.85; color: var(--paper-2);
-  margin-bottom: clamp(24px, 3.4vh, 40px);
+  line-height: 1.8; color: var(--paper-2);
+  margin-bottom: clamp(20px, 2.6vh, 32px);
 }
 .hero-sub span { display: block; }
 
@@ -1510,7 +1522,7 @@ body.has-player .sheet-inner { padding-bottom: clamp(110px, 13vw, 170px); }
 html { scroll-padding-bottom: 96px; }
 
 /* ── 26. landing (artist index) ────────────────────────────────────────── */
-.ld-hero { padding: clamp(96px, 14vw, 200px) 0 clamp(40px, 6vw, 80px); }
+.ld-hero { padding: clamp(44px, 6.4vw, 96px) 0 clamp(24px, 3.4vw, 52px); }
 .ld-inner {
   max-width: var(--page); margin: 0 auto;
   padding: 0 var(--gutter);
@@ -1526,19 +1538,19 @@ html { scroll-padding-bottom: 96px; }
 }
 .ld-seal svg { width: 100%; height: 100%; }
 .ld-seal text { font-family: var(--f-serif); font-size: 42px; fill: var(--accent); }
-.ld-title { margin: 26px 0 0; }
+.ld-title { margin: 18px 0 0; }
 .ld-title .ht-line span {
   font-family: var(--f-serif);
-  font-size: clamp(3rem, 9vw, 7rem);
+  font-size: clamp(2.5rem, 6.4vw, 5rem);
   color: var(--paper);
 }
 .ld-sub {
-  margin: 26px 0 0; display: flex; flex-direction: column; gap: 4px;
+  margin: 18px 0 0; display: flex; flex-direction: column; gap: 4px;
   font-size: clamp(.95rem, 1.6vw, 1.1rem); color: var(--paper-2);
 }
-.ld-lang { margin-top: 22px; }
+.ld-lang { margin-top: 16px; }
 
-.ld-index { padding: clamp(24px, 4vw, 56px) 0 clamp(80px, 10vw, 140px); }
+.ld-index { padding: clamp(18px, 2.6vw, 36px) 0 clamp(80px, 10vw, 140px); }
 .ld-list { list-style: none; margin: 0; padding: 0; }
 .ld-row { border-top: 1px solid var(--line); }
 .ld-row:first-child { border-top-color: var(--line-2); }
@@ -1546,9 +1558,9 @@ html { scroll-padding-bottom: 96px; }
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center; gap: clamp(18px, 3vw, 44px);
-  padding: clamp(22px, 3vw, 38px) 0;
+  padding: clamp(18px, 2.4vw, 30px) 0;
 }
-.lds { position: relative; width: clamp(96px, 12vw, 150px); aspect-ratio: 1; flex: none; }
+.lds { position: relative; width: clamp(84px, 9.6vw, 130px); aspect-ratio: 1; flex: none; }
 .lds-img {
   position: absolute; inset: 0;
   width: 62%; height: 62%; object-fit: cover; border-radius: var(--r);
