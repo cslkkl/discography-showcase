@@ -58,18 +58,20 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 
 - 歌手 5 位：jacky-cheung（40 專輯/433 曲）、jay-chou（16/175）、taylor-swift（12/174）、terry-lin（10/126）、xue-zhiqian（13/131），共 1039 曲全部可試聽
 - 主題三層實測：五位歌手各有強調色與母題（spotlight / ink / midnight / aria / neon）；同歌手每張專輯抽屜色從封面派生且互不重複
-- 入口頁渲染 5 行歌手索引（各行內聯歌手強調色）；點進歌手頁；無參數或無效 `?a=` 回入口
+- 入口頁是一台唱片架：五位歌手可逐一選中，姓名、統計、序號、強調色與 `href` 同步；
+  無參數或無效 `?a=` 回入口
 - 歌手頁 14 個展示面，12 個 `<section>`；無合作者標注的歌手（薛之謙）該區自動收起
 - `eslint .` 0 問題；`prettier --check .` 全通過
 - `check-line-endings.py` 574 檔 0 不一致；`check-markdown-links.py` 0 錯誤
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用（五位歌手各實測）
 - 全站小字下限 12px（實測 <12px 為 0）；歌手頁首屏露出下一段 23–36px
-- 入口頁桌面首屏 2 位歌手、手機 4 位；開場動畫首次 900ms，同會話切換歌手直接呈現
-- 站點截圖 18 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`
+- 入口頁是單一舞台：中央封面組 + 兩側相鄰與遠端，桌面中央封面 253–297px，
+  窄屏為可用寬度的 65%；首屏六要素在 1366×768 與 390×844 都在折線以上
+- 開場動畫首次 900ms，同會話切換歌手直接呈現
+- 站點截圖 19 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`
 
 ## 待辦
 
-- [ ] 首頁採用已確認的「立體唱片架」歌手選擇，執行規劃與驗收見 [歌手入口實作計畫](docs/artist-selector-plan.md)
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
 - [ ] 決定是否把 `assets/fonts/` 210 個 subset 改為按需子集化
 - [ ] 母題只做氛圍層；五套母題（spotlight/ink/midnight/aria/neon）可再按人細修

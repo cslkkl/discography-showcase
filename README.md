@@ -30,7 +30,7 @@
 
 **入口 · 选歌手**
 
-![入口：歌手索引](screenshots/18-landing.png)
+![入口：立体唱片架](screenshots/18-landing.png)
 
 **歌手页主视觉**
 
@@ -52,11 +52,15 @@
 
 ![数据面](screenshots/11-data.png)
 
-**移动端**
+**移动端 · 入口**
+
+![移动端入口](screenshots/19-mobile-landing.png)
+
+**移动端 · 歌手页**
 
 ![移动端主视觉](screenshots/03-mobile-hero.png)
 
-完整 18 张见 [screenshots/](screenshots/)。
+完整 19 张见 [screenshots/](screenshots/)。
 
 ## 快速开始
 
