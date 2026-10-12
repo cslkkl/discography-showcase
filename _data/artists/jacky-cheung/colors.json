@@ -1,0 +1,282 @@
+{
+  "cheung1985": {
+    "avg": "#5D4F36",
+    "vivid": "#AA9053",
+    "lum": 0.315,
+    "hue1": 45,
+    "hue2": 215
+  },
+  "cheung1986a": {
+    "avg": "#9A3535",
+    "vivid": "#B6403C",
+    "lum": 0.292,
+    "hue1": 355,
+    "hue2": 245
+  },
+  "cheung1986b": {
+    "avg": "#7F5040",
+    "vivid": "#E56D4F",
+    "lum": 0.347,
+    "hue1": 5,
+    "hue2": 55
+  },
+  "cheung1986c": {
+    "avg": "#CEA281",
+    "vivid": "#EBBC95",
+    "lum": 0.664,
+    "hue1": 25,
+    "hue2": 335
+  },
+  "cheung1987a": {
+    "avg": "#B6AEAD",
+    "vivid": "#B8917F",
+    "lum": 0.688,
+    "hue1": 25,
+    "hue2": 275
+  },
+  "cheung1987b": {
+    "avg": "#E2D0CF",
+    "vivid": "#EBB19C",
+    "lum": 0.83,
+    "hue1": 15,
+    "hue2": 215
+  },
+  "cheung1987c": {
+    "avg": "#79787C",
+    "vivid": "#AA9D95",
+    "lum": 0.474,
+    "hue1": 15,
+    "hue2": 215
+  },
+  "cheung1988": {
+    "avg": "#B27F5A",
+    "vivid": "#E6B169",
+    "lum": 0.53,
+    "hue1": 45,
+    "hue2": 355
+  },
+  "cheung1989a": {
+    "avg": "#585445",
+    "vivid": "#E3BC70",
+    "lum": 0.327,
+    "hue1": 45,
+    "hue2": 95
+  },
+  "cheung1989b": {
+    "avg": "#704E30",
+    "vivid": "#C17E3E",
+    "lum": 0.325,
+    "hue1": 25,
+    "hue2": 75
+  },
+  "cheung1990a": {
+    "avg": "#D0A56A",
+    "vivid": "#EABF73",
+    "lum": 0.666,
+    "hue1": 45,
+    "hue2": 255
+  },
+  "cheung1990b": {
+    "avg": "#414038",
+    "vivid": "#D0B47B",
+    "lum": 0.248,
+    "hue1": 45,
+    "hue2": 165
+  },
+  "cheung1991a": {
+    "avg": "#BE8369",
+    "vivid": "#F0BB92",
+    "lum": 0.555,
+    "hue1": 35,
+    "hue2": 345
+  },
+  "cheung1991b": {
+    "avg": "#110D0B",
+    "vivid": "#97764D",
+    "lum": 0.053,
+    "hue1": 35,
+    "hue2": 85
+  },
+  "cheung1992a": {
+    "avg": "#985D58",
+    "vivid": "#D24B38",
+    "lum": 0.413,
+    "hue1": 355,
+    "hue2": 205
+  },
+  "cheung1992b": {
+    "avg": "#888991",
+    "vivid": "#887671",
+    "lum": 0.539,
+    "hue1": 205,
+    "hue2": 15
+  },
+  "cheung1993a": {
+    "avg": "#93543E",
+    "vivid": "#E5A96D",
+    "lum": 0.375,
+    "hue1": 45,
+    "hue2": 355
+  },
+  "cheung1993b": {
+    "avg": "#745B56",
+    "vivid": "#DDB791",
+    "lum": 0.377,
+    "hue1": 35,
+    "hue2": 235
+  },
+  "cheung1993c": {
+    "avg": "#7E632A",
+    "vivid": "#D79C36",
+    "lum": 0.394,
+    "hue1": 45,
+    "hue2": 145
+  },
+  "cheung1994a": {
+    "avg": "#695D71",
+    "vivid": "#B698B3",
+    "lum": 0.379,
+    "hue1": 335,
+    "hue2": 265
+  },
+  "cheung1994b": {
+    "avg": "#F6E5E7",
+    "vivid": "#D95B63",
+    "lum": 0.913,
+    "hue1": 355,
+    "hue2": 235
+  },
+  "cheung1994c": {
+    "avg": "#CECDD0",
+    "vivid": "#BB869B",
+    "lum": 0.805,
+    "hue1": 335,
+    "hue2": 275
+  },
+  "cheung1995a": {
+    "avg": "#A29252",
+    "vivid": "#DDAE5C",
+    "lum": 0.566,
+    "hue1": 55,
+    "hue2": 5
+  },
+  "cheung1995b": {
+    "avg": "#664533",
+    "vivid": "#95653C",
+    "lum": 0.293,
+    "hue1": 25,
+    "hue2": 335
+  },
+  "cheung1996": {
+    "avg": "#5E3E34",
+    "vivid": "#E37A56",
+    "lum": 0.267,
+    "hue1": 15,
+    "hue2": 195
+  },
+  "cheung1997a": {
+    "avg": "#967F63",
+    "vivid": "#B9936C",
+    "lum": 0.509,
+    "hue1": 35,
+    "hue2": 165
+  },
+  "cheung1997b": {
+    "avg": "#A08DA5",
+    "vivid": "#D5B5B7",
+    "lum": 0.576,
+    "hue1": 15,
+    "hue2": 215
+  },
+  "cheung1998a": {
+    "avg": "#646881",
+    "vivid": "#98A3C6",
+    "lum": 0.412,
+    "hue1": 225,
+    "hue2": 345
+  },
+  "cheung1998b": {
+    "avg": "#396095",
+    "vivid": "#3972A7",
+    "lum": 0.359,
+    "hue1": 195,
+    "hue2": 325
+  },
+  "cheung1999a": {
+    "avg": "#40403D",
+    "vivid": "#EDCA9F",
+    "lum": 0.25,
+    "hue1": 35,
+    "hue2": 215
+  },
+  "cheung1999b": {
+    "avg": "#636877",
+    "vivid": "#A5AAB4",
+    "lum": 0.409,
+    "hue1": 205,
+    "hue2": 25
+  },
+  "cheung2000": {
+    "avg": "#B89E8D",
+    "vivid": "#E4B280",
+    "lum": 0.636,
+    "hue1": 55,
+    "hue2": 5
+  },
+  "cheung2001a": {
+    "avg": "#FFFC07",
+    "vivid": "#FFFC0A",
+    "lum": 0.922,
+    "hue1": 55,
+    "hue2": 5
+  },
+  "cheung2001b": {
+    "avg": "#76523A",
+    "vivid": "#B58256",
+    "lum": 0.346,
+    "hue1": 15,
+    "hue2": 65
+  },
+  "cheung2002": {
+    "avg": "#675F5B",
+    "vivid": "#DD9A7D",
+    "lum": 0.378,
+    "hue1": 15,
+    "hue2": 205
+  },
+  "cheung2004a": {
+    "avg": "#FDF7F4",
+    "vivid": "#E99381",
+    "lum": 0.973,
+    "hue1": 15,
+    "hue2": 205
+  },
+  "cheung2004b": {
+    "avg": "#5E3C46",
+    "vivid": "#451E2F",
+    "lum": 0.267,
+    "hue1": 335,
+    "hue2": 25
+  },
+  "cheung2007": {
+    "avg": "#A1958F",
+    "vivid": "#CE9A83",
+    "lum": 0.593,
+    "hue1": 25,
+    "hue2": 335
+  },
+  "cheung2010": {
+    "avg": "#4F4D4C",
+    "vivid": "#68562F",
+    "lum": 0.303,
+    "hue1": 45,
+    "hue2": 225
+  },
+  "cheung2014": {
+    "avg": "#7D868F",
+    "vivid": "#627284",
+    "lum": 0.52,
+    "hue1": 215,
+    "hue2": 25
+  }
+}
