@@ -51,11 +51,12 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - `eslint .` 0 問題；`prettier --check .` 全通過
 - `check-line-endings.py` 574 檔 0 不一致；`check-markdown-links.py` 0 錯誤
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用（五位歌手各實測）
+- 全站小字下限 12px（實測 <12px 為 0）；歌手頁首屏露出下一段 23–36px
+- 入口頁桌面首屏 2 位歌手、手機 4 位；開場動畫首次 900ms，同會話切換歌手直接呈現
 - 截圖 18 張，見 `screenshots/`
 
 ## 待辦
 
-- [ ] UI 改進：按顯示與導覽、目錄與試聽、視覺細節三階段推進，詳見 [UI 改進待辦](docs/PLAN.md#ui-改進待辦)
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
 - [ ] 決定是否把 `assets/fonts/` 210 個 subset 改為按需子集化
 - [ ] 母題只做氛圍層；五套母題（spotlight/ink/midnight/aria/neon）可再按人細修
@@ -63,6 +64,10 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 
 ## 活躍坑
 
+- 去重守衛的自訂量初值必須是「未選中」：年輪讀數的 `ringsLive` 初值為 0，
+  導致首次 `setRingLive(0)` 被 `if (i === ringsLive) return` 擋掉，讀數永不填充（初值改 -1）
+- 改 CSS 變數類的批量替換要掃全量：本專案曾只替換 `.66/.68/.72/.74rem`，
+  漏掉 `.6rem` 與 `.7rem`，字號下限沒真正落地
 - 背景分頁的 CSS transition 會被凍結在 `currentTime: 0`，此時 `getComputedStyle` 回傳起始值。
   用 Playwright 驗樣式前必須先 `bringToFront()`，否則會把測量假象誤判成 bug。見 [.agents/notes/](.agents/notes/)
 - 現代 Chrome 給普通 CSSStyleRule 也掛了空的 `cssRules` 屬性：遍歷樣式表時若以
