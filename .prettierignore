@@ -15,12 +15,12 @@ _data/gf.css
 _data/albums-raw.json
 _data/colors.json
 
-# ── 刻意保留手写排版的展示层 ────────────────────────────────────────────
+# ── 刻意保留手写排版的文档层 ────────────────────────────────────────────
 # css/style.css 与 index.html 采用紧凑分组写法（一行放多个相关属性），
 # 是刻意的可读性选择；Prettier 会把 style.css 从 1564 行拆到 3067 行。
-# README.md 为中文文档，按句断行，Prettier 会重排表格填充。
-# 三者的格式一致性靠 .editorconfig 与 review 保证。
+# 各 README / AGENTS 为中文文档，按句断行，Prettier 会重排表格填充与换行。
+# 格式一致性靠 .editorconfig 与 review 保证。
 # 若要全量统一：删掉下面三行，跑 npm run format 即可。
 css/style.css
 index.html
-README.md
+*.md

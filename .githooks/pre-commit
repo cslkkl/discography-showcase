@@ -1,0 +1,45 @@
+#!/bin/sh
+# 本地門禁：只跑本次改動觸達的檢查，全量交給 CI。
+# 安裝：git config core.hooksPath .githooks
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+PYTHONIOENCODING=utf-8
+export PYTHONIOENCODING
+
+fail=0
+
+# 行尾：對所有暫存的文字檔
+text=$(printf '%s\n' "$staged" | grep -Ei '\.(js|mjs|json|css|html|md|py|ya?ml|ps1)$' || true)
+if [ -n "$text" ]; then
+  echo "[hooks] 行尾校驗"
+  printf '%s\n' "$text" | while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    python scripts/check-line-endings.py "$f" --quiet || exit 1
+  done || fail=1
+fi
+
+# 程式碼：只查暫存的 js/mjs
+code=$(printf '%s\n' "$staged" | grep -Ei '\.(js|mjs)$' | grep -v '^js/data.js$' || true)
+if [ -n "$code" ]; then
+  echo "[hooks] ESLint + Prettier"
+  npx --no-install eslint $code || fail=1
+  npx --no-install prettier --check $code || fail=1
+fi
+
+# 文件：只查暫存的 md
+docs=$(printf '%s\n' "$staged" | grep -Ei '\.md$' || true)
+if [ -n "$docs" ]; then
+  echo "[hooks] 連結校驗"
+  python scripts/check-markdown-links.py $docs --fragments || fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+  echo "[hooks] 未通過，已阻止提交。修正後重試。"
+  exit 1
+fi
+
+echo "[hooks] 通過"
