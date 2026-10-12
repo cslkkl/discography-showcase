@@ -102,12 +102,38 @@ node _data/serve.mjs 8099
 鍵為 `專輯id-曲目序號`（如 `jay2000`、`busy2007`）。`npm run build` 之後本機檔案優先，
 官方試聽留作後備。
 
+## 想加一位歌手
+
+收錄一位新歌手不需要改任何程式，只要新增一個資料夾：
+
+```
+_data/artists/<歌手id>/
+├── albums-raw.json   事實：發行日、曲目、時長、封面鍵、試聽網址
+├── colors.json       事實：各封面平均色（由腳本生成）
+└── meta.mjs          唯一手寫層：身份、每張專輯的介紹、代表曲、年代分期、主題
+```
+
+抓取與生成都有現成腳本，完整六步見
+[_data/artists/README.md](_data/artists/README.md)：
+
+```powershell
+node _data/fetch-artist.mjs --list  --itunes-id <歌手id> --country tw
+node _data/fetch-artist.mjs --fetch --itunes-id <歌手id> --artist <歌手id> --keys "<collectionId=鍵, ...>"
+powershell -File _data/make-responsive-covers.ps1
+powershell -File _data/extract-colors.ps1 -Artist <歌手id>
+# 然後手寫 meta.mjs，最後：
+npm run build
+```
+
+建置後入口頁會多出一行，歌手頁的主題（強調色、印章、題名、母題）全由
+`meta.mjs` 的 `theme` 驅動；`build.mjs` 不必改動。
+
 ## 授權
 
 本倉含第三方版權素材（封面與錄音），因此**不附開源授權，也不授權轉載**。
 
 - 站點程式碼與編輯文字：個人非商業作品，預設保留所有權利；觀看與學習無妨
-- 封面圖像與錄音：權利屬 JVR Music International Ltd.，本站僅作個人非商業收藏陳列
+- 封面圖像與錄音：權利屬各自權利人（見各歌手目錄的發行資訊），本站僅作個人非商業收藏陳列
 - 想為其他歌手做同類陳列：資料管線可直接復用，素材請使用你自己取得授權的
 
 ## 貢獻
