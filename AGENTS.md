@@ -38,8 +38,10 @@ npm run hooks:install  # 啟用 .githooks（新複製倉庫後跑一次）
 - 16 專輯 / 175 曲目 / 175 首可試聽（Apple 官方 30 秒片段）
 - 14 個展示面，12 個 `<section>`
 - `eslint .` 0 問題；`prettier --check .` 全通過
-- `check-line-endings.py` 306 檔 0 不一致
+- `check-line-endings.py` 326 檔 0 不一致
+- `check-markdown-links.py` 19 檔 40 連結 0 錯誤
 - 結構計數 20 項實測 0 不符；`file://` 與 `http://` 兩條路徑皆可播放
+- 播放四態實測：空閒序號 / 播放中朱砂底深墨暫停符 / 已暫停 / 關閉清空
 - 截圖 17 張，見 `screenshots/`
 
 ## 待辦
