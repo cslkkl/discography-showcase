@@ -1,7 +1,8 @@
 # 声之年轮 — 维护索引
 
-多歌手唱片陳列站：以年輪與數據陳列歌手的完整錄音室目錄，現收錄周杰倫。
-零執行期依賴，無建置步驟，`index.html` 選歌手、`artist.html` 陳列。
+多歌手唱片陳列站：以年輪與數據陳列歌手的完整錄音室目錄。
+現收錄周杰倫、泰勒絲、薛之謙。零執行期依賴，無建置步驟，
+`index.html` 選歌手、`artist.html` 陳列。
 
 ## 全局規則
 
@@ -41,20 +42,20 @@ npm run hooks:install  # 啟用 .githooks（新複製倉庫後跑一次）
 
 CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂移先報告再改。
 
-- 歌手 1 位（jay-chou）；16 專輯 / 175 曲目 / 175 首可試聽（Apple 官方 30 秒片段）
-- 入口頁渲染歌手索引，點進歌手頁；無參數或無效 `?a=` 回入口
-- 歌手頁 14 個展示面，12 個 `<section>`；結構計數 20 項實測 0 不符
+- 歌手 3 位：jay-chou（16 專輯/175 曲）、taylor-swift（12 專輯/174 曲）、xue-zhiqian（13 專輯/131 曲），共 480 曲全部可試聽
+- 主題三層實測：三位歌手各有強調色與母題（ink / midnight / neon）；同一歌手每張專輯的抽屜強調色從封面派生且互不重複
+- 入口頁渲染 3 行歌手索引（各行內聯歌手強調色）；點進歌手頁；無參數或無效 `?a=` 回入口
+- 歌手頁 14 個展示面，12 個 `<section>`；薛之謙無合作者標注，合作者區自動收起
 - `eslint .` 0 問題；`prettier --check .` 全通過
-- `check-line-endings.py` 330 檔 0 不一致；`check-markdown-links.py` 0 錯誤
-- `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用
-- 播放四態實測：空閒序號 / 播放中朱砂底深墨暫停符 / 已暫停 / 關閉清空
+- `check-line-endings.py` 0 不一致；`check-markdown-links.py` 0 錯誤
+- `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用（三位歌手各實測）
 - 截圖 18 張，見 `screenshots/`
 
 ## 待辦
 
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
 - [ ] 決定是否把 `assets/fonts/` 210 個 subset 改為按需子集化
-- [ ] 新增第二位歌手（流程見 [_data/artists/README.md](_data/artists/README.md)）
+- [ ] 母題目前只做氛圍（暈染與光帶）；第二位歌手上線後按人再細修各自的母題
 
 ## 活躍坑
 
@@ -70,7 +71,9 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 全螢幕 `mix-blend-mode` 顆粒會讓每一幀重繪整個視口，改為靜態
 - `.rack-pin` 用 `overflow: hidden` 或 `will-change` 都會破壞 sticky，用 `clip`
 - PowerShell `Set-Content` 預設寫 CRLF，會讓 `.json` 變成純 CRLF；提交前跑 `check:eol`
-- iTunes 回傳的日文新字體（説 / 啓 / 晩 / 涙）需經 `KANJI_FIX` 轉正
+- iTunes 回傳的日文新字體（説 / 啓 / 晩 / 涙）需經該歌手 meta.mjs 的 kanjiFix 轉正
+- 大陸歌手在 TW 店的目錄元数据可能已是繁體（如薛之謙）；若遇到簡體來源，
+  繁體模式下曲目名會保持簡體，須在該歌手 meta.mjs 註明
 
 ## 文檔地圖
 

@@ -15,11 +15,15 @@ artists/<id>/
 
 ## 新增一位歌手的步驟
 
-1. `_data/artists/<id>/albums-raw.json`：放該歌手的目錄事實。
-   可參照 `jay-chou/albums-raw.json` 的形狀，由 iTunes Lookup 抓取
-2. 封面：`assets/covers/<專輯id>.jpg`（1200px），跑
-   `make-responsive-covers.ps1` 產生 480 / 960 兩檔。
-   專輯 id 全局唯一，慣例為「歌手前綴 + 年份」
+1. `_data/artists/<id>/albums-raw.json`：抓目錄事實。
+   先列候選：`node _data/fetch-artist.mjs --list --itunes-id <歌手id> --country tw`
+   再抓取（含封面下載與試聽網址）：
+   `node _data/fetch-artist.mjs --fetch --itunes-id <歌手id> --artist <id> --keys "<collectionId=鍵, ...>"`
+   歌手 id 可用 `search?term=<名>&entity=musicArtist` 查詢。
+   只挑錄音室專輯：排除單曲、EP、現場、卡拉OK版與精選混音；拿不準的先看曲目再決定
+2. 封面：1200px 原圖由抓取腳本自動下載到 `assets/covers/<專輯id>.jpg`，跑
+   `make-responsive-covers.ps1` 產生 480 / 960 兩檔（掃整個目錄，補齊缺失的）。
+   專輯 id 全局唯一，慣例為「歌手前綴 + 年份」，同年撞車加 a/b 後綴
 3. `_data/artists/<id>/colors.json`：跑
    `extract-colors.ps1 -Artist <id>`
 4. `_data/artists/<id>/meta.mjs`：手寫編輯層。必填欄位見

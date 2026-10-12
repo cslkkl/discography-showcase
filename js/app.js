@@ -2247,6 +2247,11 @@
     renderFacts();
     renderRanks();
     renderCollab();
+    /* 这位歌手的曲目不用 feat./with 标注时没有合作者可列：整段收起 */
+    if (!JC.collaborators.length) {
+      var collab = $('#collab');
+      if (collab) collab.hidden = true;
+    }
     renderPicks();
     renderCatBase();
     initAudio();

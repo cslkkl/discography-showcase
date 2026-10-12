@@ -1,0 +1,1364 @@
+[
+  {
+    "key": "ts2006",
+    "collectionId": 1860454442,
+    "collectionName": "Taylor Swift",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2006-10-24T07:00:00Z",
+    "trackCount": 11,
+    "copyright": "℗ 2006 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d0/f1/e0/d0f1e04e-a58c-7dc8-15d2-79c62dd94e5a/06PNDIM00825.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Tim McGraw",
+        "time": 232107,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5c/d4/7f/5cd47fdb-0eea-82fe-5563-3c6b240ca103/mzaf_14045421504859805437.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Picture To Burn",
+        "time": 173067,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e8/9d/28/e89d2889-49a8-86ee-b32d-d617e26220ac/mzaf_8788080837544301257.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Teardrops On My Guitar (Radio Single Remix)",
+        "time": 203040,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a7/f8/74/a7f874e2-255d-64b2-ac68-132c29650f4c/mzaf_2793579790089878128.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "A Place in this World",
+        "time": 199200,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d4/bc/61/d4bc61e3-df3e-4f14-f4dd-a42ef69f9ba6/mzaf_69261846477125389.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "Cold As You",
+        "time": 239013,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3b/55/47/3b5547c1-9b5e-ca22-ff37-b5f6741c251d/mzaf_8448233427025018456.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "The Outside",
+        "time": 207107,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7e/ad/42/7ead42fc-6417-cc5c-146a-b9a3248cb01a/mzaf_4355084721491478211.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Tied Together with a Smile",
+        "time": 248107,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b4/a3/89/b4a3896e-1c1d-50ce-01d1-52824494d72c/mzaf_11984705982660838266.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Stay Beautiful",
+        "time": 236053,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/17/06/db/1706db98-9194-2112-ef44-63cf446bde8c/mzaf_8543157468882524480.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Should've Said No",
+        "time": 242200,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3e/bf/77/3ebf77cb-44ba-0284-605f-7209e5a829bc/mzaf_3488881814083079233.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "Mary's Song (Oh My My My)",
+        "time": 213080,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/59/34/19/59341952-0385-c5fd-73a9-e8427109d53e/mzaf_12929929352432222196.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Our Song",
+        "time": 201107,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/34/8b/f6/348bf677-b7e3-4103-e2cb-54b21f2f1916/mzaf_5925636344887404918.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2008",
+    "collectionId": 1440924803,
+    "collectionName": "Fearless",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2008-11-11T08:00:00Z",
+    "trackCount": 13,
+    "copyright": "℗ 2008 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/cb/6e/a7/cb6ea70a-6cb8-89a0-4da7-91e2d04a7bba/08PNDIM05386.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Fearless",
+        "time": 241987,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/72/d5/bd/72d5bd64-fe08-6b73-5edd-dba7a8ee763f/mzaf_8365418484524677728.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Fifteen",
+        "time": 294333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/44/8f/8b448fad-c136-aacc-6dda-40b633856d3d/mzaf_10647684242144573429.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Love Story",
+        "time": 235267,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/44/8a/a4/448aa432-42ae-8075-fe00-5f2deffe9896/mzaf_13232029737890307916.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Hey Stephen",
+        "time": 254307,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6c/fe/92/6cfe9290-7b3b-218d-97f7-81b6638e9c89/mzaf_9958206081926915820.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "White Horse",
+        "time": 234427,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0f/88/44/0f884467-265a-7ff4-dae0-ec7dfbf6b981/mzaf_6444542314158758854.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "You Belong With Me",
+        "time": 231133,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2c/6e/b8/2c6eb87b-a89c-98b0-f4c3-94846613b36b/mzaf_10934143866669182930.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Breathe (feat. Colbie Caillat)",
+        "time": 263973,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/54/30/145430c3-40dd-bb65-c3e7-2171a76d171d/mzaf_14702657826970897622.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Tell Me Why",
+        "time": 200547,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/00/a2/0c00a234-706f-f796-6cfc-8ff7f9ed4795/mzaf_3070150984629930948.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "You're Not Sorry",
+        "time": 261787,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/db/16/80/db168058-3bc9-4188-666f-6eecdf66f2e7/mzaf_15987309412484615273.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "The Way I Loved You",
+        "time": 244227,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d0/a7/92/d0a79229-928e-6e63-5f28-4450c1469402/mzaf_17880180133612511364.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Forever & Always",
+        "time": 225320,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cd/97/57/cd97571d-d454-e210-22af-0f1d86738353/mzaf_212987650490247690.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "The Best Day",
+        "time": 245333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7c/39/fc/7c39fc16-b1e0-fef0-9e1e-b68c8cea9f8e/mzaf_3918348297170302433.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "Change",
+        "time": 280240,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/60/44/bb/6044bb4f-583d-7171-ac26-c5ed174803c0/mzaf_13621487928833521845.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2010",
+    "collectionId": 1440724790,
+    "collectionName": "Speak Now (Bonus Track Version)",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2010-01-01T08:00:00Z",
+    "trackCount": 15,
+    "copyright": "℗ 2010 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/14/b0/54/14b054b1-cd29-6148-9141-3d7a05572cdf/10UMGIM23564.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Mine",
+        "time": 230547,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bb/72/2a/bb722adc-4002-3ec5-bb42-eb862edd0915/mzaf_16234958255042642004.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Sparks Fly",
+        "time": 260947,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/96/ee/48/96ee4850-4a7f-8317-7a75-475a48864fd9/mzaf_1643780408185744464.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Back to December",
+        "time": 293040,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c9/57/85/c957857b-13da-b6fe-a9d1-3a8db3fd9cbc/mzaf_8115582207057851058.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Speak Now",
+        "time": 240773,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/37/e3/6d/37e36d82-3a38-a3bc-c632-5e9e00aa0a7e/mzaf_8342262719548650635.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "Dear John",
+        "time": 403888,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ae/81/ee/ae81ee61-59d3-9b63-e144-e98c5cbd187e/mzaf_13750519789637160570.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "Mean",
+        "time": 237747,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5b/fb/5d/5bfb5d49-76a2-189d-5713-1b5303b4c5a1/mzaf_16812510034604949671.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "The Story of Us",
+        "time": 265636,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/63/3f/e0/633fe0a8-dd8b-f3d5-d8bb-cb7f78054a06/mzaf_2052763986815875336.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Never Grow Up",
+        "time": 290480,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fb/e9/d3/fbe9d354-35a0-dcfa-67d0-b245e2de32b3/mzaf_7574113724132159665.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Enchanted",
+        "time": 352200,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3a/5f/74/3a5f74f9-02ff-d298-48ef-f7881182d79e/mzaf_118107136522514476.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "Better Than Revenge",
+        "time": 217173,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b6/24/09/b624090c-195b-80d1-585d-802219d29e08/mzaf_17617552075522675559.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Innocent",
+        "time": 302267,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/38/fc/a9/38fca996-d180-40ce-10f8-296adb5330e9/mzaf_2583187146526283985.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "Haunted",
+        "time": 242093,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/46/37/95/4637951b-ab50-41bb-b0f0-ec8ba8bf13d1/mzaf_2593137433389153820.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "Last Kiss",
+        "time": 367147,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/83/34/41/833441ef-d2cb-1e98-735f-effb2339fdae/mzaf_11377642268866746082.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "Long Live",
+        "time": 317960,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/89/21/c1/8921c1a3-1b80-ae90-c889-8f5750ffe2af/mzaf_4698932268898569935.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "Mine (US Version)",
+        "time": 231520,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b5/26/32/b52632c5-0d53-2f6a-efda-4c7e6eff3512/mzaf_7458412245109331845.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2012",
+    "collectionId": 1440935340,
+    "collectionName": "Red",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2012-01-01T08:00:00Z",
+    "trackCount": 16,
+    "copyright": "℗ 2012 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/25/0d/7e/250d7e42-3a2f-19ac-f865-f1e04a4a1f97/12UMDIM01007.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "State of Grace",
+        "time": 295725,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/93/c6/2593c6d9-c772-6eb3-40ed-05def6b3798e/mzaf_7158173573641504053.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Red",
+        "time": 223091,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/75/ef/46/75ef46c9-343a-bc96-eb3a-8b1e3f3a6c6a/mzaf_16182092304388650096.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Treacherous",
+        "time": 242760,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9b/bb/1a/9bbb1a79-5006-436a-036c-a8fe516e55a8/mzaf_17403530764019494490.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "I Knew You Were Trouble",
+        "time": 219721,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c4/bf/06/c4bf0627-2238-8705-f712-167e1cc95a7d/mzaf_2642564076851602245.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "All Too Well",
+        "time": 329164,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ca/b5/b8/cab5b86a-6aac-091d-c4c9-9966b28d8dda/mzaf_4511149903943242628.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "22",
+        "time": 232120,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/95/e7/bb/95e7bb40-f0e3-11c1-08d4-73626d8d8e94/mzaf_6190233390504127357.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "I Almost Do",
+        "time": 244560,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4a/4b/57/4a4b573c-abbb-d568-d8c4-d7f064f8495a/mzaf_18236578701001613820.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "We Are Never Ever Getting Back Together",
+        "time": 193144,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d6/c8/64/d6c864a4-4bae-ee81-be9e-ef0beb97ccb1/mzaf_8891089632729595012.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Stay Stay Stay",
+        "time": 205854,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/77/68/877768ed-dc3a-b970-301c-829dd3ff7bd4/mzaf_2663189349002115754.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "The Last Time (feat. Gary Lightbody)",
+        "time": 299011,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6f/d8/28/6fd82876-7a1d-f462-235b-f2e97c28e04d/mzaf_8100061521572422123.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Holy Ground",
+        "time": 202960,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ad/c2/0b/adc20bac-158f-5725-4ca7-8e6a4417ed14/mzaf_11691136918561273343.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "Sad Beautiful Tragic",
+        "time": 284873,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4c/44/86/4c4486b3-ff8f-df59-4cbb-920a22c31d51/mzaf_17585659685125316197.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "The Lucky One",
+        "time": 240262,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b3/75/58/b37558a1-bca7-202f-5da1-b61fa76a6924/mzaf_12547091229609170287.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "Everything Has Changed (feat. Ed Sheeran)",
+        "time": 245417,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f6/fc/f1/f6fcf1b6-4629-b25f-de5a-378dfe546eb6/mzaf_8013627133740808974.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "Starlight",
+        "time": 220595,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/45/b1/5b/45b15bdb-bd78-cc05-7a77-6d58f1f3c158/mzaf_3923394361343932603.plus.aac.p.m4a"
+      },
+      {
+        "n": 16,
+        "disc": 1,
+        "name": "Begin Again",
+        "time": 237600,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9c/b2/d4/9cb2d48d-4835-58c2-c9b3-8048d7597142/mzaf_16052895145684205949.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2014",
+    "collectionId": 1445888258,
+    "collectionName": "1989",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2014-01-01T08:00:00Z",
+    "trackCount": 13,
+    "copyright": "℗ 2014 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/32/1d/8e/321d8e9e-d806-b545-fd30-5c7aef575abc/14UMGIM34829.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Welcome To New York",
+        "time": 212600,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/20/94/e2/2094e235-6b15-b50b-0cc8-22525f1a6f16/mzaf_9780565809020218502.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Blank Space",
+        "time": 231833,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/03/ff/7f03ff2e-66e1-0675-04e3-e38bf61ceeb8/mzaf_2677213884751113961.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Style",
+        "time": 231000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/28/77/36/28773617-eda4-d33d-70f2-23a9dbb08d65/mzaf_13962566637593274280.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Out of the Woods",
+        "time": 235800,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c8/10/12/c8101224-2a99-9729-83cd-f08ad971bdb7/mzaf_4811570493655326069.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "All You Had To Do Was Stay",
+        "time": 193289,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/62/31/2d/62312d68-4906-1d0b-76c4-4311b1265716/mzaf_8509228565261212423.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "Shake It Off",
+        "time": 219209,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/82/9a/55/829a551a-461c-f1d8-818d-ddedb090791d/mzaf_3170634596127872695.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "I Wish You Would",
+        "time": 207435,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e7/d3/9e/e7d39e14-886c-17f0-5716-cb559fc54082/mzaf_16093015524572920363.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Bad Blood",
+        "time": 211933,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/18/cd/5b/18cd5b49-a2e2-f5a9-2a14-063768d33308/mzaf_10473831074441555801.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Wildest Dreams",
+        "time": 220433,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b3/71/df/b371df5a-2196-8492-654d-445955b2afc5/mzaf_11948628759419776446.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "How You Get the Girl",
+        "time": 247533,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/68/aa/9868aa7f-1b8f-c1e4-6a0b-1239e610bc28/mzaf_11642693683806161330.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "This Love",
+        "time": 250100,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/a5/04/e2a504c6-1efa-61f1-63ca-e012f0d2e2ae/mzaf_9222210441726980239.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "I Know Places",
+        "time": 195700,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/48/f3/2148f3af-2a4d-a630-17ee-4872ca53ec51/mzaf_14871172453611716427.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "Clean",
+        "time": 271000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/34/44/e5/3444e5c3-8fe6-575e-326f-bd071aa59082/mzaf_3075845460362433946.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2017",
+    "collectionId": 1440933849,
+    "collectionName": "reputation",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2017-11-10T08:00:00Z",
+    "trackCount": 15,
+    "copyright": "℗ 2017 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/eb/e6/06/ebe606da-e00f-82d3-47f3-b79904eed541/17UM1IM24651.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "...Ready For It?",
+        "time": 208198,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ec/4c/66/ec4c6665-6fdd-e31f-984d-60ab919e865b/mzaf_11118961438428757175.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "End Game (feat. Ed Sheeran & Future)",
+        "time": 244821,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0a/e5/28/0ae52806-8f53-89af-17a7-870ec7afbafa/mzaf_8134453282110182509.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "I Did Something Bad",
+        "time": 238251,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b5/0f/ad/b50fad30-c845-feb5-11f5-daa615684c25/mzaf_1013641343442858000.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Don’t Blame Me",
+        "time": 236414,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/89/7f/e3/897fe3af-e50c-5056-76c8-94d944406980/mzaf_5316514300927719419.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "Delicate",
+        "time": 232251,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a7/24/e8/a724e804-d5df-f7a7-24cc-09df9df57a79/mzaf_4087189896444308455.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "Look What You Made Me Do",
+        "time": 211859,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3b/26/64/3b26645a-2c49-f0c7-fa6d-be6ad83b0ae9/mzaf_4194244291813253017.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "So It Goes...",
+        "time": 227905,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f6/c6/7b/f6c67ba8-3d98-8fac-5d18-6b2ee6141cfe/mzaf_11116889445673600006.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Gorgeous",
+        "time": 209677,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b5/c7/76/b5c77613-f75e-1895-f9ed-a39a0907dec0/mzaf_8863959442271111939.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Getaway Car",
+        "time": 233626,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4b/db/4c/4bdb4c1e-e19e-5e71-1b49-8a1eaad716ba/mzaf_13094202028105221330.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "King of My Heart",
+        "time": 214327,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/aa/8f/b3/aa8fb3e8-a650-2cd8-3c7f-c6cb8a9f120a/mzaf_9099117291445889903.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Dancing With Our Hands Tied",
+        "time": 211497,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4d/24/88/4d24885e-992a-7041-832e-46553cc9e0fb/mzaf_2207202347543526977.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "Dress",
+        "time": 230385,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f9/b9/a0/f9b9a02c-ab34-fc11-38c9-03123fce5af3/mzaf_11239960203526844288.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "This Is Why We Can’t Have Nice Things",
+        "time": 207126,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5c/85/6d/5c856d92-25c5-32aa-d195-ae540c38a4fe/mzaf_643501702544204130.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "Call It What You Want",
+        "time": 203506,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8f/f7/b9/8ff7b9d6-cc79-e3f4-cabe-dd389fbc238b/mzaf_2380187364781949116.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "New Year’s Day",
+        "time": 235456,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/df/14/1d/df141dfe-92f9-8293-9043-4d1f9da23227/mzaf_14994574548118643059.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2019",
+    "collectionId": 1468058165,
+    "collectionName": "Lover",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2019-08-23T07:00:00Z",
+    "trackCount": 18,
+    "copyright": "℗ 2019 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/49/3d/ab/493dab54-f920-9043-6181-80993b8116c9/19UMGIM53909.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "I Forgot That You Existed",
+        "time": 170651,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/9c/e2/97/9ce2976a-b1c8-aa80-3e94-f4562cbad53e/mzaf_11906958635430192793.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Cruel Summer",
+        "time": 178426,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/af/81/44af8168-9609-1b85-5048-ada08dceacf3/mzaf_1341699644335558812.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Lover",
+        "time": 221300,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e0/db/47/e0db47b0-7f70-0631-0414-cd4777d2fb3e/mzaf_6362891154838442638.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "The Man",
+        "time": 190363,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3b/b7/c6/3bb7c6f7-d06f-f91c-7801-0ed0a6257e1c/mzaf_12747815097409700369.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "The Archer",
+        "time": 211235,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/f2/f1/20f2f134-3309-4185-a94a-60874c49d529/mzaf_191729209789352081.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "I Think He Knows",
+        "time": 173396,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/36/5e/3f/365e3fba-8094-a148-2bd4-3dd6a0955ffe/mzaf_9018492115665734709.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Miss Americana & The Heartbreak Prince",
+        "time": 234137,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8e/94/60/8e946056-a91f-77be-f615-f4f717908723/mzaf_9075445817267686583.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Paper Rings",
+        "time": 222407,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/05/2d/b7/052db7e1-e5cf-bfba-c309-9b3e31edeb37/mzaf_11390896675529863162.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Cornelia Street",
+        "time": 287267,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6a/f9/32/6af93277-3dca-7a00-edd0-5386ce4dd123/mzaf_18277705604040396242.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "Death By A Thousand Cuts",
+        "time": 198530,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8d/c5/6a/8dc56a4e-ea68-b459-9797-d6930467b414/mzaf_9247743533036363661.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "London Boy",
+        "time": 190239,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f2/34/0c/f2340c41-81b0-a5f6-b61b-6f41a395d6c4/mzaf_7441079905742391154.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "Soon You’ll Get Better (feat. The Chicks)",
+        "time": 201590,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/67/1d/fb/671dfbf5-1b2a-3809-1e6c-c834fb737478/mzaf_6885608076404289573.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "False God",
+        "time": 200310,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d5/3e/67/d53e6714-03cb-7365-9351-c280e8abac35/mzaf_10316874145459051650.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "You Need To Calm Down",
+        "time": 171352,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e8/80/4f/e8804fa1-6118-74fd-4602-b96969ebef41/mzaf_5457103975229379192.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "Afterglow",
+        "time": 223295,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/eb/86/30/eb863040-ef55-fa8e-cb45-e27cedbe9e46/mzaf_5312643549713230502.plus.aac.p.m4a"
+      },
+      {
+        "n": 16,
+        "disc": 1,
+        "name": "ME! (feat. Brendon Urie of Panic! At The Disco)",
+        "time": 193000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c5/6f/e3/c56fe3a6-2f25-b545-6135-aaba0a838569/mzaf_1819099962104489735.plus.aac.p.m4a"
+      },
+      {
+        "n": 17,
+        "disc": 1,
+        "name": "It’s Nice To Have A Friend",
+        "time": 150435,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/75/0c/94750c81-f080-d583-650f-9b96df6709cb/mzaf_14727730034427264252.plus.aac.p.m4a"
+      },
+      {
+        "n": 18,
+        "disc": 1,
+        "name": "Daylight",
+        "time": 293435,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9d/10/f6/9d10f6cc-8fa8-8ea1-1323-edabdcdeadae/mzaf_15969938021558823306.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2020a",
+    "collectionId": 1524801260,
+    "collectionName": "folklore",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2020-07-24T07:00:00Z",
+    "trackCount": 16,
+    "copyright": "℗ 2020 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/ca/f3/67/caf367a5-2cf6-6b2e-a891-97dc57b19f08/20UMGIM64216.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "the 1",
+        "time": 210252,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/67/0a/ee/670aeea9-75d2-f8df-b35f-39027162674a/mzaf_12236025876859081774.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "cardigan",
+        "time": 239560,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/b3/f2/00b3f2a0-3228-b65f-7189-91eb26f5adf6/mzaf_3535055549125623460.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "the last great american dynasty",
+        "time": 230999,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/36/b9/f3/36b9f31b-382d-aa3c-c88a-487c29f4383f/mzaf_3452991962941549221.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "exile (feat. Bon Iver)",
+        "time": 285634,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6d/26/64/6d2664e3-2ef7-73cb-97d3-7a2957e90f51/mzaf_18258295615522433983.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "my tears ricochet",
+        "time": 255894,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b4/a8/d2/b4a8d2b3-abfa-380d-104e-6b75b9cdbb6b/mzaf_5532311754651667055.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "mirrorball",
+        "time": 208978,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1d/8f/f8/1d8ff8ae-634e-471a-0580-63057456c658/mzaf_16257507988012315660.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "seven",
+        "time": 208907,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d5/6a/2f/d56a2fcf-d564-79c2-63f5-f8824102ffe1/mzaf_4687158937847822049.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "august",
+        "time": 261923,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fc/4c/4c/fc4c4cfb-b58d-ba29-8ce4-b7dfb5bb0053/mzaf_9441217196537110708.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "this is me trying",
+        "time": 195097,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b0/db/d6/b0dbd66a-03ce-828e-140c-86ebeb00f1a9/mzaf_7144195487915792610.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "illicit affairs",
+        "time": 190898,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6d/92/94/6d929431-0146-ebfc-47f5-a64fc373a657/mzaf_10676383692117529405.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "invisible string",
+        "time": 252881,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/24/0e/1a/240e1aae-eb56-385d-924c-0f5f774be9a2/mzaf_5738019719366696397.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "mad woman",
+        "time": 237258,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/24/53/7f245327-3072-1834-055b-c4d5bbe9bdb5/mzaf_15286342728543483276.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "epiphany",
+        "time": 289749,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/90/37/90/903790bd-2f45-4b8a-dcf8-a6bfb87566ef/mzaf_3765256417757087073.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "betty",
+        "time": 294521,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7f/41/3d/7f413d9a-18f7-4c07-0906-28300ac75525/mzaf_2040574902333805829.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "peace",
+        "time": 234000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c0/64/6b/c0646b4d-652a-da0c-1f70-21ab30397cc1/mzaf_15725373814698084183.plus.aac.p.m4a"
+      },
+      {
+        "n": 16,
+        "disc": 1,
+        "name": "hoax",
+        "time": 220043,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/64/d4/2564d461-5e8c-0b37-1630-bc9b311c7380/mzaf_15655494070582551095.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2020b",
+    "collectionId": 1544268281,
+    "collectionName": "evermore",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2020-12-11T08:00:00Z",
+    "trackCount": 15,
+    "copyright": "℗ 2020 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/bd/dd/54/bddd543b-4e0f-007b-1398-5fef90b963c3/20UM1IM14847.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "willow",
+        "time": 214707,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c8/1f/d0/c81fd0ff-9247-cf6e-14df-6111f790bf1f/mzaf_9111987299197928468.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "champagne problems",
+        "time": 244000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a1/f5/18/a1f5186d-f808-598d-235b-6bbb10b28d28/mzaf_4115863558660787051.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "gold rush",
+        "time": 185320,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b7/6d/fb/b76dfb27-78f3-b801-893b-b2ff6278f64e/mzaf_15233783196215071029.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "'tis the damn season",
+        "time": 229840,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fc/ef/7b/fcef7b7a-cf8f-df89-14af-6de042067641/mzaf_2860575469514027484.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "tolerate it",
+        "time": 245440,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b0/00/d0/b000d09d-b2e3-3f35-61ef-5d8076661b8a/mzaf_17685824349917168875.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "no body, no crime (feat. HAIM)",
+        "time": 215627,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b8/61/cb/b861cb31-48eb-04d1-93c0-0d1209a734ea/mzaf_206661796010024085.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "happiness",
+        "time": 315147,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d1/a5/7f/d1a57f01-f009-69ef-5254-3428ae1bcc65/mzaf_5811372908786661073.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "dorothea",
+        "time": 225880,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/63/9b/26/639b2688-6f1e-5536-14c8-963df2c3b86f/mzaf_8608854741777403555.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "coney island (feat. The National)",
+        "time": 275320,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3f/35/50/3f3550de-aa10-18bd-25d1-2428dce96a97/mzaf_655924781443992380.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "ivy",
+        "time": 260440,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/ed/af/86edafbd-18a5-f1bd-e85e-e2127426bf17/mzaf_14960055195380235989.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "cowboy like me",
+        "time": 275040,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cd/1c/51/cd1c51b5-0f73-fa5a-88e5-11996dae5fb5/mzaf_17479270990135717148.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "long story short",
+        "time": 215920,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/59/5e/4e/595e4e09-b3f8-75a1-4998-8ca8ac1f5354/mzaf_12649796505283100533.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "marjorie",
+        "time": 257773,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7e/53/64/7e5364a0-2dbe-06e7-93e7-4670c072bec7/mzaf_2804323147605157733.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "closure",
+        "time": 180653,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9c/54/6e/9c546e2e-4376-b248-537f-9e71ebee6dca/mzaf_382150257728115494.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "evermore (feat. Bon Iver)",
+        "time": 304107,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9c/92/65/9c926506-fb0f-5418-489e-d8c56abf3568/mzaf_6310309466313036464.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2022",
+    "collectionId": 1645937456,
+    "collectionName": "Midnights",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2022-10-21T07:00:00Z",
+    "trackCount": 13,
+    "copyright": "℗ 2022 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/8b/59/4b/8b594b75-5a1a-9a39-e003-b227d09d5b37/22UM1IM07364.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Lavender Haze",
+        "time": 202396,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7f/9d/f9/7f9df9cf-1d0c-e898-30e8-842c03cca4d0/mzaf_2420344043471105934.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Maroon",
+        "time": 218271,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3e/d2/3e/3ed23e04-c43b-188c-aa4f-ecf0d6afaacf/mzaf_9497965254607398791.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Anti-Hero",
+        "time": 200690,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8f/f9/0f/8ff90fc2-73c7-4e32-3582-3bd994fb2ac8/mzaf_1917727201378902263.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Snow On The Beach (feat. Lana Del Rey)",
+        "time": 256124,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d5/68/8c/d5688c5d-43d1-0d29-b02f-6ab899f11573/mzaf_15325885193889369251.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "You're On Your Own, Kid",
+        "time": 194207,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b1/00/44/b100443c-9b1f-4ac4-9db5-03a063126115/mzaf_1982837375450622203.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "Midnight Rain",
+        "time": 174783,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/83/ff/ce/83ffce57-fc16-09c5-d7e7-522c660259c9/mzaf_13978430843529352754.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Question...?",
+        "time": 210557,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0c/7a/18/0c7a1814-b7c9-2fe7-1838-ca20280401cc/mzaf_13114359135323719853.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Vigilante Shit",
+        "time": 164801,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/56/df/d6/56dfd65c-614f-b32f-9920-ae818e862632/mzaf_17960939173439013029.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Bejeweled",
+        "time": 194166,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a7/5f/72/a75f72e1-dc99-5dbe-88fe-d25342b5f00d/mzaf_16133306547828855925.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "Labyrinth",
+        "time": 247962,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d2/37/28/d2372864-65ae-5d2f-fb94-e7a7e3a5ffe5/mzaf_17728141308939228424.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Karma",
+        "time": 204852,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e6/23/94/e623947c-461d-d211-fa2c-b6679dcfc803/mzaf_2361999335998243613.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "Sweet Nothing",
+        "time": 188497,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fa/05/c0/fa05c028-7408-7bf0-8d16-8ea80bd647cb/mzaf_13624935276369458692.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "Mastermind",
+        "time": 191039,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/16/10/2b/16102b6c-41c6-fbfb-c8c5-b69a9f3c854d/mzaf_13569465823836662378.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "ts2024",
+    "collectionId": 1736268193,
+    "collectionName": "THE TORTURED POETS DEPARTMENT",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2024-04-19T07:00:00Z",
+    "trackCount": 17,
+    "copyright": "℗ 2024 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a8/45/fd/a845fd82-d5c1-bffe-806a-ed0700b1c589/24UMGIM29563.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Fortnight (feat. Post Malone)",
+        "time": 228966,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/81/dd/8c/81dd8cab-d9ef-2f39-3d7b-69ad2c9510eb/mzaf_3608641701483306759.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "The Tortured Poets Department",
+        "time": 293048,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/01/7f/0b/017f0bc9-d609-ebb2-4eb1-52bbc1d527da/mzaf_9736990581113265429.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "My Boy Only Breaks His Favorite Toys",
+        "time": 203801,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/69/c5/e8/69c5e8cb-41c8-bb4e-1563-819a36d194c0/mzaf_10500269327282437413.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Down Bad",
+        "time": 261228,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/25/3a/2e/253a2e11-6be9-495b-d821-e29d4b259026/mzaf_11538772228747491782.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "So Long, London",
+        "time": 262975,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/67/c3/1b/67c31bd7-fbf9-587d-2edb-75e5923ff72a/mzaf_883343024611339247.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "But Daddy I Love Him",
+        "time": 340428,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/74/50/43/745043ff-ce24-8794-bec8-e5b24c2b2b7a/mzaf_8591416682711162703.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Fresh Out The Slammer",
+        "time": 210789,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f8/f3/c6/f8f3c685-c0fd-c40a-96ae-0833c4edd129/mzaf_3522333621744490688.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Florida!!! (feat. Florence + the Machine)",
+        "time": 215463,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/cb/06/d0cb0683-450e-2b17-255f-0a5b85b8d3a5/mzaf_871895235101349647.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Guilty as Sin?",
+        "time": 254366,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/85/36/bf/8536bfc1-0cfe-1aaf-1840-9e1c4efcd279/mzaf_1848296208075340895.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "Who’s Afraid of Little Old Me?",
+        "time": 334085,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1d/1d/2a/1d1d2ae0-22af-4be8-4154-f5c0847cc375/mzaf_9764514166835469604.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "I Can Fix Him (No Really I Can)",
+        "time": 156298,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/27/da/72/27da722d-0f09-56c5-5c69-3d01202689c8/mzaf_4102176696513885203.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "loml",
+        "time": 277157,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/00/62/eb/0062eb21-e8bf-2ec5-a203-7be009ef4f93/mzaf_7972309605783143002.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "I Can Do It With a Broken Heart",
+        "time": 218005,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4d/ed/2a/4ded2a08-f85e-3f08-15f8-e560244e505d/mzaf_632558084812540785.plus.aac.p.m4a"
+      },
+      {
+        "n": 14,
+        "disc": 1,
+        "name": "The Smallest Man Who Ever Lived",
+        "time": 245542,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/14/99/62/14996231-3ff8-6664-a166-018ba8ec21f9/mzaf_11499160420272106652.plus.aac.p.m4a"
+      },
+      {
+        "n": 15,
+        "disc": 1,
+        "name": "The Alchemy",
+        "time": 196900,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7d/bf/fd/7dbffdbf-1823-b8bd-e343-43aba38c39b2/mzaf_11613241204474204514.plus.aac.p.m4a"
+      },
+      {
+        "n": 16,
+        "disc": 1,
+        "name": "Clara Bow",
+        "time": 216662,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/94/f8/d094f80b-5e43-2dbf-6601-397d8a926f9b/mzaf_10743422634169287508.plus.aac.p.m4a"
+      },
+      {
+        "n": 17,
+        "disc": 1,
+        "name": "All’s fair in love and poetry...",
+        "time": 8150,
+        "p": "https://video-ssl.itunes.apple.com/itunes-assets/Video211/v4/e3/e6/6c/e3e66c76-9456-51c3-84f3-fa8937109b65/mzvf_6279594060325485267.640x480.h264lc.U.p.m4v"
+      }
+    ]
+  },
+  {
+    "key": "ts2025",
+    "collectionId": 1838810949,
+    "collectionName": "The Life of a Showgirl",
+    "artistName": "Taylor Swift",
+    "releaseDate": "2025-10-03T07:00:00Z",
+    "trackCount": 12,
+    "copyright": "℗ 2025 Taylor Swift",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/58/8f/a9/588fa9a2-7cc5-f02c-9ce6-c986e0dc1c15/25UM1IM19577.rgb.jpg/1200x1200bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "The Fate of Ophelia",
+        "time": 226074,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/bb/e3/c8/bbe3c8a3-0b06-20f4-6211-c53de0d2c4ef/mzaf_12435828701815921526.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "Elizabeth Taylor",
+        "time": 208292,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/61/76/0e/61760e63-e648-f861-b4ba-7a8e6e3df9a8/mzaf_9063253245381858922.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Opalite",
+        "time": 235356,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f2/05/dd/f205dd86-131f-39f1-2e48-6a16d1099618/mzaf_2963212195811157220.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "Father Figure",
+        "time": 212777,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/da/8b/85/da8b85b8-d9f2-773c-0b62-da618d70215b/mzaf_9436394655206685628.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "Eldest Daughter",
+        "time": 246356,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b8/d3/05/b8d305fa-53bd-3955-2529-dc09a9c1be2e/mzaf_1659686175434021526.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "Ruin The Friendship",
+        "time": 220565,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/82/61/e3/8261e324-5d02-9fc9-d182-fd768b4cc375/mzaf_16252247711921781546.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Actually Romantic",
+        "time": 163700,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/64/a4/a1/64a4a18d-6b7a-b78f-f567-576fc03b5be8/mzaf_7469596501123253679.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "Wi$h Li$t",
+        "time": 207349,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ee/6b/a0/ee6ba0f9-7b15-e587-f150-6bb01336a759/mzaf_11347349791828117842.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Wood",
+        "time": 150518,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ab/31/88/ab318831-3c56-7b2f-195f-57ed4d81d16f/mzaf_11887718181489330346.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "CANCELLED!",
+        "time": 211498,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/82/df/63/82df634a-8404-471d-8b33-b3d6b36e59e8/mzaf_16252900014125873806.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "Honey",
+        "time": 181535,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/19/a6/94/19a69483-fff1-7858-e410-751e8702dc6f/mzaf_1563322498601577832.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "The Life of a Showgirl (feat. Sabrina Carpenter)",
+        "time": 241767,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d1/a4/95/d1a49569-4d8b-f804-2267-42180ec1d7f1/mzaf_16946669887730381471.plus.aac.p.m4a"
+      }
+    ]
+  }
+]
