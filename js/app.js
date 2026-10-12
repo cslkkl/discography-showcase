@@ -1377,6 +1377,11 @@
       sheetCloseTimer = 0;
     }
     sheetPanel.style.setProperty('--tint', a.tint.join(', '));
+    /* 专辑层主题：抽屉打开即进入这张唱片的色彩世界 */
+    if (a.theme) {
+      sheetPanel.style.setProperty('--accent', a.theme.accent);
+      sheetPanel.style.setProperty('--accent-on', a.theme.accentOn);
+    }
     sheetScroll.innerHTML = sheetHTML(a);
     localize(sheetScroll);
     sheet.hidden = false;
@@ -1859,9 +1864,30 @@
      names the artist comes from the editorial layer, so a new artist needs
      no HTML edit. */
   function applyArtistChrome() {
+    /* 主题令牌：歌手强调色覆盖页面默认值；母题与歌手 id 挂在根元素上，
+       供 css/motifs.css 按值选用专属装饰。 */
+    var rootStyle = document.documentElement.style;
+    if (JC.theme) {
+      if (JC.theme.accent) rootStyle.setProperty('--accent', JC.theme.accent);
+      if (JC.theme.accentOn) rootStyle.setProperty('--accent-on', JC.theme.accentOn);
+      document.documentElement.setAttribute('data-motif', JC.theme.motif || '');
+    }
+    document.documentElement.setAttribute('data-artist', JC.id);
+
     document.title = '聲之年輪 · ' + JC.name + JC.tagline;
     var desc = $('meta[name="description"]');
     if (desc) desc.setAttribute('content', JC.intro);
+
+    /* 主视觉题名逐字渲染，题名来自编辑层 */
+    var titleLine = $('#heroTitleLine');
+    if (titleLine && JC.theme && JC.theme.heroTitle) {
+      titleLine.textContent = '';
+      JC.theme.heroTitle.split('').forEach(function (ch) {
+        var s = document.createElement('span');
+        s.textContent = ch;
+        titleLine.appendChild(s);
+      });
+    }
 
     $$('.seal-char').forEach(function (t) {
       t.textContent = JC.seal;

@@ -94,6 +94,8 @@
         return (
           '<li class="ld-row" style="--tint:' +
           rgb.join(',') +
+          ';--accent:' +
+          (a.theme && a.theme.accent ? a.theme.accent : '') +
           '">' +
           '<a class="ld-link" href="artist.html?a=' +
           encodeURIComponent(id) +

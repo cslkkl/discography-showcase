@@ -82,16 +82,38 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - `js/data.js` 只由 `npm run build` 產生
 - `service` 生成的網址在 `file://` 下也須可用，不得依賴伺服器
 
+## 主題分層
+
+三層職責互斥，逐層覆蓋：
+
+| 層 | 來源 | 覆蓋範圍 |
+|---|---|---|
+| 站點層 | `:root` 權杖 | 深墨底、顆粒、品牌字、佈局尺度 |
+| 歌手層 | `meta.mjs` 的 `theme` | 強調色 `--accent` / `--accent-on`、印章字、主視覺題名、母題 `data-motif` |
+| 專輯層 | 封面派生（`vivid` + `lum`） | 抽屜面板內的 `--accent` / `--accent-on` |
+
+- 歌手層由 `applyArtistChrome()` 寫入根元素：CSS 變量 + `data-artist` + `data-motif`。
+  全站樣式讀變量，換歌手即換色，無需複製樣式
+- 母題裝飾集中在 `css/motifs.css`，按 `data-motif` 選組；克制原則：
+  只做氛圍與細節（淡墨暈、印痕描邊），不改版式、不動正文對比度
+- 專輯層在構建期從封面派生：`vivid` 為強調色，明度低於 0.18 提亮、高於 0.82 壓暗，
+  文字色按明度 0.5 分界取深墨或紙白。派生結果存進專輯的 `theme`，運行時注入抽屜面板
+- 入口頁每行內聯該歌手的強調色，懸停暈染與箭頭即為歌手色
+
+理由：個性來自數據（封面、歌風、文案），而不是為每位歌手複製一份樣式；
+主題機制的自由度分層供給，越靠近內容的層越具體。
+
 ## 契約
 
 - `window.DISCOGRAPHY` 的欄位即檢視層契約：`toSimplified` / `order` / `artists`
 - 每個歌手展示集的欄位：身份（`id` `name` `en` `seal` `tagline` `taglineEn` `intro`）、
+  主題（`theme: { accent, accentOn, motif, heroTitle }`）、
   事實衍生（`albums` `tracks` `eras` `collaborators` `longest` `shortest` `growth` `gaps`
   `signature` `distribution` `stats`）、外觀（`heroFan` `covers` `tint`）、`toSimplified`
 - 曲目欄位：`n` / `disc` / `zh` / `sec` / `len` / `sig` / `audio` / `preview` / `local`
 - 專輯欄位：`id` / `idx` / `no` / `title` / `alt` / `en` / `year` / `dateISO` / `date` /
   `publisher` / `trackCount` / `runtime` / `runtimeSec` / `cover` / `blurb` / `tint` /
-  `sourceAvg` / `tracks`
+  `sourceAvg` / `theme` / `tracks`
 - 改動此契約須同一次改動內更新 [js/README.md](../js/README.md) 與本檔
 
 ## 版權

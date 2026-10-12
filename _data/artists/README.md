@@ -24,7 +24,12 @@ artists/<id>/
    `extract-colors.ps1 -Artist <id>`
 4. `_data/artists/<id>/meta.mjs`：手寫編輯層。必填欄位見
    `jay-chou/meta.mjs` 的欄位形狀（id / name / en / seal / tagline / taglineEn /
-   intro / kanjiFix / phraseFix / collabFix / heroFan / eras / albums）
+   intro / kanjiFix / phraseFix / collabFix / heroFan / eras / albums / theme）。
+   其中 `theme` 定義這位歌手的視覺人格：`accent`（唯一強調色）、
+   `accentOn`（印在強調色底上的文字色，須與 accent 對比充足）、
+   `motif`（指向 css/motifs.css 裡的一組專屬裝飾）、
+   `heroTitle`（歌手頁主視覺題名，逐字展開）。
+   顏色建議從這位歌手的封面主色或應援色取，取完檢查與 `accentOn` 的對比
 5. 試聽：`fetch-previews.ps1 -Artist <id>`
 6. `npm run build`，然後打開入口頁確認新歌手出現在清單
 

@@ -50,6 +50,26 @@ const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
 const INK = hexToRgb('#08080A');
 const tintOf = (hex) => mix(hexToRgb(hex), INK, 0.78);
 
+/* per-album accent, derived from the cover itself: the vivid colour becomes
+ * the accent, luminance decides whether text on it is ink or paper, and the
+ * accent is pulled into a usable band so it never vanishes against the page. */
+const rgbToHex = (rgb) =>
+  '#' +
+  rgb
+    .map((v) => v.toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase();
+const lumOf = (rgb) => (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255;
+const PAPER = [243, 240, 234];
+const albumTheme = (c) => {
+  let rgb = hexToRgb(c.vivid || c.avg || '#3a3a3a');
+  let lum = lumOf(rgb);
+  if (lum < 0.18) rgb = mix(rgb, [255, 255, 255], 0.38);
+  if (lum > 0.82) rgb = mix(rgb, INK, 0.3);
+  lum = lumOf(rgb);
+  return { accent: rgbToHex(rgb), accentOn: rgbToHex(lum > 0.5 ? INK : PAPER) };
+};
+
 const fmtDate = (iso) => {
   const d = new Date(iso);
   return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
@@ -159,6 +179,7 @@ function buildArtist(ed) {
       blurb: clean(meta.blurb),
       tint: tintOf(c.avg || '#3a3a3a'),
       sourceAvg: c.avg || '#3a3a3a',
+      theme: albumTheme(c),
       tracks
     };
   });
@@ -408,6 +429,7 @@ built.forEach((b) => {
       tagline: ${JSON.stringify(ed.tagline)},
       taglineEn: ${JSON.stringify(ed.taglineEn)},
       intro: ${JSON.stringify(ed.intro)},
+      theme: ${JSON.stringify(ed.theme)},
       albums: ALBUMS,
       tracks: ALL_TRACKS,
       toSimplified: toSimplified,

@@ -1,0 +1,35 @@
+/*  motifs.css — 每位歌手的专属装饰。
+ *  钩子是根元素上的 data-motif（由 meta.mjs 的 theme.motif 声明，
+ *  app.js 在启动时写入）。一位歌手一组规则，互不污染。
+ *
+ *  原则：克制。母题只做氛围与细节，不改版式、不动正文对比度；
+ *  所有装饰色从 var(--accent) 取，令牌换色时母题自动跟随。
+ */
+
+/* ── ink · 周杰倫：水墨与印章 ────────────────────────────────────────────
+ * 中西合璧的气质落在两处：主视觉封面后的一层淡墨晕（宣纸上晕开的印泥），
+ * 以及两枚印章外的一圈细描边（钤印的印痕感）。 */
+
+[data-motif='ink'] .hero-art::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  background:
+    radial-gradient(46% 40% at 66% 44%, rgba(224, 65, 43, 0.07), transparent 70%),
+    radial-gradient(52% 46% at 30% 30%, rgba(243, 240, 234, 0.028), transparent 74%);
+  pointer-events: none;
+}
+
+[data-motif='ink'] .brand-seal,
+[data-motif='ink'] .boot-seal {
+  position: relative;
+}
+[data-motif='ink'] .brand-seal::after,
+[data-motif='ink'] .boot-seal::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  pointer-events: none;
+}

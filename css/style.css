@@ -958,6 +958,17 @@ main { padding-top: var(--nav-h); }
 .sheet-track:hover .st-name { color: var(--paper); transform: translateX(4px); }
 .sheet-track.is-sig .st-name { color: var(--paper); font-weight: 500; }
 
+/* 专辑层主题：抽屉面板上的 --accent 由 app.js 按这张封面派生，
+   打开抽屉即进入这张唱片自己的色彩世界 */
+.sheet-title::after {
+  content: '';
+  display: block;
+  width: 64px; height: 2px;
+  margin-top: 20px;
+  background: var(--accent);
+}
+.sheet-no { color: var(--accent); }
+
 /* ── 15. toast ─────────────────────────────────────────────────────────── */
 .toast {
   position: fixed; left: 50%; bottom: 96px; z-index: 1010;
@@ -1573,6 +1584,14 @@ html { scroll-padding-bottom: 96px; }
 }
 .ld-arrow { width: 1.4rem; height: 1.4rem; color: var(--accent); transition: transform .4s var(--ease); }
 .ld-link:hover .ld-arrow { transform: translateX(8px); }
+/* 每行用该歌手自己的强调色作悬停晕染：索引页读起来像一排色卡 */
+.ld-link:hover {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 7%, transparent),
+    transparent 62%
+  );
+}
 
 .ld-note { border-top: 1px solid var(--line); }
 .ld-facts {
