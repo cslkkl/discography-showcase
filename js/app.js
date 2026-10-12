@@ -312,45 +312,30 @@
   }
 
   /* ── the single marquee ─────────────────────────────────────────────── */
-  var MARQUEE_SONGS = [
-    '青花瓷',
-    '晴天',
-    '東風破',
-    '雙截棍',
-    '七里香',
-    '夜曲',
-    '千里之外',
-    '稻香',
-    '告白氣球',
-    '煙花易冷',
-    '髮如雪',
-    '菊花台',
-    '半島鐵盒',
-    '蘭亭序',
-    '擱淺',
-    '最偉大的作品',
-    '簡單愛',
-    '回到過去',
-    '彩虹',
-    '可愛女人',
-    '威廉古堡',
-    '忍者',
-    '以父之名',
-    '聽媽媽的話',
-    '算什麼男人',
-    '手寫的從前',
-    '紅顏如霜',
-    'Mojito',
-    '外婆',
-    '米蘭的小鐵匠'
-  ];
+  /* 跑馬燈內容取自這位歌手的代表曲，跨專輯均勻抽樣到約三十筆。
+     不是任何一位歌手的固定清單：換歌手就換名字。 */
+  function marqueeSongs() {
+    var all = (JC.signature || []).map(function (s) {
+      return s.zh;
+    });
+    if (!all.length)
+      all = JC.tracks.slice(0, 30).map(function (t) {
+        return t.zh;
+      });
+    var cap = 30;
+    if (all.length <= cap) return all;
+    var out = [];
+    for (var i = 0; i < cap; i++) out.push(all[Math.round((i * (all.length - 1)) / (cap - 1))]);
+    return out;
+  }
   /* Two copies of the list: enough track to stay filled while it pans. */
   function renderMarquee() {
     var host = $('#marqueeTrack');
     if (!host) return;
+    var songs = marqueeSongs();
     var f = frag();
     for (var pass = 0; pass < 2; pass++) {
-      MARQUEE_SONGS.forEach(function (s) {
+      songs.forEach(function (s) {
         f.appendChild(el('span', null, esc(s)));
         f.appendChild(el('i'));
       });
@@ -1918,6 +1903,33 @@
 
     var ogTitle = $('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', document.title);
+
+    /* 页面上每一处写出「这位歌手有几个数字」的静态槽位都在这里从数据填，
+       否则别的歌手页会残留上一位歌手的专辑数、曲目数与年份 */
+    function fill(sel, text) {
+      var node = $(sel);
+      if (node) node.textContent = text;
+    }
+    var albumsN = JC.stats.albums;
+    var spanN = JC.stats.to - JC.stats.from + 1;
+    var years = JC.stats.from + ' 至 ' + JC.stats.to;
+
+    var ogDesc = $('#ogDescription');
+    if (ogDesc)
+      ogDesc.setAttribute(
+        'content',
+        albumsN + ' 張錄音室專輯，' + JC.stats.tracks + ' 首作品，' + years + '。'
+      );
+    fill('#rackSub', albumsN + ' 張，按發行順序排列');
+    fill('#rackTotal', String(albumsN));
+    fill('#chronoSub', years);
+    fill('#erasSub', albumsN + ' 張專輯分成 ' + JC.eras.length + ' 個階段，看不同時期的取捨');
+    fill('#wallSub', albumsN + ' 張封面一次排開，點任一張進入專輯');
+    fill('#growthNote', '每發一張專輯往上疊，' + spanN + ' 年的總量曲線');
+    fill('#footTag', albumsN + ' 張錄音室專輯 · ' + JC.stats.tracks + ' 首作品 · ' + years);
+
+    var legendEl = $('#ringsLegend');
+    if (legendEl) legendEl.setAttribute('aria-label', '年輪對照：' + albumsN + ' 張專輯');
 
     /* the switcher lists every artist, current one marked */
     var menu = $('#artistMenu');

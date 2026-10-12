@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>聲之年輪 · 周杰倫錄音室專輯全集</title>
-<meta name="description" content="周杰倫十六張錄音室專輯的完整陳列：封面、發行日期、曲目清單與作品年表，收錄 2000 至 2026 年間 175 首錄音室作品。">
+<title>聲之年輪 · 歌手唱片陳列</title>
+<meta name="description" content="歌手錄音室專輯的完整陳列：封面、發行日期、曲目清單與作品年表。">
 <meta name="theme-color" content="#08080A">
 <meta name="color-scheme" content="dark">
-<meta property="og:title" content="聲之年輪 · 周杰倫錄音室專輯全集">
-<meta property="og:description" content="十六張錄音室專輯，一百七十五首作品，二〇〇〇 至 二〇二六。">
+<meta property="og:title" content="聲之年輪 · 歌手唱片陳列">
+<meta property="og:description" id="ogDescription" content="錄音室專輯的完整陳列。">
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/covers/greatest2022.jpg">
+<link rel="apple-touch-icon" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/motifs.css">
@@ -27,7 +27,7 @@
 <div class="boot" id="boot">
   <div class="boot-inner">
     <div class="boot-seal" aria-hidden="true">
-      <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central">周</text></svg>
+      <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central"></text></svg>
     </div>
     <div class="boot-num"><span id="bootYear">2000</span></div>
     <div class="boot-rail"><i id="bootBar"></i></div>
@@ -39,11 +39,11 @@
 <header class="topbar" id="topbar">
   <a class="brand" href="#top" aria-label="聲之年輪，回到頂端">
     <span class="brand-seal" aria-hidden="true">
-      <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central">周</text></svg>
+      <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central"></text></svg>
     </span>
     <span class="brand-text">
       <b>聲之年輪</b>
-      <i id="brandEn">Jay Chou · Studio Albums</i>
+      <i id="brandEn"></i>
     </span>
   </a>
 
@@ -60,7 +60,7 @@
       <button class="artist-cur" id="artistBtn" type="button" aria-haspopup="true" aria-expanded="false"
               aria-controls="artistMenu">
         <span class="ac-label">歌手</span>
-        <span class="ac-name" id="artistCurName">周杰倫</span>
+        <span class="ac-name" id="artistCurName"></span>
         <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80a8,8,0,0,1,11.32-11.32L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>
       </button>
       <div class="artist-menu" id="artistMenu" role="menu" aria-label="選擇歌手" hidden></div>
@@ -82,11 +82,11 @@
   <section class="hero" id="hero">
     <div class="hero-grid">
       <div class="hero-copy">
-        <p class="eyebrow" id="heroEyebrow">周杰倫 · 錄音室專輯全集</p>
+        <p class="eyebrow" id="heroEyebrow"></p>
         <h1 class="hero-title">
-          <span class="ht-line" id="heroTitleLine"><span>聲</span><span>之</span><span>年</span><span>輪</span></span>
+          <span class="ht-line" id="heroTitleLine"></span>
         </h1>
-        <p class="hero-sub"><span id="heroLine">從 2000 到 2026，十六張錄音室專輯。</span><span>以封面為軸，按年份逐張展開。</span></p>
+        <p class="hero-sub"><span id="heroLine"></span><span>以封面為軸，按年份逐張展開。</span></p>
         <div class="hero-cta">
           <a class="btn btn-accent btn-lg" href="#albums">
             <span>進入展廳</span>
@@ -119,12 +119,12 @@
       <div class="rings-figure">
         <div class="rings-stage" id="ringsStage" aria-hidden="true"></div>
         <div class="rings-readout" id="ringsReadout">
-          <span class="rr-year">2000</span>
-          <span class="rr-title">Jay</span>
-          <span class="rr-meta">10 首 · 43:17</span>
+          <span class="rr-year"></span>
+          <span class="rr-title"></span>
+          <span class="rr-meta"></span>
         </div>
       </div>
-      <ol class="rings-legend" id="ringsLegend" aria-label="年輪對照：十六張專輯"></ol>
+      <ol class="rings-legend" id="ringsLegend" aria-label="年輪對照"></ol>
     </div>
   </section>
 
@@ -132,7 +132,7 @@
   <section class="rack" id="albums">
     <div class="sec-head">
       <h2 class="sec-title">錄音室專輯</h2>
-      <p class="sec-sub">十六張，按發行順序排列</p>
+      <p class="sec-sub" id="rackSub">按發行順序排列</p>
     </div>
     <div class="rack-stage" id="rackStage">
       <div class="rack-pin">
@@ -140,7 +140,7 @@
         <div class="rack-hud">
           <span class="rack-now" id="rackNow">01</span>
           <span class="rack-rail"><i id="rackBar"></i></span>
-          <span class="rack-total">16</span>
+          <span class="rack-total" id="rackTotal"></span>
           <span class="rack-hint" id="rackHint">
             <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
             <span>橫向瀏覽</span>
@@ -154,7 +154,7 @@
   <section class="chrono" id="chrono">
     <div class="sec-head">
       <h2 class="sec-title">作品年表</h2>
-      <p class="sec-sub">二〇〇〇 至 二〇二六</p>
+      <p class="sec-sub" id="chronoSub">發行年份</p>
     </div>
     <ol class="chrono-list" id="chronoList"></ol>
   </section>
@@ -163,7 +163,7 @@
   <section class="eras" id="eras">
     <div class="sec-head">
       <h2 class="sec-title">年代分期</h2>
-      <p class="sec-sub">十六張專輯分成四個階段，看他在不同時期的取捨</p>
+      <p class="sec-sub" id="erasSub">按時期分段</p>
     </div>
     <div class="eras-list" id="erasList"></div>
   </section>
@@ -172,7 +172,7 @@
   <section class="wall" id="wall">
     <div class="sec-head">
       <h2 class="sec-title">封面牆</h2>
-      <p class="sec-sub">十六張封面一次排開，點任一張進入專輯</p>
+      <p class="sec-sub" id="wallSub">點任一張進入專輯</p>
     </div>
     <div class="wall-grid" id="wallGrid"></div>
   </section>
@@ -188,14 +188,14 @@
       <!-- 累積曲目曲線 -->
       <div class="data-block data-block--wide">
         <h3 class="db-title">累積曲目</h3>
-        <p class="db-note">每發一張專輯往上疊，二十六年的總量曲線</p>
+        <p class="db-note" id="growthNote">每發一張專輯往上疊</p>
         <div class="chart" id="growthChart"></div>
       </div>
 
       <!-- 發行間隔 -->
       <div class="data-block">
         <h3 class="db-title">發行間隔</h3>
-        <p class="db-note">相鄰兩張專輯相隔幾個月，最長的一段是 <b id="gapPeak">6.1 年</b></p>
+        <p class="db-note">相鄰兩張專輯相隔幾個月，最長的一段是 <b id="gapPeak"></b></p>
         <div class="chart" id="gapChart"></div>
       </div>
 
@@ -233,7 +233,7 @@
   <section class="collab" id="collab">
     <div class="sec-head">
       <h2 class="sec-title">合作者</h2>
-      <p class="sec-sub">從曲目標題的合唱標註整理出來，共 <b id="collabTotal">5</b> 位</p>
+      <p class="sec-sub">從曲目標題的合唱標註整理出來，共 <b id="collabTotal"></b> 位</p>
     </div>
     <div class="collab-list" id="collabList"></div>
   </section>
@@ -242,7 +242,7 @@
   <section class="picks" id="picks">
     <div class="sec-head">
       <h2 class="sec-title">代表曲</h2>
-      <p class="sec-sub">每張專輯挑出的關鍵曲目，共 <b id="picksTotal">38</b> 首</p>
+      <p class="sec-sub">每張專輯挑出的關鍵曲目，共 <b id="picksTotal"></b> 首</p>
     </div>
     <div class="picks-list" id="picksList"></div>
   </section>
@@ -251,7 +251,7 @@
   <section class="cat" id="tracks">
     <div class="sec-head">
       <h2 class="sec-title">曲目總表</h2>
-      <p class="sec-sub">共 <b id="catTotal">175</b> 首錄音室作品</p>
+      <p class="sec-sub">共 <b id="catTotal"></b> 首錄音室作品</p>
     </div>
 
     <div class="search">
@@ -278,10 +278,10 @@
   <footer class="foot">
     <div class="foot-top">
       <span class="foot-seal" aria-hidden="true">
-        <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central">周</text></svg>
+        <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central"></text></svg>
       </span>
       <p class="foot-mark">聲之年輪</p>
-      <p class="foot-tag">十六張錄音室專輯 · 一百七十五首作品 · 二〇〇〇 至 二〇二六</p>
+      <p class="foot-tag" id="footTag"></p>
     </div>
     <div class="foot-cols">
       <div class="foot-col">
@@ -290,7 +290,7 @@
       </div>
       <div class="foot-col">
         <h3>版權</h3>
-        <p>封面圖像與錄音版權屬 JVR Music International Ltd. 所有。本站為個人收藏陳列，不作商業用途。</p>
+        <p>封面圖像與錄音版權屬各權利人所有。本站為個人收藏陳列，不作商業用途。</p>
       </div>
       <div class="foot-col">
         <h3>字體</h3>
@@ -328,7 +328,7 @@
 <!-- 試聽播放列：音源為 Apple 目錄隨附的官方 30 秒試聽片段 -->
 <div class="player" id="player">
   <div class="pl-inner">
-    <img class="pl-cover" id="plCover" src="assets/covers/responsive/jay2000-480.jpg" alt="" width="46" height="46">
+    <img class="pl-cover" id="plCover" src="assets/favicon.svg" alt="" width="46" height="46">
     <div class="pl-info">
       <span class="pl-title" id="plTitle">尚未選擇曲目</span>
       <span class="pl-meta" id="plMeta">按曲目左側的播放鍵開始試聽</span>

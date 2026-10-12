@@ -80,6 +80,10 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 焦點不得被固定層遮擋，`scroll-padding` 隨固定層高度調整
 - 高對比下限：正文 4.5:1，非文字 3:1
 - `js/data.js` 只由 `npm run build` 產生
+- `artist.html` 與 `js/app.js` 不得含任何歌手專屬內容（歌名、專輯數、年份、歌手名）：
+  凡是隨歌手變化的都必須由 `applyArtistChrome()` 從資料填充。
+  HTML 裡的兜底文字一律留空，不留某位歌手的內容
+- 跑馬燈等「清單型」區塊從 `JC.signature` 取，不得寫死歌名陣列
 - `service` 生成的網址在 `file://` 下也須可用，不得依賴伺服器
 
 ## 主題分層
