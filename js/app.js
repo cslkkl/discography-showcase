@@ -2053,6 +2053,36 @@
   }
 
   /* ── chrome: scroll bar, topbar, nav state ──────────────────────────── */
+  /* ── chapters: 窄屏的章节跳转（桌面導覽在 <=860px 隱藏） ─────────────── */
+  function renderChapters() {
+    var host = $('#chapters');
+    if (!host) return;
+    var links = $$('.nav a');
+    if (!links.length) return;
+    var f = frag();
+    links.forEach(function (a) {
+      var b = el('button', 'ch-btn', esc(a.textContent));
+      b.type = 'button';
+      b.setAttribute('data-chapter', a.getAttribute('data-nav'));
+      f.appendChild(b);
+    });
+    host.appendChild(f);
+    host.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-chapter]') : null;
+      if (!t) return;
+      var target = document.getElementById(t.getAttribute('data-chapter'));
+      if (target)
+        target.scrollIntoView({ behavior: REDUCED.matches ? 'auto' : 'smooth', block: 'start' });
+    });
+  }
+
+  function paintChapters(id) {
+    $$('.ch-btn').forEach(function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-chapter') === id);
+      b.setAttribute('aria-current', b.getAttribute('data-chapter') === id ? 'true' : 'false');
+    });
+  }
+
   function bindChrome() {
     var bar = $('#scrollBar'),
       topbar = $('#topbar');
@@ -2083,6 +2113,7 @@
             links.forEach(function (l) {
               l.classList.toggle('is-active', l.getAttribute('data-nav') === id);
             });
+            paintChapters(id);
           });
         },
         { rootMargin: '-45% 0px -50% 0px' }
@@ -2326,6 +2357,7 @@
 
     bind();
     bindChrome();
+    renderChapters();
     bindArtistSwitch();
     applyArtistChrome();
     setLang(lang);

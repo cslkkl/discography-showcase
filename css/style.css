@@ -241,6 +241,9 @@ a, button, input, [role="button"] { touch-action: manipulation; }
 .nav a:hover, .nav a.is-active { color: var(--paper); }
 .nav a:hover::after, .nav a.is-active::after { transform: scaleX(1); }
 
+/* 窄屏章節條：桌面導覽隱藏後，長頁裡仍能定位與往返 */
+.chapters { display: none; }
+
 .tools { display: flex; align-items: center; gap: 10px; flex: none; }
 
 /* 歌手切換：與語言切換同一套膠囊語彙 */
@@ -1658,6 +1661,28 @@ html { scroll-padding-bottom: 96px; }
   :root { --nav-h: 60px; }
   .nav { display: none; }
   .brand-text i { display: none; }
+  /* 章节条是贴在顶栏下方的固定层，锚点跳转要把它的高度一起让开 */
+  html { scroll-padding-top: calc(var(--nav-h) + 58px); }
+  .chapters {
+    display: flex; align-items: center; gap: 8px;
+    position: sticky; top: var(--nav-h); z-index: 750;
+    padding: 9px var(--gutter);
+    overflow-x: auto; overscroll-behavior-x: contain;
+    background: rgba(8, 8, 10, .86);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border-bottom: 1px solid var(--line);
+    scrollbar-width: none;
+  }
+  .chapters::-webkit-scrollbar { display: none; }
+  .ch-btn {
+    flex: none; padding: 6px 13px; border-radius: var(--r-pill);
+    border: 1px solid var(--line-2);
+    font-size: .78rem; letter-spacing: .1em; color: var(--paper-2);
+    transition: color .16s var(--ease), border-color .16s var(--ease), background .16s var(--ease);
+  }
+  .ch-btn:hover, .ch-btn:focus-visible { color: var(--paper); border-color: var(--line-3); }
+  .ch-btn.is-active { color: var(--paper); border-color: var(--accent); }
   .figures-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 18px; }
   .cat-tracks { grid-template-columns: minmax(0, 1fr); }
   .foot-cols { grid-template-columns: minmax(0, 1fr); }
