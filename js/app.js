@@ -7,7 +7,15 @@
 (function () {
   'use strict';
 
-  var JC = window.JC;
+  /* 多歌手：本頁只負責一位歌手。?a=<id> 決定是誰；
+     沒有參數或 id 不存在時，回到入口的選歌手頁。 */
+  var DISCOGRAPHY = window.DISCOGRAPHY;
+  var artistId = new URLSearchParams(location.search).get('a');
+  var JC = DISCOGRAPHY && artistId ? DISCOGRAPHY.artists[artistId] : null;
+  if (!JC) {
+    location.replace('index.html');
+    return;
+  }
   var ALBUMS = JC.albums;
   var $ = function (s, r) {
     return (r || document).querySelector(s);
@@ -195,13 +203,13 @@
 
   function runBoot() {
     if (REDUCED.matches) {
-      bootYear.textContent = '2026';
+      bootYear.textContent = String(JC.stats.to);
       bootBar.style.width = '100%';
       finishBoot();
       return;
     }
-    var from = 2000,
-      to = 2026,
+    var from = JC.stats.from,
+      to = JC.stats.to,
       dur = 1600,
       t0 = performance.now();
     (function step(t) {
@@ -218,7 +226,7 @@
   function renderFan() {
     var host = $('#heroArt');
     if (!host) return;
-    var picks = ['jay2000', 'fantasy2001', 'sun2026', 'busy2007', 'greatest2022'];
+    var covers = JC.covers;
     var spec = [
       { r: -13, x: -56, y: 8, s: 0.72, z: 1, o: 0.44 },
       { r: -6.5, x: -29, y: 3, s: 0.85, z: 2, o: 0.78 },
@@ -227,12 +235,9 @@
       { r: 13, x: 56, y: 8, s: 0.72, z: 1, o: 0.44 }
     ];
     var fan = el('div', 'fan');
-    picks.forEach(function (id, i) {
-      var a = ALBUMS.filter(function (x) {
-        return x.id === id;
-      })[0];
-      if (!a) return;
+    covers.forEach(function (c, i) {
       var sp = spec[i];
+      if (!sp) return;
       var card = el('div', 'fan-card');
       card.style.setProperty('--fx', sp.x + '%');
       card.style.setProperty('--fy', sp.y + '%');
@@ -242,7 +247,11 @@
       card.style.setProperty('--z', sp.z);
       card.style.setProperty('--i', i);
       var img = el('img');
-      img.src = a.cover;
+      img.src = c.cover;
+      var a = ALBUMS.filter(function (x) {
+        return x.id === c.id;
+      })[0];
+      if (!a) return;
       img.srcset = srcset(a);
       img.sizes = '(max-width: 1100px) 46vw, 30vw';
       img.alt = a.title + ' 專輯封面';
@@ -881,7 +890,9 @@
         (W - PR) +
         '" y="' +
         (Y(maxY) - 12).toFixed(1) +
-        '" text-anchor="end">175</text>'
+        '" text-anchor="end">' +
+        JC.stats.tracks +
+        '</text>'
     );
     s.push('</svg>');
     host.innerHTML = s.join('');
@@ -1667,7 +1678,7 @@
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: t.zh,
-        artist: '周杰倫',
+        artist: JC.name,
         album: a.title,
         artwork: [
           { src: new URL(a.cover, location.href).href, sizes: '1200x1200', type: 'image/jpeg' }
@@ -1841,6 +1852,116 @@
         toastEl.hidden = true;
       }, 450);
     }, 3200);
+  }
+
+  /* ── artist chrome: fill every artist-specific slot from the data ─────
+     The markup carries Jay Chou only as a fallback; everything visible that
+     names the artist comes from the editorial layer, so a new artist needs
+     no HTML edit. */
+  function applyArtistChrome() {
+    document.title = '聲之年輪 · ' + JC.name + JC.tagline;
+    var desc = $('meta[name="description"]');
+    if (desc) desc.setAttribute('content', JC.intro);
+
+    $$('.seal-char').forEach(function (t) {
+      t.textContent = JC.seal;
+    });
+
+    var brandEn = $('#brandEn');
+    if (brandEn) brandEn.textContent = JC.en + ' · ' + JC.taglineEn;
+
+    var curName = $('#artistCurName');
+    if (curName) curName.textContent = JC.name;
+
+    var eyebrow = $('#heroEyebrow');
+    if (eyebrow) eyebrow.textContent = JC.name + ' · ' + JC.tagline;
+
+    var line = $('#heroLine');
+    if (line)
+      line.textContent =
+        '從 ' + JC.stats.from + ' 到 ' + JC.stats.to + '，' + JC.stats.albums + ' 張錄音室專輯。';
+
+    var ogTitle = $('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', document.title);
+
+    /* the switcher lists every artist, current one marked */
+    var menu = $('#artistMenu');
+    if (!menu) return;
+    var html = DISCOGRAPHY.order.map(function (id) {
+      var a = DISCOGRAPHY.artists[id];
+      var cur = id === JC.id;
+      return (
+        '<a class="am-item' +
+        (cur ? ' is-cur' : '') +
+        '" role="menuitemradio" aria-checked="' +
+        cur +
+        '"' +
+        ' href="artist.html?a=' +
+        encodeURIComponent(id) +
+        '">' +
+        '<span class="am-seal" aria-hidden="true">' +
+        a.seal +
+        '</span>' +
+        '<span class="am-name">' +
+        esc(a.name) +
+        '</span>' +
+        '<span class="am-meta">' +
+        a.stats.albums +
+        ' 張 · ' +
+        a.stats.from +
+        '–' +
+        a.stats.to +
+        '</span>' +
+        (cur
+          ? '<svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>'
+          : '') +
+        '</a>'
+      );
+    });
+    html.push(
+      '<a class="am-item am-all" role="menuitem" href="index.html">' +
+        '<span class="am-seal" aria-hidden="true">聲</span>' +
+        '<span class="am-name">所有歌手</span>' +
+        '<span class="am-meta">回到入口</span></a>'
+    );
+    menu.innerHTML = html.join('');
+  }
+
+  function bindArtistSwitch() {
+    var btn = $('#artistBtn'),
+      wrap = $('#artistSwitch'),
+      menu = $('#artistMenu');
+    if (!btn || !menu) return;
+    function setOpen(open) {
+      btn.setAttribute('aria-expanded', String(open));
+      menu.hidden = !open;
+      if (open) {
+        var first = $('.am-item', menu);
+        if (first) first.focus();
+      } else if (document.activeElement && menu.contains(document.activeElement)) {
+        btn.focus();
+      }
+    }
+    btn.addEventListener('click', function () {
+      setOpen(menu.hidden);
+    });
+    document.addEventListener('click', function (e) {
+      if (menu.hidden) return;
+      if (wrap && wrap.contains(e.target)) return;
+      setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (menu.hidden) return;
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        setOpen(false);
+      }
+    });
+    menu.addEventListener('click', function (e) {
+      // navigating to another artist rebuilds the page; nothing to keep open
+      var item = e.target.closest ? e.target.closest('.am-item') : null;
+      if (item) setOpen(false);
+    });
   }
 
   /* ── chrome: scroll bar, topbar, nav state ──────────────────────────── */
@@ -2112,6 +2233,8 @@
 
     bind();
     bindChrome();
+    bindArtistSwitch();
+    applyArtistChrome();
     setLang(lang);
     observeReveals(document);
 

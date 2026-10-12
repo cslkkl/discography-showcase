@@ -1,8 +1,13 @@
+param([string]$Artist = 'jay-chou')
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $root = Split-Path -Parent $PSScriptRoot
 $coverDir = Join-Path $root 'assets\covers'
+$rawPath = Join-Path $PSScriptRoot "artists\$Artist\albums-raw.json"
+if (-not (Test-Path $rawPath)) { throw "albums-raw.json not found for artist '$Artist': $rawPath" }
+$keys = (Get-Content $rawPath -Raw -Encoding UTF8 | ConvertFrom-Json) | ForEach-Object { $_.key }
+$outPath = Join-Path $PSScriptRoot "artists\$Artist\colors.json"
 
 function Get-HueStats([string]$path) {
   $src = [System.Drawing.Image]::FromFile($path)
@@ -69,9 +74,11 @@ function Get-HueStats([string]$path) {
 $out = [ordered]@{}
 Get-ChildItem $coverDir -Filter *.jpg | Sort-Object Name | ForEach-Object {
   $k = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
+  if ($keys -notcontains $k) { return }
   $out[$k] = Get-HueStats $_.FullName
   Write-Output ("{0,-14} avg={1} vivid={2} lum={3} hue1={4} hue2={5}" -f $k, $out[$k].avg, $out[$k].vivid, $out[$k].lum, $out[$k].hue1, $out[$k].hue2)
 }
+if ($out.Count -eq 0) { throw "no covers matched the album keys of artist '$Artist'" }
 $json = $out | ConvertTo-Json -Depth 5
-Set-Content -Path (Join-Path $PSScriptRoot 'colors.json') -Value $json -Encoding UTF8
-Write-Output "SAVED colors.json"
+Set-Content -Path $outPath -Value $json -Encoding UTF8
+Write-Output "SAVED $outPath ($($out.Count) covers)"

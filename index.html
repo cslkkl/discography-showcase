@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>聲之年輪 · 周杰倫錄音室專輯全集</title>
-<meta name="description" content="周杰倫十六張錄音室專輯的完整陳列：封面、發行日期、曲目清單與作品年表，收錄 2000 至 2026 年間 175 首錄音室作品。">
+<title>聲之年輪 · 歌手唱片陳列</title>
+<meta name="description" content="聲之年輪：以年輪與數據陳列歌手的完整錄音室目錄。選擇一位歌手，走進他的唱片年輪。">
 <meta name="theme-color" content="#08080A">
 <meta name="color-scheme" content="dark">
-<meta property="og:title" content="聲之年輪 · 周杰倫錄音室專輯全集">
-<meta property="og:description" content="十六張錄音室專輯，一百七十五首作品，二〇〇〇 至 二〇二六。">
+<meta property="og:title" content="聲之年輪 · 歌手唱片陳列">
+<meta property="og:description" content="選擇一位歌手，走進他的唱片年輪。">
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/covers/greatest2022.jpg">
 <link rel="stylesheet" href="assets/fonts/fonts.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -20,345 +19,52 @@
 <a class="skip" href="#top">跳至主要內容</a>
 
 <div class="grain" aria-hidden="true"></div>
-<div class="scroll-line" aria-hidden="true"><i id="scrollBar"></i></div>
-
-<!-- 開場簾幕 -->
-<div class="boot" id="boot">
-  <div class="boot-inner">
-    <div class="boot-seal" aria-hidden="true">
-      <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">周</text></svg>
-    </div>
-    <div class="boot-num"><span id="bootYear">2000</span></div>
-    <div class="boot-rail"><i id="bootBar"></i></div>
-    <p class="boot-label">聲之年輪</p>
-  </div>
-</div>
-
-<!-- 頂欄 -->
-<header class="topbar" id="topbar">
-  <a class="brand" href="#top" aria-label="聲之年輪，回到頂端">
-    <span class="brand-seal" aria-hidden="true">
-      <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">周</text></svg>
-    </span>
-    <span class="brand-text">
-      <b>聲之年輪</b>
-      <i>Jay Chou · Studio Albums</i>
-    </span>
-  </a>
-
-  <nav class="nav" aria-label="頁面導覽">
-    <a href="#rings" data-nav="rings">年輪</a>
-    <a href="#albums" data-nav="albums">專輯</a>
-    <a href="#eras" data-nav="eras">年代</a>
-    <a href="#data" data-nav="data">數據</a>
-    <a href="#tracks" data-nav="tracks">曲目</a>
-  </nav>
-
-  <div class="tools">
-    <button class="lang" id="langToggle" type="button" aria-label="切換繁體與簡體">
-      <span class="lang-opt" data-opt="s">簡</span>
-      <span class="lang-opt" data-opt="t">繁</span>
-    </button>
-    <button class="btn btn-accent btn-sm" id="randomBtn" type="button">
-      <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M237.66,178.34a8,8,0,0,1,0,11.32l-24,24a8,8,0,0,1-11.32-11.32L212.69,192H200.94a72.12,72.12,0,0,1-58.59-30.15l-41.72-58.4A56.1,56.1,0,0,0,55.06,80H32a8,8,0,0,1,0-16H55.06a72.12,72.12,0,0,1,58.59,30.15l41.72,58.4A56.1,56.1,0,0,0,200.94,176h11.75l-10.35-10.34a8,8,0,0,1,11.32-11.32ZM143,107a8,8,0,0,0,11.16-1.86l1.2-1.67A56.1,56.1,0,0,1,200.94,80h11.75L202.34,90.34a8,8,0,0,0,11.32,11.32l24-24a8,8,0,0,0,0-11.32l-24-24a8,8,0,0,0-11.32,11.32L212.69,64H200.94a72.12,72.12,0,0,0-58.59,30.15l-1.2,1.67A8,8,0,0,0,143,107Zm-30,42a8,8,0,0,0-11.16,1.86l-1.2,1.67A56.1,56.1,0,0,1,55.06,176H32a8,8,0,0,0,0,16H55.06a72.12,72.12,0,0,0,58.59-30.15l1.2-1.67A8,8,0,0,0,113,149Z"/></svg>
-      <span>隨機一曲</span>
-    </button>
-  </div>
-</header>
 
 <main id="top">
 
-  <!-- 主視覺 -->
-  <section class="hero" id="hero">
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">周杰倫 · 錄音室專輯全集</p>
-        <h1 class="hero-title">
-          <span class="ht-line"><span>聲</span><span>之</span><span>年</span><span>輪</span></span>
-        </h1>
-        <p class="hero-sub"><span>從 2000 到 2026，十六張錄音室專輯。</span><span>以封面為軸，按年份逐張展開。</span></p>
-        <div class="hero-cta">
-          <a class="btn btn-accent btn-lg" href="#albums">
-            <span>進入展廳</span>
-            <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
-          </a>
-          <a class="btn btn-ghost btn-lg" href="#tracks">瀏覽曲目</a>
-        </div>
-      </div>
-      <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+  <!-- 入口主視覺 -->
+  <section class="ld-hero">
+    <div class="ld-inner">
+      <p class="ld-eyebrow"><span class="ld-seal" aria-hidden="true">
+        <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">聲</text></svg>
+      </span>聲之年輪</p>
+      <h1 class="ld-title">
+        <span class="ht-line"><span>選</span><span>一</span><span>位</span><span>歌</span><span>手</span></span>
+      </h1>
+      <p class="ld-sub"><span>以年輪與數據陳列歌手的完整錄音室目錄。</span><span>封面為軸，年份為序，全部可試聽。</span></p>
     </div>
   </section>
 
-  <!-- 數據帶 -->
-  <section class="figures" id="figures" aria-label="資料概覽">
-    <dl class="figures-row" id="figuresRow"></dl>
-  </section>
-
-  <!-- 歌名跑馬燈（全頁僅此一處） -->
-  <div class="marquee" aria-hidden="true">
-    <div class="marquee-track" id="marqueeTrack"></div>
-  </div>
-
-  <!-- 年輪：全站的核心視覺，每張專輯是一圈 -->
-  <section class="rings" id="rings">
-    <div class="sec-head">
-      <h2 class="sec-title">聲之年輪</h2>
-      <p class="sec-sub">每一圈是一張專輯，由內而外依年份排列；圈寬是曲目數，顏色取自該張封面</p>
-    </div>
-    <div class="rings-body">
-      <div class="rings-figure">
-        <div class="rings-stage" id="ringsStage" aria-hidden="true"></div>
-        <div class="rings-readout" id="ringsReadout">
-          <span class="rr-year">2000</span>
-          <span class="rr-title">Jay</span>
-          <span class="rr-meta">10 首 · 43:17</span>
-        </div>
-      </div>
-      <ol class="rings-legend" id="ringsLegend" aria-label="年輪對照：十六張專輯"></ol>
+  <!-- 歌手索引 -->
+  <section class="ld-index" aria-label="歌手索引">
+    <div class="ld-inner">
+      <ol class="ld-list" id="artistList"></ol>
+      <p class="ld-empty" id="ldEmpty" hidden>尚無歌手資料。請先在 _data/artists/ 建立歌手資料夾並執行 npm run build。</p>
     </div>
   </section>
 
-  <!-- 專輯展櫃 -->
-  <section class="rack" id="albums">
-    <div class="sec-head">
-      <h2 class="sec-title">錄音室專輯</h2>
-      <p class="sec-sub">十六張，按發行順序排列</p>
-    </div>
-    <div class="rack-stage" id="rackStage">
-      <div class="rack-pin">
-        <div class="rack-track" id="rackTrack" role="list" aria-label="專輯列表"></div>
-        <div class="rack-hud">
-          <span class="rack-now" id="rackNow">01</span>
-          <span class="rack-rail"><i id="rackBar"></i></span>
-          <span class="rack-total">16</span>
-          <span class="rack-hint" id="rackHint">
-            <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
-            <span>橫向瀏覽</span>
-          </span>
-        </div>
-      </div>
+  <!-- 說明 -->
+  <section class="ld-note">
+    <div class="ld-inner">
+      <dl class="ld-facts">
+        <div><dt>音源</dt><dd>Apple 官方 30 秒試聽片段，不儲存任何錄音</dd></div>
+        <div><dt>離線</dt><dd>封面與字體全部本地託管，斷網仍可瀏覽</dd></div>
+        <div><dt>擴充</dt><dd>在 _data/artists/ 新增歌手資料夾即可列入</dd></div>
+      </dl>
     </div>
   </section>
-
-  <!-- 作品年表 -->
-  <section class="chrono" id="chrono">
-    <div class="sec-head">
-      <h2 class="sec-title">作品年表</h2>
-      <p class="sec-sub">二〇〇〇 至 二〇二六</p>
-    </div>
-    <ol class="chrono-list" id="chronoList"></ol>
-  </section>
-
-  <!-- 年代分期 -->
-  <section class="eras" id="eras">
-    <div class="sec-head">
-      <h2 class="sec-title">年代分期</h2>
-      <p class="sec-sub">十六張專輯分成四個階段，看他在不同時期的取捨</p>
-    </div>
-    <div class="eras-list" id="erasList"></div>
-  </section>
-
-  <!-- 封面牆 -->
-  <section class="wall" id="wall">
-    <div class="sec-head">
-      <h2 class="sec-title">封面牆</h2>
-      <p class="sec-sub">十六張封面一次排開，點任一張進入專輯</p>
-    </div>
-    <div class="wall-grid" id="wallGrid"></div>
-  </section>
-
-  <!-- 數據面 -->
-  <section class="data" id="data">
-    <div class="sec-head">
-      <h2 class="sec-title">數據面</h2>
-      <p class="sec-sub">全部由曲目資料直接算出，沒有估算值</p>
-    </div>
-
-    <div class="data-body">
-      <!-- 累積曲目曲線 -->
-      <div class="data-block data-block--wide">
-        <h3 class="db-title">累積曲目</h3>
-        <p class="db-note">每發一張專輯往上疊，二十六年的總量曲線</p>
-        <div class="chart" id="growthChart"></div>
-      </div>
-
-      <!-- 發行間隔 -->
-      <div class="data-block">
-        <h3 class="db-title">發行間隔</h3>
-        <p class="db-note">相鄰兩張專輯相隔幾個月，最長的一段是 <b id="gapPeak">6.1 年</b></p>
-        <div class="chart" id="gapChart"></div>
-      </div>
-
-      <!-- 曲目數與時長 -->
-      <div class="data-block">
-        <h3 class="db-title">曲目數與時長</h3>
-        <p class="db-note">每張專輯的曲目數（左）與總長度（右）</p>
-        <div class="chart" id="barsChart"></div>
-      </div>
-
-      <!-- 關鍵數字 -->
-      <dl class="data-facts" id="dataFacts"></dl>
-    </div>
-  </section>
-
-  <!-- 長篇與短篇 -->
-  <section class="ranks" id="ranks">
-    <div class="sec-head">
-      <h2 class="sec-title">長篇與短篇</h2>
-      <p class="sec-sub">依單曲時長排序，最長與最短的各取一段</p>
-    </div>
-    <div class="ranks-body">
-      <div class="ranks-col">
-        <h3 class="ranks-head">最長的十二首</h3>
-        <ol class="ranks-list" id="longList"></ol>
-      </div>
-      <div class="ranks-col">
-        <h3 class="ranks-head">最短的八首</h3>
-        <ol class="ranks-list ranks-list--short" id="shortList"></ol>
-      </div>
-    </div>
-  </section>
-
-  <!-- 合作者 -->
-  <section class="collab" id="collab">
-    <div class="sec-head">
-      <h2 class="sec-title">合作者</h2>
-      <p class="sec-sub">從曲目標題的合唱標註整理出來，共 <b id="collabTotal">5</b> 位</p>
-    </div>
-    <div class="collab-list" id="collabList"></div>
-  </section>
-
-  <!-- 代表曲 -->
-  <section class="picks" id="picks">
-    <div class="sec-head">
-      <h2 class="sec-title">代表曲</h2>
-      <p class="sec-sub">每張專輯挑出的關鍵曲目，共 <b id="picksTotal">38</b> 首</p>
-    </div>
-    <div class="picks-list" id="picksList"></div>
-  </section>
-
-  <!-- 曲目總表 -->
-  <section class="cat" id="tracks">
-    <div class="sec-head">
-      <h2 class="sec-title">曲目總表</h2>
-      <p class="sec-sub">共 <b id="catTotal">175</b> 首錄音室作品</p>
-    </div>
-
-    <div class="search">
-      <svg class="ico search-ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
-      <input id="searchInput" type="search" autocomplete="off" spellcheck="false"
-             placeholder="搜尋專輯或歌曲" aria-label="搜尋專輯或歌曲"
-             aria-describedby="searchStatus">
-      <button class="search-clear" id="searchClear" type="button" hidden aria-label="清除搜尋">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
-      </button>
-    </div>
-    <p class="search-status" id="searchStatus" role="status" aria-live="polite"></p>
-
-    <div class="cat-list" id="catList"></div>
-
-    <div class="empty" id="catEmpty" hidden>
-      <p class="empty-title">沒有符合的曲目</p>
-      <p class="empty-sub">換個關鍵字試試，或清除搜尋查看全部作品。</p>
-      <button class="btn btn-ghost" id="emptyReset" type="button">清除搜尋</button>
-    </div>
-  </section>
-
-  <!-- 頁尾 -->
-  <footer class="foot">
-    <div class="foot-top">
-      <span class="foot-seal" aria-hidden="true">
-        <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">周</text></svg>
-      </span>
-      <p class="foot-mark">聲之年輪</p>
-      <p class="foot-tag">十六張錄音室專輯 · 一百七十五首作品 · 二〇〇〇 至 二〇二六</p>
-    </div>
-    <div class="foot-cols">
-      <div class="foot-col">
-        <h3>內容</h3>
-        <p>專輯封面、發行日期、曲目名稱與時長取自 Apple Music / iTunes 公開目錄。</p>
-      </div>
-      <div class="foot-col">
-        <h3>版權</h3>
-        <p>封面圖像與錄音版權屬 JVR Music International Ltd. 所有。本站為個人收藏陳列，不作商業用途。</p>
-      </div>
-      <div class="foot-col">
-        <h3>字體</h3>
-        <p>思源宋體 Noto Serif SC、思源黑體 Noto Sans SC、Bodoni Moda，均為開源字體，已本地託管。</p>
-      </div>
-    </div>
-    <p class="foot-fine"><span>靜態網站，離線可用</span><span>資料更新於 <span id="buildStamp">2026</span></span></p>
-  </footer>
 
 </main>
 
-<!-- 專輯詳情 -->
-<div class="sheet" id="sheet" hidden>
-  <div class="sheet-scrim" data-close></div>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" tabindex="-1">
-    <div class="sheet-bar">
-      <button class="sheet-nav" id="sheetPrev" type="button" aria-label="上一張專輯">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"/></svg>
-        <span>上一張</span>
-      </button>
-      <button class="sheet-nav" id="sheetNext" type="button" aria-label="下一張專輯">
-        <span>下一張</span>
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
-      </button>
-      <button class="sheet-close" data-close type="button" aria-label="關閉">
-        <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
-      </button>
-    </div>
-    <div class="sheet-scroll" id="sheetScroll"></div>
+<footer class="ld-foot">
+  <div class="ld-inner">
+    <p>聲之年輪 · 個人非商業收藏陳列。封面與錄音權利屬各自權利人。</p>
   </div>
-</div>
+</footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<!-- 試聽播放列：音源為 Apple 目錄隨附的官方 30 秒試聽片段 -->
-<div class="player" id="player">
-  <div class="pl-inner">
-    <img class="pl-cover" id="plCover" src="assets/covers/responsive/jay2000-480.jpg" alt="" width="46" height="46">
-    <div class="pl-info">
-      <span class="pl-title" id="plTitle">尚未選擇曲目</span>
-      <span class="pl-meta" id="plMeta">按曲目左側的播放鍵開始試聽</span>
-    </div>
-    <div class="pl-seek">
-      <span class="pl-times"><span id="plCur">0:00</span> / <span id="plDur">0:30</span></span>
-      <input class="pl-range" id="plRange" type="range" min="0" max="30" step="0.1" value="0"
-             aria-label="播放進度" aria-describedby="plMeta">
-    </div>
-    <div class="pl-btns">
-      <span class="pl-loop" id="plLoopTag">整張連續</span>
-      <button class="pl-btn pl-btn--skip" id="plPrev" type="button" aria-label="上一首" disabled>
-        <svg class="ico pl-ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M199.81,34a16,16,0,0,0-16.24.43L64,109.23V40a8,8,0,0,0-16,0V216a8,8,0,0,0,16,0V146.77l119.57,74.78A15.95,15.95,0,0,0,208,208.12V47.88A15.86,15.86,0,0,0,199.81,34ZM192,208,64.16,128,192,48.07Z"/></svg>
-      </button>
-      <button class="pl-btn pl-btn--main" id="plToggle" type="button" aria-label="播放" aria-pressed="false" disabled>
-        <svg class="ico pl-ico pl-ico--play" viewBox="0 0 256 256" aria-hidden="true"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"/></svg>
-        <svg class="ico pl-ico pl-ico--pause" viewBox="0 0 256 256" aria-hidden="true"><path d="M200,32H160a16,16,0,0,0-16,16V208a16,16,0,0,0,16,16h40a16,16,0,0,0,16-16V48A16,16,0,0,0,200,32Zm0,176H160V48h40ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Zm0,176H56V48H96Z"/></svg>
-      </button>
-      <button class="pl-btn pl-btn--skip" id="plNext" type="button" aria-label="下一首" disabled>
-        <svg class="ico pl-ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M200,32a8,8,0,0,0-8,8v69.23L72.43,34.45A15.95,15.95,0,0,0,48,47.88V208.12a16,16,0,0,0,24.43,13.43L192,146.77V216a8,8,0,0,0,16,0V40A8,8,0,0,0,200,32ZM64,207.93V48.05l127.84,80Z"/></svg>
-      </button>
-      <button class="pl-btn" id="plLoop" type="button" aria-pressed="false" aria-label="連續播放整張專輯">
-        <svg class="ico pl-ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"/></svg>
-      </button>
-      <button class="pl-btn" id="plClose" type="button" aria-label="關閉播放列">
-        <svg class="ico pl-ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
-      </button>
-    </div>
-  </div>
-</div>
-
-<audio id="plAudio" preload="none"></audio>
-
-<noscript>
-  <div class="noscript">
-    <p>本站的專輯陳列需要 JavaScript 才能呈現。請在瀏覽器中啟用 JavaScript 後重新開啟頁面。</p>
-  </div>
-</noscript>
-
 <script src="js/data.js"></script>
-<script src="js/app.js"></script>
+<script src="js/landing.js"></script>
 </body>
 </html>

@@ -4,28 +4,39 @@
 
 ## 目標與硬約束
 
-- 目標：把十六張專輯陳列成一個可信、耐看、可長期維護的靜態站
+- 目標：一套可复用的歌手唱片陳列模板——按歌手陳列完整錄音室目錄，
+  現收錄周杰倫，新增歌手不需要改渲染層
 - 硬約束一：零執行期依賴，無建置步驟，雙擊 `index.html` 即可開
 - 硬約束二：離線可用。無網路時頁面完整呈現，僅試聽控制自行停用
 - 硬約束三：唯一深色主題、唯一強調色。不提供淺色模式，不提供主題切換
 
+## 頁面構成
+
+```
+index.html    入口：歌手索引，點選一位歌手
+artist.html   歌手頁：?a=<id> 決定陳列誰，十四個展示面都在這裡
+```
+
 ## 資料流
 
 ```
-iTunes Lookup API ──┐
-MusicBrainz ────────┼─→ _data/albums-raw.json ─┐
-封面平均色 ─────────┘                          │
-                                               ├─→ _data/build.mjs ─→ js/data.js ─→ window.JC
-_data/META 編輯層（繁體文案）───────────────────┘                                   │
-                                                                                    ↓
-                                                              js/app.js 各 render 函式 ─→ DOM
+_data/artists/<id>/albums-raw.json ──┐
+_data/artists/<id>/colors.json ──────┼─→ _data/build.mjs ─→ js/data.js ─→ window.DISCOGRAPHY
+_data/artists/<id>/meta.mjs ─────────┘                                     │
+                                                     ┌─────────────────────┤
+入口 index.html ←── landing.js（歌手索引）────────────┘                     │
+歌手 artist.html ←── app.js（?a=<id> → artists[id] 賦值給內部 JC）───────────┘
 ```
 
-- 事實（專輯、曲目、時長、試聽網址）全部來自 `albums-raw.json`，由 `build.mjs` 匯出
-- 文案（標題、簡介、分期說明）來自 `build.mjs` 內的 `META`，以繁體撰寫
-- 檢視層不自行計算統計量；所有數字由 `build.mjs` 算好放進 `JC`
+- 事實（專輯、曲目、時長、試聽網址）按歌手放在 `artists/<id>/albums-raw.json`
+- 文案（歌手身份、專輯標題與介紹、分期說明）放在 `artists/<id>/meta.mjs`，以繁體撰寫
+- 檢視層不自行計算統計量；所有數字由 `build.mjs` 算好放進各歌手的展示集
+- `app.js` 在檔案頂部把當前歌手的展示集賦值給內部變量 `JC`，
+  因此渲染層與「具體是哪位歌手」解耦：換歌手不需要改任何渲染函式
+- 無參數或 id 不存在時，`artist.html` 回到入口頁
 
-理由：檢視層與事實分離，任何一處陳列都不會與唱片事實漂移。
+理由：檢視層與「哪位歌手」及「事實」雙重解耦，任何一處陳列都不會漂移；
+新增歌手 = 新增資料夾 + 重跑構建。
 
 ## 設計決策
 
@@ -73,8 +84,10 @@ _data/META 編輯層（繁體文案）──────────────
 
 ## 契約
 
-- `window.JC` 的欄位即檢視層契約：`albums` / `tracks` / `eras` / `collaborators` /
-  `longest` / `shortest` / `growth` / `gaps` / `signature` / `distribution` / `stats` / `toSimplified`
+- `window.DISCOGRAPHY` 的欄位即檢視層契約：`toSimplified` / `order` / `artists`
+- 每個歌手展示集的欄位：身份（`id` `name` `en` `seal` `tagline` `taglineEn` `intro`）、
+  事實衍生（`albums` `tracks` `eras` `collaborators` `longest` `shortest` `growth` `gaps`
+  `signature` `distribution` `stats`）、外觀（`heroFan` `covers` `tint`）、`toSimplified`
 - 曲目欄位：`n` / `disc` / `zh` / `sec` / `len` / `sig` / `audio` / `preview` / `local`
 - 專輯欄位：`id` / `idx` / `no` / `title` / `alt` / `en` / `year` / `dateISO` / `date` /
   `publisher` / `trackCount` / `runtime` / `runtimeSec` / `cover` / `blurb` / `tint` /

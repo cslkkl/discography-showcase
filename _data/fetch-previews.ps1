@@ -1,8 +1,10 @@
+param([string]$Artist = 'jay-chou')
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 $here = $PSScriptRoot
-$rawPath = Join-Path $here 'albums-raw.json'
+$rawPath = Join-Path $here "artists\$Artist\albums-raw.json"
+if (-not (Test-Path $rawPath)) { throw "albums-raw.json not found for artist '$Artist': $rawPath" }
 $raw = Get-Content $rawPath -Raw -Encoding UTF8 | ConvertFrom-Json
 
 $totalTracks = 0

@@ -4,12 +4,13 @@
 
 _data/ 特有约束：
 
-- 本目录是可重建的输入层与工具层，不是站点的运行期资源；`index.html` 不引用它
-- `albums-raw.json` 与 `colors.json` 必须入库，它们是 `build.mjs` 的输入
+- 本目录是可重建的输入层与工具层，不是站点的运行期资源；`index.html` 与 `artist.html` 不引用它
+- 事实与文案分离：事实进 `artists/<id>/albums-raw.json`，文案进 `artists/<id>/meta.mjs`；
+  `build.mjs` 不写任何事实
+- 新增歌手 = 新增 `artists/<id>/` 资料夹 + `npm run build`，不改 `build.mjs`
+- `meta.mjs` 导出的 `id` 必须与资料夹同名，构建时会校验
 - 抓取类脚本必须幂等，重跑不得产生重复或错乱；失败要报错而非静默跳过
-- 事实与文案分离：事实进 `albums-raw.json`，文案进 `build.mjs` 的 `META`
-- 修改 `META` 中的曲目名须同时检查 `KANJI_FIX` 是否需要扩充
 - PowerShell 抓取脚本用 `Set-Content` 会写 CRLF，提交前跑 `npm run check:eol`
 - 不引入 npm 依赖；需要网络时用 PowerShell 或 Node 内置模块
 
-各文件职责见 [README.md](README.md)。
+结构见 [README.md](README.md)，新增歌手步骤见 [artists/README.md](artists/README.md)。
