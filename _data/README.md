@@ -11,6 +11,7 @@
 - `build.mjs`：唯一生成器。遍歷 `artists/*`，讀各自的 `albums-raw.json` + `colors.json` +
   `meta.mjs`，寫出 `js/data.js`（`window.DISCOGRAPHY`）。新增歌手不需要改這個檔案
 - `serve.mjs`：零依賴靜態伺服器，供本機預覽與自動化驗證；埠號由參數指定
+- `local-audio.mjs`：掃描自有音檔目錄，生成 `_data/local-audio.json`。用法與對應規則見下
 
 ### 每位歌手一個資料夾
 
@@ -37,11 +38,32 @@
 - `TSCharacters.js` / `TSPhrases.js`：OpenCC 的繁簡轉換表，被 `build.mjs` 讀入並內嵌。
   這是轉換引擎，與歌手無關，全站共用一份
 
-### 可選輸入
+### 可選輸入：自有音檔
 
-- `local-audio.json`（不存在時忽略）：把曲目對應到使用者自有音檔，
-  格式 `{ "jay2000-1": "assets/audio/jay2000/01.m4a" }`。
-  鍵以專輯 id 為前綴，而專輯 id 全局唯一，故一份檔案服務所有歌手
+`local-audio.json`（不存在時忽略）：把曲目對應到使用者自有音檔，
+格式 `{ "jay2000-1": "assets/audio/jay2000/01.m4a" }`。
+鍵以專輯 id 為前綴，而專輯 id 全局唯一，故一份檔案服務所有歌手。
+
+這份檔案由 `local-audio.mjs` 生成，不要手寫：
+
+```
+assets/audio/<專輯id>/<任意檔名>.<m4a|mp3|aac|flac|opus|ogg|wav>
+
+node _data/local-audio.mjs                    # 只報告，不寫檔
+node _data/local-audio.mjs --write            # 寫出 local-audio.json
+node _data/local-audio.mjs --write --rename   # 另把檔名補正為「兩位數序號 + 描述」
+node _data/local-audio.mjs --list-albums      # 列出全部專輯 id，供建立目錄
+node _data/local-audio.mjs --artist <id> [--album <id>]   # 只處理其中一部分
+```
+
+- 檔名對應：先看前綴數字（`01`／`1 -`／`[04]`），沒有數字才用曲名比對；
+  曲名比對同時接受繁體原名與簡體轉換
+- `--rename` 只補正序號，描述文字原樣保留（`3 - 星晴.m4a` → `03 星晴.m4a`）
+- 工具只寫 `local-audio.json`；要生效需再接 `npm run build`
+- 音檔與登記檔都不進版本庫，見 [../.gitignore](../.gitignore)；
+  遠端沒有音檔時播放會回退到 Apple 試聽
+
+合法來源：自有 CD 抓軌、購買的 DRM-free 數位專輯。站內不引入來源不明的錄音。
 
 ## 資料流
 

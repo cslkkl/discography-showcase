@@ -11,6 +11,7 @@
   "scripts": {
     "build": "node _data/build.mjs",
     "serve": "node _data/serve.mjs 8099",
+    "audio": "node _data/local-audio.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
