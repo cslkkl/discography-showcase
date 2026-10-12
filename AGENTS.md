@@ -55,6 +55,7 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 
 ## 待辦
 
+- [ ] UI 改進：按顯示與導覽、目錄與試聽、視覺細節三階段推進，詳見 [UI 改進待辦](docs/PLAN.md#ui-改進待辦)
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
 - [ ] 決定是否把 `assets/fonts/` 210 個 subset 改為按需子集化
 - [ ] 母題只做氛圍層；五套母題（spotlight/ink/midnight/aria/neon）可再按人細修
@@ -81,6 +82,7 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 ## 文檔地圖
 
 - 架構與設計決策 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- 進行中計畫與 UI 改進待辦 → [docs/PLAN.md](docs/PLAN.md)
 - 決策與依據記錄 → [.agents/notes/](.agents/notes/)
 - 樣式手冊 → [css/README.md](css/README.md)
 - 腳本手冊 → [js/README.md](js/README.md)
