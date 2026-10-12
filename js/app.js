@@ -150,6 +150,9 @@
     '<path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"/>';
   var P_PAUSE =
     '<path d="M200,32H160a16,16,0,0,0-16,16V208a16,16,0,0,0,16,16h40a16,16,0,0,0,16-16V48A16,16,0,0,0,200,32Zm0,176H160V48h40ZM96,32H56A16,16,0,0,0,40,48V208a16,16,0,0,0,16,16H96a16,16,0,0,0,16-16V48A16,16,0,0,0,96,32Zm0,176H56V48H96Z"/>';
+  /* 指向专辑的箭头，用于年轮读数的「查看專輯」入口 */
+  var P_ARROW =
+    '<path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/>';
   function iconPaths() {
     return (
       '<svg class="ico pl-ico pl-ico--play" viewBox="0 0 256 256" aria-hidden="true">' +
@@ -535,7 +538,9 @@
   /* ── year rings ─────────────────────────────────────────────────────── */
   var ringNodes = [],
     legendNodes = [],
-    ringsLive = 0;
+    /* -1：初值必须是「未选中」，否则首次 setRingLive(0) 会被去重守卫挡掉，
+       读数（封面/年份/专辑名/入口）就永远不会填充 */
+    ringsLive = -1;
 
   /* cover averages can be quite dark; lift them toward paper so a ring keeps
      a readable edge against the ink base without inventing a new accent */
@@ -570,7 +575,13 @@
     });
     var ro = $('#ringsReadout');
     if (ro && a) {
+      /* 读数与所选那圈同步：封面、年份、专辑名、曲目数，并给出进入专辑的入口 */
       ro.innerHTML =
+        '<span class="rr-cover"><img src="' +
+        a.cover +
+        '" srcset="' +
+        srcset(a) +
+        '" sizes="76px" alt=""></span>' +
         '<span class="rr-year">' +
         a.year +
         '</span>' +
@@ -581,7 +592,13 @@
         a.trackCount +
         ' 首 · ' +
         esc(a.runtime) +
-        '</span>';
+        '</span>' +
+        '<button class="rr-open" type="button" data-open-album="' +
+        a.id +
+        '">查看專輯' +
+        '<svg class="ico" viewBox="0 0 256 256" aria-hidden="true">' +
+        P_ARROW +
+        '</svg></button>';
       localize(ro);
     }
   }
@@ -725,8 +742,15 @@
     var section = $('#rings');
     if (section) {
       section.addEventListener('click', function (e) {
+        /* 读数的「查看專輯」按钮才进入专辑；点圈或图例只切换选中，
+           避免探索年轮时误触跳走 */
+        var open = e.target.closest ? e.target.closest('[data-open-album]') : null;
+        if (open) {
+          openSheet(open.getAttribute('data-open-album'));
+          return;
+        }
         var n = e.target.closest ? e.target.closest('[data-ring]') : null;
-        if (n) openSheet(n.getAttribute('data-id'));
+        if (n) setRingLive(+n.getAttribute('data-ring'));
       });
     }
   }

@@ -1101,6 +1101,14 @@ html.ld-booting .ht-line span {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   width: 44%; text-align: center; pointer-events: none;
 }
+/* 读数里的封面与入口需要可交互：单独开回 pointer-events */
+.rr-cover {
+  display: block; width: clamp(52px, 7vw, 76px); aspect-ratio: 1;
+  margin: 0 auto 12px; border-radius: var(--r); overflow: hidden;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .08);
+  transition: opacity .2s var(--ease), transform .3s var(--ease);
+}
+.rr-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .rr-year {
   display: block; font-family: var(--f-num); line-height: 1;
   font-size: clamp(1.5rem, 3.4vw, 2.5rem); color: var(--paper);
@@ -1115,6 +1123,18 @@ html.ld-booting .ht-line span {
   display: block; margin-top: 7px; font-size: .68rem; letter-spacing: .13em;
   color: var(--paper-3); font-variant-numeric: tabular-nums;
 }
+.rr-open {
+  pointer-events: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 14px; padding: 6px 14px; border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  font-size: .75rem; letter-spacing: .1em; color: var(--paper-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+}
+.rr-open:hover, .rr-open:focus-visible {
+  color: var(--paper); border-color: var(--accent); background: rgba(255, 255, 255, .05);
+}
+.rr-open .ico { width: .78rem; height: .78rem; color: var(--accent); }
 
 .rings-legend {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
