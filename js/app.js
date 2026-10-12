@@ -726,24 +726,9 @@
       /* 错峰 delay 只服务于入场；入场走完就清零，否则悬停要等「序号 × 55ms」 */
       settleTimer = setTimeout(settle, 55 * Math.max(0, ringNodes.length - 1) + 1150);
     };
-    if (REDUCED.matches || !('IntersectionObserver' in window)) {
-      draw();
-      settle();
-      return;
-    }
-    var ro = new IntersectionObserver(
-      function (es) {
-        es.forEach(function (e) {
-          if (e.isIntersecting) {
-            draw();
-            ro.disconnect();
-          }
-        });
-      },
-      { threshold: 0.25 }
-    );
-    ro.observe(stage);
 
+    /* 交互接线一律先做：年轮的选择、读数与「查看專輯」入口与入场动画无关，
+       放在降级分支之后会被 reduced-motion 与无 IntersectionObserver 的环境整段跳过 */
     // pointer only on non-touch: on touch, hover never fires
     if (!isTouch) {
       ringNodes.forEach(function (n) {
@@ -779,6 +764,24 @@
         if (n) setRingLive(+n.getAttribute('data-ring'));
       });
     }
+
+    if (REDUCED.matches || !('IntersectionObserver' in window)) {
+      draw();
+      settle();
+      return;
+    }
+    var ro = new IntersectionObserver(
+      function (es) {
+        es.forEach(function (e) {
+          if (e.isIntersecting) {
+            draw();
+            ro.disconnect();
+          }
+        });
+      },
+      { threshold: 0.25 }
+    );
+    ro.observe(stage);
   }
 
   /* ── era chapters ───────────────────────────────────────────────────── */
