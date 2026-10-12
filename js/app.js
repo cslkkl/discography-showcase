@@ -2053,6 +2053,57 @@
   }
 
   /* ── chrome: scroll bar, topbar, nav state ──────────────────────────── */
+  /* ── catalog views: 展櫃／封面牆／年表看同一批專輯 ────────────────────── */
+  var CAT_VIEWS = ['rack', 'wall', 'chrono'];
+  function setCatView(name, silent) {
+    if (CAT_VIEWS.indexOf(name) < 0) name = 'rack';
+    CAT_VIEWS.forEach(function (v) {
+      var panel = document.getElementById('view-' + v);
+      if (panel) panel.hidden = v !== name;
+      var btn = $('.cv-btn[data-view="' + v + '"]');
+      if (btn) btn.setAttribute('aria-selected', String(v === name));
+    });
+    try {
+      localStorage.setItem('jc-view', name);
+    } catch {
+      /* 隐私模式下写入会抛错，忽略 */
+    }
+    /* 展櫃依赖宽度测量；切回来时重量一次 */
+    if (name === 'rack' && !silent) {
+      requestAnimationFrame(function () {
+        measureRack();
+        marqueeRoom = 0;
+      });
+    }
+  }
+
+  function bindCatViews() {
+    var host = $('#catViews');
+    if (!host) return;
+    host.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-view]') : null;
+      if (b) setCatView(b.getAttribute('data-view'));
+    });
+    /* 键盘左右键在视图间移动 */
+    host.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var btns = $$('.cv-btn');
+      var i = btns.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      var next = btns[(i + (e.key === 'ArrowRight' ? 1 : btns.length - 1)) % btns.length];
+      next.focus();
+      setCatView(next.getAttribute('data-view'));
+    });
+    var saved = 'rack';
+    try {
+      saved = localStorage.getItem('jc-view') || 'rack';
+    } catch {
+      saved = 'rack';
+    }
+    setCatView(saved, true);
+  }
+
   /* ── chapters: 窄屏的章节跳转（桌面導覽在 <=860px 隱藏） ─────────────── */
   function renderChapters() {
     var host = $('#chapters');
@@ -2358,6 +2409,7 @@
     bind();
     bindChrome();
     renderChapters();
+    bindCatViews();
     bindArtistSwitch();
     applyArtistChrome();
     setLang(lang);

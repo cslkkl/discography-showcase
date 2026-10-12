@@ -529,6 +529,32 @@ html.ld-booting .ht-line span {
 /* ── 10. album rack ────────────────────────────────────────────────────── */
 .rack { padding-top: var(--sect); }
 .rack-stage { position: relative; }
+
+/* ── 目錄三視圖：展櫃／封面牆／年表看同一批專輯，切換而非連續重複瀏覽 ── */
+.cat-views {
+  max-width: var(--page); margin: 0 auto;
+  padding: 0 var(--gutter) clamp(18px, 2.4vw, 30px);
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.cv-btn {
+  padding: 7px 16px; border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  font-size: .82rem; letter-spacing: .1em; color: var(--paper-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+}
+.cv-btn:hover, .cv-btn:focus-visible { color: var(--paper); border-color: var(--line-3); }
+.cv-btn[aria-selected='true'] {
+  color: var(--accent-on); background: var(--accent); border-color: var(--accent);
+}
+.cat-view[hidden] { display: none; }
+.cat-hint {
+  max-width: var(--page); margin: 0 auto clamp(16px, 2vw, 24px);
+  padding: 0 var(--gutter);
+  font-size: .8rem; letter-spacing: .06em; color: var(--paper-3);
+}
+/* 年表與封面牆併入目錄後不再自帶整段留白 */
+.cat-view .chrono-list,
+.cat-view .wall-grid { margin-top: 0; }
 .rack-pin {
   position: sticky; top: 0;
   height: 100svh;
@@ -1661,6 +1687,9 @@ html { scroll-padding-bottom: 96px; }
   :root { --nav-h: 60px; }
   .nav { display: none; }
   .brand-text i { display: none; }
+  .cat-views { overflow-x: auto; scrollbar-width: none; }
+  .cat-views::-webkit-scrollbar { display: none; }
+  .cv-btn { flex: none; }
   /* 章节条是贴在顶栏下方的固定层，锚点跳转要把它的高度一起让开 */
   html { scroll-padding-top: calc(var(--nav-h) + 58px); }
   .chapters {

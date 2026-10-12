@@ -136,29 +136,39 @@
       <h2 class="sec-title">錄音室專輯</h2>
       <p class="sec-sub" id="rackSub">按發行順序排列</p>
     </div>
-    <div class="rack-stage" id="rackStage">
-      <div class="rack-pin">
-        <div class="rack-track" id="rackTrack" role="list" aria-label="專輯列表"></div>
-        <div class="rack-hud">
-          <span class="rack-now" id="rackNow">01</span>
-          <span class="rack-rail"><i id="rackBar"></i></span>
-          <span class="rack-total" id="rackTotal"></span>
-          <span class="rack-hint" id="rackHint">
-            <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
-            <span>橫向瀏覽</span>
-          </span>
+    <!-- 三種視圖看同一批專輯：展櫃、封面牆、年表。切換而非連續重複瀏覽 -->
+    <div class="cat-views" id="catViews" role="tablist" aria-label="目錄視圖">
+      <button class="cv-btn" type="button" role="tab" data-view="rack" aria-selected="true">展櫃</button>
+      <button class="cv-btn" type="button" role="tab" data-view="wall" aria-selected="false">封面牆</button>
+      <button class="cv-btn" type="button" role="tab" data-view="chrono" aria-selected="false">年表</button>
+    </div>
+
+    <div class="cat-view" id="view-rack" role="tabpanel" aria-label="展櫃">
+      <div class="rack-stage" id="rackStage">
+        <div class="rack-pin">
+          <div class="rack-track" id="rackTrack" role="list" aria-label="專輯列表"></div>
+          <div class="rack-hud">
+            <span class="rack-now" id="rackNow">01</span>
+            <span class="rack-rail"><i id="rackBar"></i></span>
+            <span class="rack-total" id="rackTotal"></span>
+            <span class="rack-hint" id="rackHint">
+              <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+              <span>橫向瀏覽</span>
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- 作品年表 -->
-  <section class="chrono" id="chrono">
-    <div class="sec-head">
-      <h2 class="sec-title">作品年表</h2>
-      <p class="sec-sub" id="chronoSub">發行年份</p>
+    <div class="cat-view" id="view-wall" role="tabpanel" aria-label="封面牆" hidden>
+      <p class="cat-hint" id="wallSub">點封面進入專輯，點播放鍵直接試聽</p>
+      <div class="wall-grid" id="wallGrid"></div>
     </div>
-    <ol class="chrono-list" id="chronoList"></ol>
+
+    <div class="cat-view" id="view-chrono" role="tabpanel" aria-label="作品年表" hidden>
+      <p class="cat-hint" id="chronoSub">發行年份</p>
+      <ol class="chrono-list" id="chronoList"></ol>
+    </div>
   </section>
 
   <!-- 年代分期 -->
@@ -168,15 +178,6 @@
       <p class="sec-sub" id="erasSub">按時期分段</p>
     </div>
     <div class="eras-list" id="erasList"></div>
-  </section>
-
-  <!-- 封面牆 -->
-  <section class="wall" id="wall">
-    <div class="sec-head">
-      <h2 class="sec-title">封面牆</h2>
-      <p class="sec-sub" id="wallSub">點任一張進入專輯</p>
-    </div>
-    <div class="wall-grid" id="wallGrid"></div>
   </section>
 
   <!-- 數據面 -->
