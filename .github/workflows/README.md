@@ -21,6 +21,6 @@
 
 ## 已知限制
 
-本倉未發布到遠端，CI 只在有遠端時才會實際執行；無遠端期間以本地 `npm run check` 為準。
+CI 在每次 push 後執行；本地以 `npm run check` 為同一套檢查，結果應與 CI 一致。
 
 使用約束見 [AGENTS.md](AGENTS.md)。
