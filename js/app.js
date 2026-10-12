@@ -386,6 +386,7 @@
       card.setAttribute('role', 'listitem');
       card.setAttribute('data-id', a.id);
       var alt = a.alt ? '<span class="album-alt">' + esc(a.alt) + '</span>' : '';
+      var first = firstPlayable(a);
       card.innerHTML =
         '<button class="album-hit" type="button" data-open="' +
         a.id +
@@ -415,7 +416,22 @@
         esc(a.en) +
         '</span>' +
         '</span>' +
-        '</button>';
+        '</button>' +
+        /* 浏览与播放分开：点封面看专辑，点这一颗直接试听 */
+        (first
+          ? '<button class="album-play" type="button" data-play="' +
+            a.id +
+            ':' +
+            first.n +
+            '" aria-label="試聽 ' +
+            esc(a.title) +
+            ' 的 ' +
+            esc(first.zh) +
+            '，官方 30 秒片段">' +
+            '<svg class="ico" viewBox="0 0 256 256" aria-hidden="true">' +
+            P_PLAY +
+            '</svg><span>試聽 30 秒</span></button>'
+          : '');
       f.appendChild(card);
     });
     rackTrack.appendChild(f);
@@ -472,6 +488,12 @@
   }
 
   var updateRack = paintRackFromScroll;
+
+  /* 第一首可试听的曲目：卡片上的「试听 30 秒」按钮用它 */
+  function firstPlayable(a) {
+    for (var i = 0; i < a.tracks.length; i++) if (a.tracks[i].audio) return a.tracks[i];
+    return null;
+  }
 
   /* ── chronology ─────────────────────────────────────────────────────── */
   function renderChrono() {
@@ -771,11 +793,16 @@
     if (!host) return;
     var f = frag();
     ALBUMS.forEach(function (a) {
-      var b = el('button', 'wall-tile rv');
-      b.type = 'button';
-      b.setAttribute('data-open', a.id);
-      b.setAttribute('aria-label', '查看專輯 ' + a.title + '，' + a.year);
-      b.innerHTML =
+      var first = firstPlayable(a);
+      var wrap = el('div', 'wall-cell rv');
+      wrap.innerHTML =
+        '<button class="wall-tile" type="button" data-open="' +
+        a.id +
+        '" aria-label="查看專輯 ' +
+        esc(a.title) +
+        '，' +
+        a.year +
+        '">' +
         '<span class="wt-plate"><img src="assets/covers/responsive/' +
         a.id +
         '-480.jpg" srcset="' +
@@ -792,8 +819,21 @@
         '</span>' +
         '<span class="wt-year">' +
         a.year +
-        '</span></span>';
-      f.appendChild(b);
+        '</span></span>' +
+        '</button>' +
+        (first
+          ? '<button class="wt-play" type="button" data-play="' +
+            a.id +
+            ':' +
+            first.n +
+            '" aria-label="試聽 ' +
+            esc(a.title) +
+            '，官方 30 秒片段">' +
+            '<svg class="ico" viewBox="0 0 256 256" aria-hidden="true">' +
+            P_PLAY +
+            '</svg></button>'
+          : '');
+      f.appendChild(wrap);
     });
     host.appendChild(f);
   }
@@ -2004,7 +2044,7 @@
         '</span></button>' +
         '<button class="am-item am-tool" type="button" role="menuitem" data-tool="random">' +
         '<span class="am-seal" aria-hidden="true">隨</span>' +
-        '<span class="am-name">隨機一曲</span>' +
+        '<span class="am-name">隨機試聽</span>' +
         '<span class="am-meta">30 秒</span></button>'
     );
     menu.innerHTML = html.join('');
@@ -2040,7 +2080,7 @@
       var act = t.getAttribute('data-tool');
       setOpen(false);
       if (act === 'lang') setLang(lang === 's' ? 't' : 's');
-      else if (act === 'random') document.getElementById('randomBtn').click();
+      else if (act === 'random') pickRandom();
     });
     document.addEventListener('keydown', function (e) {
       if (menu.hidden) return;
@@ -2106,6 +2146,25 @@
       saved = 'rack';
     }
     setCatView(saved, true);
+  }
+
+  /* ── random: 顶栏按钮与窄屏选单共用 ─────────────────────────────────── */
+  function pickRandom() {
+    var pool = JC.tracks.filter(function (t) {
+      return !!t.audio;
+    });
+    if (!pool.length) {
+      toast('這位歌手目前沒有可試聽的曲目');
+      return;
+    }
+    var t = pool[Math.floor(Math.random() * pool.length)];
+    /* 先播放并定位到曲目总表那一行，而不是弹抽屉挡在前面 */
+    setCatView('rack', true);
+    plLoad({ albumId: t.album, n: t.n }, true);
+    var panel = $('#tracks');
+    if (panel)
+      panel.scrollIntoView({ behavior: REDUCED.matches ? 'auto' : 'smooth', block: 'start' });
+    toast('隨機試聽：' + t.zh + '（' + t.albumTitle + '）');
   }
 
   /* ── chapters: 窄屏的章节跳转（桌面導覽在 <=860px 隱藏） ─────────────── */
@@ -2278,11 +2337,7 @@
     });
 
     // random track -> opens its album
-    $('#randomBtn').addEventListener('click', function () {
-      var t = JC.tracks[Math.floor(Math.random() * JC.tracks.length)];
-      openSheet(t.album, true);
-      toast('隨機選中：' + t.zh + '（' + t.albumTitle + '）');
-    });
+    $('#randomBtn').addEventListener('click', pickRandom);
 
     // search
     var t0 = 0;

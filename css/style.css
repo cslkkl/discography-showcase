@@ -582,11 +582,23 @@ html.ld-booting .ht-line span {
 .album-card.is-live { opacity: 1; filter: none; transform: scale(1); }
 
 .album-hit { display: block; width: 100%; text-align: left; }
+/* 展柜卡片上的试听入口：与「点封面看专辑」并列，不互相吞掉点击 */
+.album-play {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-top: 12px; padding: 7px 14px; border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  font-size: .76rem; letter-spacing: .08em; color: var(--paper-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+}
+.album-play:hover, .album-play:focus-visible {
+  color: var(--paper); border-color: var(--accent); background: rgba(255, 255, 255, .05);
+}
+.album-play .ico { width: .8rem; height: .8rem; color: var(--accent); }
 
 .album-top {
   display: flex; align-items: baseline; justify-content: space-between;
   gap: 12px; margin-bottom: 11px;
-  font-size: .74rem; letter-spacing: .16em;
+  font-size: .75rem; letter-spacing: .16em;
 }
 .album-no {
   font-family: var(--f-num); font-size: 1.02rem; letter-spacing: .08em;
@@ -1182,7 +1194,22 @@ html.ld-booting .ht-line span {
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(12px, 1.7vw, 28px);
 }
+.wall-cell { position: relative; }
 .wall-tile { display: block; width: 100%; text-align: left; }
+/* 浏览与播放分开：角落一颗直接试听，不抢封面的点击 */
+.wt-play {
+  position: absolute; right: 10px; bottom: calc(clamp(12px, 1.5vw, 20px) + 40px);
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(8, 8, 10, .72); color: var(--paper);
+  border: 1px solid rgba(255, 255, 255, .18);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  transition: background .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
+}
+.wt-play:hover, .wt-play:focus-visible {
+  background: var(--accent); color: var(--accent-on); border-color: var(--accent);
+}
+.wt-play .ico { width: .95rem; height: .95rem; }
 .wt-plate {
   position: relative; display: block; aspect-ratio: 1 / 1;
   border-radius: var(--r); overflow: hidden; background: var(--ink-2);
