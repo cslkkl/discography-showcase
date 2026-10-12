@@ -594,6 +594,13 @@ html.ld-booting .ht-line span {
   color: var(--paper); border-color: var(--accent); background: rgba(255, 255, 255, .05);
 }
 .album-play .ico { width: .8rem; height: .8rem; color: var(--accent); }
+/* 试听钮是播放／暂停切换：暂停图标只在播放中显示，并提供对应的按下态 */
+.album-play .pl-ico--pause { display: none; }
+.album-play.is-playing {
+  color: var(--paper); border-color: var(--accent); background: rgba(255, 255, 255, .05);
+}
+.album-play.is-playing .pl-ico--play { display: none; }
+.album-play.is-playing .pl-ico--pause { display: block; }
 
 .album-top {
   display: flex; align-items: baseline; justify-content: space-between;
@@ -1230,6 +1237,10 @@ html.ld-booting .ht-line span {
   background: var(--accent); color: var(--accent-on); border-color: var(--accent);
 }
 .wt-play .ico { width: .95rem; height: .95rem; }
+.wt-play .pl-ico--pause { display: none; }
+.wt-play.is-playing { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.wt-play.is-playing .pl-ico--play { display: none; }
+.wt-play.is-playing .pl-ico--pause { display: block; }
 .wt-plate {
   position: relative; display: block; aspect-ratio: 1 / 1;
   border-radius: var(--r); overflow: hidden; background: var(--ink-2);

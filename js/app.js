@@ -88,6 +88,12 @@
     });
   }
 
+  /* 寫入動態屬性前先清掉首次快取，否則 localize() 會把它當原始值還原 */
+  function dropAttr(el, name) {
+    var store = attrOrig.get(el);
+    if (store) delete store[name];
+  }
+
   function setLang(next) {
     lang = next;
     document.documentElement.lang = next === 's' ? 'zh-Hans' : 'zh-Hant';
@@ -452,14 +458,16 @@
             a.id +
             ':' +
             first.n +
-            '" aria-label="試聽 ' +
+            '" data-track="' +
+            esc(a.title + ' 的 ' + first.zh + '，官方 30 秒片段') +
+            '" data-idle="試聽 30 秒" data-playing="暫停播放"' +
+            ' aria-label="試聽 ' +
             esc(a.title) +
             ' 的 ' +
             esc(first.zh) +
             '，官方 30 秒片段">' +
-            '<svg class="ico" viewBox="0 0 256 256" aria-hidden="true">' +
-            P_PLAY +
-            '</svg><span>試聽 30 秒</span></button>'
+            iconPaths() +
+            '<span class="pl-label">試聽 30 秒</span></button>'
           : '');
       f.appendChild(card);
     });
@@ -879,12 +887,15 @@
             a.id +
             ':' +
             first.n +
+            '" data-track="' +
+            esc(a.title + ' 的 ' + first.zh + '，官方 30 秒片段') +
             '" aria-label="試聽 ' +
             esc(a.title) +
+            ' 的 ' +
+            esc(first.zh) +
             '，官方 30 秒片段">' +
-            '<svg class="ico" viewBox="0 0 256 256" aria-hidden="true">' +
-            P_PLAY +
-            '</svg></button>'
+            iconPaths() +
+            '</button>'
           : '');
       f.appendChild(wrap);
     });
@@ -1626,14 +1637,27 @@
     var playing = !!(plAudio && plAudio.src && !plAudio.paused && !plAudio.ended);
     $$('[data-play]').forEach(function (b) {
       var match = !!key && b.getAttribute('data-play') === key;
+      var on = match && playing;
       b.classList.toggle('is-current', match);
-      b.classList.toggle('is-playing', match && playing);
+      b.classList.toggle('is-playing', on);
       var row = b.closest ? b.closest('.cat-track, .sheet-track') : null;
       if (row) row.classList.toggle('is-current', match);
-      b.setAttribute(
-        'aria-label',
-        (match && playing ? '暫停 ' : '試聽 ') + (b.getAttribute('data-track') || '')
-      );
+      /* 标签只留文字名：属性缓存由 localize() 首次见到时建立，
+         这里若直接写繁体，切换语言会把它当原文还原，故写后清缓存并重新本地化 */
+      var label = b.getAttribute('data-track') || '';
+      dropAttr(b, 'aria-label');
+      b.setAttribute('aria-label', (on ? '暫停 ' : '試聽 ') + label);
+      localize(b);
+      var text = b.querySelector('.pl-label');
+      if (text && b.hasAttribute('data-idle')) {
+        var want = on ? b.getAttribute('data-playing') : b.getAttribute('data-idle');
+        if (text.textContent !== want) {
+          var tn = text.firstChild;
+          if (tn && tn.nodeType === 3) textOrig.delete(tn);
+          text.textContent = want;
+          localize(text);
+        }
+      }
     });
   }
 
