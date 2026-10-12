@@ -2211,7 +2211,7 @@
     /* 播放并定位到曲目总表那一行，而不是弹抽屉挡在前面；
        目录视图保持用户当前的选择——随机试听的目标是曲目总表，
        它不在三视图内，切视图只会打断用户的浏览位置 */
-    plLoad({ albumId: t.album, n: t.n }, true);
+    plSelect(t.album, t.n);
     var panel = $('#tracks');
     if (panel)
       panel.scrollIntoView({ behavior: REDUCED.matches ? 'auto' : 'smooth', block: 'start' });
