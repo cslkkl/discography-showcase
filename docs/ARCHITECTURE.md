@@ -94,6 +94,8 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 
 - 歌手層由 `applyArtistChrome()` 寫入根元素：CSS 變量 + `data-artist` + `data-motif`。
   全站樣式讀變量，換歌手即換色，無需複製樣式
+- 主視覺題名 `heroTitle` 取歌手本名，不得自創名號；題名超過四字或含拉丁字母時
+  走小一號的字號檔（根元素 `data-len="long"`），避免溢出
 - 母題裝飾集中在 `css/motifs.css`，按 `data-motif` 選組；克制原則：
   只做氛圍與細節（淡墨暈、印痕描邊），不改版式、不動正文對比度
 - 專輯層在構建期從封面派生：`vivid` 為強調色，明度低於 0.18 提亮、高於 0.82 壓暗，

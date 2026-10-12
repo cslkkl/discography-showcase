@@ -107,9 +107,7 @@
           '<span class="ld-name">' +
           a.name +
           '</span>' +
-          '<span class="ld-en">' +
-          a.en +
-          '</span>' +
+          (a.en && a.en !== a.name ? '<span class="ld-en">' + a.en + '</span>' : '') +
           '<span class="ld-intro">' +
           a.intro +
           '</span>' +

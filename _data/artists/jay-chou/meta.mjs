@@ -16,12 +16,12 @@ export default {
   /* 主題層：這位歌手的視覺人格。
    * accent 只有一個；accentOn 是印在強調色底上的文字與圖示色，必須與它對比充足。
    * motif 指向 css/motifs.css 裡的一組專屬裝飾，按歌手氣質選（這裡是水墨與印章）。
-   * heroTitle 是歌手頁主視覺的題名，逐字展開成動畫，可以與站名不同。 */
+   * heroTitle 是歌手頁主視覺的題名，逐字展開成動畫；用歌手本名，不自創名號。 */
   theme: {
     accent: '#E0412B',
     accentOn: '#0A0A0B',
     motif: 'ink',
-    heroTitle: '聲之年輪'
+    heroTitle: '周杰倫'
   },
 
   /* iTunes 目录在这位歌手的繁体标题里混入了日文新字体，统一转正 */

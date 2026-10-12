@@ -4,11 +4,11 @@
  *  说明：目录元数据为英文（TW 店），无假名/新字体问题，kanjiFix 留空。
  *  只收錄原始錄音室專輯；Taylor's Version 重錄版不是新專輯，不收錄。
  *  代表曲必须与目录里的曲目名逐字一致（含大小写与省略号）。
- *  heroTitle「漫長的故事」呼應她的敘事寫法（亦是 long story short 的回聲）。
+ *  名字用她的英文名，不另取中文譯名。
  */
 export default {
   id: 'taylor-swift',
-  name: '泰勒絲',
+  name: 'Taylor Swift',
   en: 'Taylor Swift',
   seal: 'T',
   tagline: '錄音室專輯全集',
@@ -21,7 +21,7 @@ export default {
     accent: '#56679F',
     accentOn: '#F3F0EA',
     motif: 'midnight',
-    heroTitle: '漫長的故事'
+    heroTitle: 'Taylor Swift'
   },
 
   kanjiFix: [],

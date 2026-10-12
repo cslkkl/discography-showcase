@@ -363,9 +363,14 @@ main { padding-top: var(--nav-h); }
   line-height: 1.02; letter-spacing: .04em;
   margin-bottom: clamp(16px, 2.6vh, 28px);
 }
+/* 长题名（拉丁名或五字以上）降一档字号 */
+.hero-title[data-len='long'] {
+  font-size: clamp(2.1rem, 4.6vw, 4rem);
+  letter-spacing: .02em;
+}
 .ht-line { display: block; padding-bottom: .1em; }
 .ht-line span {
-  display: inline-block;
+  display: inline-block; white-space: pre;
   transform: translateY(112%) rotate(3deg); opacity: 0;
   transition: transform 1s var(--ease), opacity 1s var(--ease);
   transition-delay: calc(var(--i, 0) * 85ms + 150ms);

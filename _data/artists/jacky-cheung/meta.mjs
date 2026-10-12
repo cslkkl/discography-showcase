@@ -14,7 +14,7 @@ export default {
   tagline: '錄音室專輯全集',
   taglineEn: 'Studio Albums',
   intro:
-    '四十張錄音室專輯、四百三十三首作品，1985 至 2014。粵語與國語雙線並行，從出道到歌神的完整年輪。',
+    '四十張錄音室專輯、四百三十三首作品，1985 至 2014。粵語與國語雙線並行，從出道到近年的完整年輪。',
 
   /* 主題層：香檳金。他的封面近半是暖金色，像頒獎禮的燈光。
    * 明度 0.63，印深墨字。 */
@@ -22,7 +22,7 @@ export default {
     accent: '#D79C36',
     accentOn: '#08080A',
     motif: 'spotlight',
-    heroTitle: '歌神'
+    heroTitle: '張學友'
   },
 
   kanjiFix: [],

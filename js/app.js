@@ -1874,19 +1874,26 @@
     }
     document.documentElement.setAttribute('data-artist', JC.id);
 
-    document.title = '聲之年輪 · ' + JC.name + JC.tagline;
+    /* 拉丁名与中文类别之间补一个空格，避免「Taylor Swift录音室」这类粘连 */
+    var nameGap = /[A-Za-z0-9]$/.test(JC.name) ? ' ' : '';
+    document.title = '聲之年輪 · ' + JC.name + nameGap + JC.tagline;
     var desc = $('meta[name="description"]');
     if (desc) desc.setAttribute('content', JC.intro);
 
-    /* 主视觉题名逐字渲染，题名来自编辑层 */
+    /* 主视觉题名逐字渲染。题名是歌手本名，不自创名号 */
     var titleLine = $('#heroTitleLine');
-    if (titleLine && JC.theme && JC.theme.heroTitle) {
+    if (titleLine) {
+      var title = (JC.theme && JC.theme.heroTitle) || JC.name;
       titleLine.textContent = '';
-      JC.theme.heroTitle.split('').forEach(function (ch) {
+      title.split('').forEach(function (ch) {
         var s = document.createElement('span');
         s.textContent = ch;
         titleLine.appendChild(s);
       });
+      /* 长题名与拉丁题名走小一号的字号档，避免溢出 */
+      var titleHost = titleLine.parentElement;
+      if (titleHost)
+        titleHost.setAttribute('data-len', title.replace(/\s/g, '').length > 4 ? 'long' : 'short');
     }
 
     $$('.seal-char').forEach(function (t) {
@@ -1899,8 +1906,10 @@
     var curName = $('#artistCurName');
     if (curName) curName.textContent = JC.name;
 
+    /* 题名已是歌手名，副题不再重复它，只留英文名（若与中文名不同）与类别 */
     var eyebrow = $('#heroEyebrow');
-    if (eyebrow) eyebrow.textContent = JC.name + ' · ' + JC.tagline;
+    if (eyebrow)
+      eyebrow.textContent = (JC.en && JC.en !== JC.name ? JC.en + ' · ' : '') + JC.tagline;
 
     var line = $('#heroLine');
     if (line)

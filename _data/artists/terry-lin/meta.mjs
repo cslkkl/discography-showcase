@@ -22,7 +22,7 @@ export default {
     accent: '#7FA895',
     accentOn: '#08080A',
     motif: 'aria',
-    heroTitle: '純淨之聲'
+    heroTitle: '林志炫'
   },
 
   kanjiFix: [],

@@ -5,7 +5,6 @@
  *
  *  说明：TW 店目录元数据本就是繁体，kanjiFix / phraseFix 留空。
  *  《未完成的歌》为新歌加精选混合专辑，介绍里如实说明。
- *  heroTitle「紳士與演員」并置他两首定义级作品，是编辑层的取题而非事实陈述。
  */
 export default {
   id: 'xue-zhiqian',
@@ -23,7 +22,7 @@ export default {
     accent: '#81558D',
     accentOn: '#F3F0EA',
     motif: 'neon',
-    heroTitle: '紳士與演員'
+    heroTitle: '薛之謙'
   },
 
   kanjiFix: [],

@@ -32,7 +32,8 @@ artists/<id>/
    其中 `theme` 定義這位歌手的視覺人格：`accent`（唯一強調色）、
    `accentOn`（印在強調色底上的文字色，須與 accent 對比充足）、
    `motif`（指向 css/motifs.css 裡的一組專屬裝飾）、
-   `heroTitle`（歌手頁主視覺題名，逐字展開）。
+   `heroTitle`（歌手頁主視覺題名，逐字展開；用歌手本名，不自創名號）。
+   名字一律用通行譯名，拉丁歌手直接用其英文名，不得自創。
    顏色建議從這位歌手的封面主色或應援色取，取完檢查與 `accentOn` 的對比
 5. 試聽：`fetch-previews.ps1 -Artist <id>`
 6. `npm run build`，然後打開入口頁確認新歌手出現在清單
