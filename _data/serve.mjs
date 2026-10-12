@@ -13,23 +13,37 @@ const MIME = {
   '.js': 'text/javascript; charset=utf-8',
   '.mjs': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
-  '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon',
-  '.woff2': 'font/woff2', '.woff': 'font/woff', '.ttf': 'font/ttf',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+  '.woff': 'font/woff',
+  '.ttf': 'font/ttf'
 };
 
-http.createServer((req, res) => {
-  let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
-  if (p.endsWith('/')) p += 'index.html';
-  const file = path.join(root, path.normalize(p).replace(/^([\\/])+/, ''));
-  if (!file.startsWith(root)) { res.writeHead(403).end('forbidden'); return; }
-  fs.readFile(file, (err, buf) => {
-    if (err) { res.writeHead(404, { 'content-type': 'text/plain' }).end('404 ' + p); return; }
-    res.writeHead(200, {
-      'content-type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
-      'cache-control': 'no-store',
-      'access-control-allow-origin': '*',
+http
+  .createServer((req, res) => {
+    let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+    if (p.endsWith('/')) p += 'index.html';
+    const file = path.join(root, path.normalize(p).replace(/^([\\/])+/, ''));
+    if (!file.startsWith(root)) {
+      res.writeHead(403).end('forbidden');
+      return;
+    }
+    fs.readFile(file, (err, buf) => {
+      if (err) {
+        res.writeHead(404, { 'content-type': 'text/plain' }).end('404 ' + p);
+        return;
+      }
+      res.writeHead(200, {
+        'content-type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
+        'cache-control': 'no-store',
+        'access-control-allow-origin': '*'
+      });
+      res.end(buf);
     });
-    res.end(buf);
-  });
-}).listen(port, '127.0.0.1', () => console.log('serving ' + root + ' on http://127.0.0.1:' + port));
+  })
+  .listen(port, '127.0.0.1', () => console.log('serving ' + root + ' on http://127.0.0.1:' + port));
