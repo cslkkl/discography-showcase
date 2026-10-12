@@ -21,7 +21,41 @@
 - **無障礙**：全鍵盤可達、焦點環可見、抽屜焦點鎖定、減少動效降級、觸控目標 ≥ 44px
 - **離線可用**：封面、字體、腳本全部本地託管，斷網仍完整呈現
 
-## 快速開始
+## 预览
+
+以下为实际渲染截图，非设计稿。
+
+**入口 · 选歌手**
+
+![入口：歌手索引](screenshots/18-landing.png)
+
+**歌手页主视觉**
+
+![歌手页主视觉](screenshots/01-desktop-hero.png)
+
+**年轮 · 全站核心视觉**
+
+![年轮](screenshots/08-year-rings.png)
+
+**试听播放**
+
+![试听播放列](screenshots/15-player.png)
+
+**专辑详情与逐行播放**
+
+![专辑详情与播放](screenshots/16-sheet-player.png)
+
+**数据面**
+
+![数据面](screenshots/11-data.png)
+
+**移动端**
+
+![移动端主视觉](screenshots/03-mobile-hero.png)
+
+完整 18 张见 [screenshots/](screenshots/)。
+
+## 快速开始
 
 ```
 打開 index.html → 選一位歌手
