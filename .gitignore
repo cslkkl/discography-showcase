@@ -1,0 +1,14 @@
+# 依赖
+node_modules/
+
+# 编辑器与系统
+.DS_Store
+Thumbs.db
+*.log
+
+# 临时产物
+*.tmp
+*.bak
+
+# 说明：assets/ 与 screenshots/ 必须入库
+# README 直接引用它们，忽略会导致 GitHub 上拉不到图

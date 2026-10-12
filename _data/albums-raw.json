@@ -1,0 +1,1419 @@
+[
+  {
+    "key": "jay2000",
+    "collectionId": 535790918,
+    "collectionName": "同名專輯",
+    "artistName": "周杰倫",
+    "releaseDate": "2000-11-06T08:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2000 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/60/4c/f3/604cf3da-2be3-f55e-9b6d-cf0792d9d870/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "可愛女人",
+        "time": 239027,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/42/97/aa/4297aae0-c997-12df-7d10-a14685cffcc6/mzaf_7566330534609965171.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "完美主義",
+        "time": 244507,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/69/dc/9e/69dc9e75-f59b-7e6a-a30a-9d761eafb759/mzaf_17241265157299898157.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "星晴",
+        "time": 259400,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/84/97/19/849719eb-321a-f3aa-7bf8-c53ab439f2db/mzaf_18389453262807796706.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "娘子",
+        "time": 271000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e2/3f/c8/e23fc820-3b4a-fb1e-be42-6650da4fed80/mzaf_11172605653974325957.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "鬥牛",
+        "time": 278907,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/34/f1/ee34f169-b19d-ce57-dc0a-6d7e3e80d5e8/mzaf_10244626394494928815.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "黑色幽默",
+        "time": 283133,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2c/9f/9f/2c9f9fd0-d331-c8d4-5aa2-f39928a02ed1/mzaf_5432668556852856877.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "伊斯坦堡",
+        "time": 209107,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f9/00/5c/f9005cd3-c430-0a3a-3c26-307ccf4ed610/mzaf_14658243574839195153.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "印地安老斑鳩",
+        "time": 304667,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/54/0f/6c/540f6c2b-9892-d239-f105-9a7933938516/mzaf_1683051786547039098.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "龍捲風",
+        "time": 250867,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/37/bd/8e/37bd8ee8-d080-3c1c-a966-875cb6811c33/mzaf_5956109222185640025.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "反方向的鐘",
+        "time": 256733,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cb/c0/9b/cbc09bd3-ec4a-205d-7086-eb8bab7f25e0/mzaf_4422889114427774123.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "fantasy2001",
+    "collectionId": 535739206,
+    "collectionName": "范特西",
+    "artistName": "周杰倫",
+    "releaseDate": "2001-09-14T07:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2001 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a4/f2/f0/a4f2f0d4-cc80-d1a0-7f20-a0cc842a523c/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "愛在西元前",
+        "time": 234253,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/04/57/b1/0457b1cf-eddf-e2af-a4a0-53544f0f1118/mzaf_17009623038916082523.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "爸我回來了",
+        "time": 235640,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/03/1a/d5/031ad5c9-9932-8bed-8c3f-6735f14b0297/mzaf_9019710252027190200.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "簡單愛",
+        "time": 270987,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/99/c2/35/99c23519-691d-28bd-3263-54ee44ea4b1a/mzaf_16660115524814344678.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "忍者",
+        "time": 158520,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5a/f5/47/5af547fc-0cea-8893-10ad-3f48764bc9bf/mzaf_3899386189543688143.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "開不了口",
+        "time": 284973,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e1/c4/a3/e1c4a358-007b-80da-d231-3fe75c677cb8/mzaf_8707193163624256428.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "上海一九四三",
+        "time": 195800,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/67/06/37/67063719-13d0-57f2-2e8c-bab7ec4a81c8/mzaf_1317947746414666956.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "對不起",
+        "time": 225413,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a6/03/05/a60305dc-5f86-01d9-708f-6450f657fd39/mzaf_11619564891705687003.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "威廉古堡",
+        "time": 236187,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/45/fd/b8/45fdb8a6-4a23-c645-4f42-f3702ea24529/mzaf_5761580567209793235.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "雙截棍",
+        "time": 201013,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ec/57/fa/ec57fa84-33b8-eb5c-b034-269f3dd2d2dd/mzaf_1927880058572823750.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "安靜",
+        "time": 334240,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d4/c3/50/d4c35090-5ce2-0577-89a9-a7b5aed8962b/mzaf_761017040051055634.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "eight2002",
+    "collectionId": 536161722,
+    "collectionName": "八度空間",
+    "artistName": "周杰倫",
+    "releaseDate": "2002-07-18T07:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2002 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/96/c8/a1/96c8a1d8-8077-b8a7-8600-80b2abf1fe20/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "半獸人",
+        "time": 245400,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/67/05/7a/67057afc-968f-ecb2-e6ec-1ea2c90ddd30/mzaf_14101473463323725312.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "半島鐵盒",
+        "time": 317400,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5d/49/2d/5d492d71-e1df-f87c-a217-1f5a46793c50/mzaf_15710362005868192426.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "暗號",
+        "time": 269760,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ac/08/3b/ac083b72-cf28-41ed-0f63-e27dfd219c91/mzaf_15699907835436662532.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "龍拳",
+        "time": 272573,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2b/7e/45/2b7e457c-729b-8bf5-416c-1ae690fb3b81/mzaf_8210023568594876641.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "火車叨位去",
+        "time": 274000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/ab/58/17ab587e-9c4d-66a0-8a66-4f9b178fb660/mzaf_13083286510888822182.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "分裂",
+        "time": 252627,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0b/86/99/0b869902-03bd-d612-3c95-6c2d9f027d88/mzaf_15041630046063260192.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "爺爺泡的茶",
+        "time": 238507,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b1/e7/ba/b1e7ba88-d06d-b969-a90c-f2b0e7c7aacc/mzaf_14238845680329712353.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "回到過去",
+        "time": 231467,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7c/aa/81/7caa81e3-6d7b-b263-5986-02665b5852b3/mzaf_16328934821314589903.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "米蘭的小鐵匠",
+        "time": 238600,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/db/aa/03/dbaa03d6-9d55-8a0c-ff6d-9e25d45c6bcb/mzaf_17088780874299003760.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "最後的戰役",
+        "time": 251160,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9d/45/5c/9d455c3a-64a5-4b31-c56f-678ea71f5032/mzaf_15483328309019029894.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "yeh2003",
+    "collectionId": 535824731,
+    "collectionName": "葉惠美",
+    "artistName": "周杰倫",
+    "releaseDate": "2003-07-31T07:00:00Z",
+    "trackCount": 11,
+    "copyright": "℗ 2003 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/45/8a/e4/458ae484-dc8b-5683-ce04-8d2948346462/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "以父之名",
+        "time": 342000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/f2/8c/99f28c96-cdba-c2dd-b120-dd67eaff252b/mzaf_17363371424903979351.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "懦夫",
+        "time": 218000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/50/0e/a4/500ea479-d00b-6ac4-5c49-04803bf737c9/mzaf_8913816533391383285.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "晴天",
+        "time": 269747,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/d0/e7/20d0e7db-9c12-795a-d738-2fc3dde4ac9a/mzaf_10317517925583301645.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "三年二班",
+        "time": 280387,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cc/9c/d3/cc9cd3f0-3c99-f073-a763-77c2715060e9/mzaf_10430141259357522888.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "東風破",
+        "time": 315413,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/e9/77/48e97700-c95b-3d23-17bc-ec6673433588/mzaf_7829398592808176673.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "你聽得到",
+        "time": 230480,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8d/d7/3c/8dd73c45-92eb-3432-8f68-f2a14b8fdcae/mzaf_5174574234384615651.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "同一種調調",
+        "time": 231000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/76/a5/2e/76a52e22-4b30-bcb4-8c1b-2983c7053212/mzaf_12858998613915822934.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "她的睫毛",
+        "time": 232893,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6a/ad/13/6aad13ef-32a1-ec9d-2ebe-3e5ce7a82b9e/mzaf_3541878294603010764.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "愛情懸崖",
+        "time": 262213,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/45/b5/de/45b5ded0-86d0-000e-cc5c-8cc3f515c9f8/mzaf_12002661615897633068.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "梯田",
+        "time": 213347,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bb/b4/4b/bbb44b2a-aa96-b0c9-5e65-9f245452bb5d/mzaf_6116928520247328889.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "雙刀",
+        "time": 291413,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/14/89/61/1489617b-910c-4e09-627a-501dba3ab933/mzaf_8053955719896074780.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "jasmine2004",
+    "collectionId": 536114662,
+    "collectionName": "七里香",
+    "artistName": "周杰倫",
+    "releaseDate": "2004-08-03T07:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2004 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/29/c1/2d/29c12de6-54b4-f549-9d9f-07d8a04221ea/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "我的地盤",
+        "time": 242640,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/32/64/44/32644412-f26f-3be1-cb64-1cd2018d9a24/mzaf_2032207789664538430.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "七里香",
+        "time": 297200,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/4e/e2/994ee285-7c0d-73ab-85b7-8d3899a17242/mzaf_12441330510018253101.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "藉口",
+        "time": 258267,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/aa/79/db/aa79db76-0104-dfe8-22e4-141ec57ba697/mzaf_3931826197366023547.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "外婆",
+        "time": 242520,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e8/3a/3b/e83a3b12-a3b4-1028-3bc7-136889639088/mzaf_1042382169105459582.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "將軍",
+        "time": 202213,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1a/5c/af/1a5caf32-ec6d-65d9-10ab-2ed0771e7f3e/mzaf_2692563508827043918.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "擱淺",
+        "time": 238133,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f7/e6/e6/f7e6e6e4-4dfa-7e7f-b905-a67738621992/mzaf_5977864392377716485.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "亂舞春秋",
+        "time": 277840,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e3/26/bc/e326bcf5-24c7-f24c-c40a-bef7836a5183/mzaf_17194988213519941440.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "困獸之鬥",
+        "time": 267147,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/57/06/31/570631ba-1c0d-350a-c4a2-44be7a2c4e5a/mzaf_11253244417808435770.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "園遊會",
+        "time": 253560,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4f/c7/de/4fc7deec-01ab-7f1b-29d8-1ccba53d9301/mzaf_12599451594723341287.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "止戰之殤",
+        "time": 274907,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4c/23/4c/4c234c5f-8c88-a115-4663-767a3afc709e/mzaf_14142023875274507901.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "chopin2005",
+    "collectionId": 536009641,
+    "collectionName": "11月的蕭邦",
+    "artistName": "周杰倫",
+    "releaseDate": "2005-11-01T08:00:00Z",
+    "trackCount": 12,
+    "copyright": "℗ 2005 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/9e/35/ad/9e35ad1e-749e-75b6-0539-1e80cea1817b/JAY11.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "夜曲",
+        "time": 228773,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/49/d9/63/49d96370-e197-5629-b8bb-bdd954c1b576/mzaf_217123187122990137.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "藍色風暴",
+        "time": 286267,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fb/ae/ff/fbaeff5e-44e5-6724-7cb2-2cbe196cb7d6/mzaf_5175364233494470393.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "髮如雪",
+        "time": 301640,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ba/c1/6f/bac16f2d-765b-66bc-dbbe-641875368d3b/mzaf_13471254576706727031.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "黑色毛衣",
+        "time": 251587,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/41/fd/0c/41fd0c9f-d41a-6227-3468-413405ea68cc/mzaf_16001321407593712643.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "四面楚歌",
+        "time": 247093,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2a/69/bf/2a69bf60-2ac4-3a58-a4d5-94354af8af28/mzaf_16909204539792902340.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "楓",
+        "time": 277027,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8e/73/ea/8e73ea9a-9fa6-bd5e-26a5-965e4a1ce51d/mzaf_4647971212508521464.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "浪漫手機",
+        "time": 240400,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/7d/a4/5c/7da45cab-54e4-d5e9-ccb6-09fd91056704/mzaf_7543555187229475799.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "逆鱗",
+        "time": 234067,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c5/15/3b/c5153bff-1aff-86c6-bb75-2585942a49a7/mzaf_1498958864294179416.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "麥芽糖",
+        "time": 260373,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/86/74/f4/8674f432-16ba-a544-89c7-2ce56c876f7c/mzaf_3884828966530139079.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "珊瑚海 (feat. 梁心頤)",
+        "time": 256333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/fa/12/66/fa1266d7-2ab3-ebd4-d33c-5da688705025/mzaf_3967777131164329474.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "飄移 (Bonus Track)",
+        "time": 244147,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8a/1b/f0/8a1bf097-6fda-9fdd-8f74-eb3cb38f613d/mzaf_16209093873442068035.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "一路向北 (Bonus Track)",
+        "time": 294240,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f6/23/91/f6239173-79c5-663b-0894-b143753d1722/mzaf_10517715920157224642.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "still2006",
+    "collectionId": 536285027,
+    "collectionName": "依然范特西",
+    "artistName": "周杰倫",
+    "releaseDate": "2006-09-05T07:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2006 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/6a/a3/8d/6aa38da9-3fc1-427c-59a7-fcd0cf21832d/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "夜的第七章",
+        "time": 228640,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/58/d8/ae/58d8aef1-7105-0ff0-b3c7-f28150620a36/mzaf_14990035321082766489.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "聽媽媽的話",
+        "time": 265987,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/51/d3/8b/51d38b84-cde4-1be0-9569-33eee639af73/mzaf_7426420804706733570.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "千里之外 (feat. 費玉清)",
+        "time": 256387,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/7d/8e/1f7d8e3a-5555-5f02-67c2-48175a962ce2/mzaf_9705650129739495572.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "本草綱目",
+        "time": 209947,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/37/d8/e2/37d8e2a5-a480-d9a1-58bf-713798885168/mzaf_11904739382398777093.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "退後",
+        "time": 262213,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ed/f8/a5/edf8a543-ea17-2afc-dfd0-4de98e6dac85/mzaf_6112813292686069120.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "紅模仿",
+        "time": 185373,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0c/7f/c4/0c7fc4f9-3017-0dd3-d39a-ef41293d70e2/mzaf_5803939259752566578.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "心雨",
+        "time": 269693,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a3/ea/c6/a3eac608-f3b5-0d4d-5330-5e930e86bf31/mzaf_18023758481309998838.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "白色風車",
+        "time": 272587,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/48/f7/20/48f72073-80f4-c9fc-1bec-f966aed05752/mzaf_1916996128965015685.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "迷迭香",
+        "time": 252080,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1f/b4/29/1fb429db-57d4-34e1-7129-b8d52be551bd/mzaf_5751733702247448796.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "菊花台",
+        "time": 293973,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/15/16/2015168f-7021-f6b6-88d1-f8d02ba84725/mzaf_6852641384965058809.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "busy2007",
+    "collectionId": 536030690,
+    "collectionName": "我很忙",
+    "artistName": "周杰倫",
+    "releaseDate": "2007-11-02T07:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2007 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/b8/83/7f/b8837f2a-324a-f6ad-ff5a-0805e9210181/JAY.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "牛仔很忙",
+        "time": 168187,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2c/3e/c6/2c3ec6d6-ae5b-d42c-2cbe-432182e069c3/mzaf_12650418235828384133.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "彩虹",
+        "time": 263787,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/10/f8/58/10f85860-fbe9-b372-338a-48844d65e969/mzaf_8275780661696818690.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "青花瓷",
+        "time": 239347,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3a/15/ff/3a15ff0b-ee24-a863-db04-8a489be66397/mzaf_1259240667288251806.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "陽光宅男",
+        "time": 222827,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/41/e5/66/41e566b3-f03c-dea2-a813-82401ae16408/mzaf_13905784112528001261.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "蒲公英的約定",
+        "time": 247200,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e1/e9/94/e1e9945c-e0a8-d7fc-9b85-843cf785cecb/mzaf_5426248604184303369.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "無雙",
+        "time": 233520,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/dd/78/46/dd78461f-bd6d-7f8d-2516-d8a456b2bbe6/mzaf_3425149556111953672.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "我不配",
+        "time": 288760,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/8c/f2/ee8cf298-e21b-2c63-27ef-2ea33fc19628/mzaf_8874060238224459508.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "扯",
+        "time": 210387,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0e/41/42/0e41422f-ce4d-d8b6-388e-875f326b42e5/mzaf_14380238746071911531.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "甜甜的",
+        "time": 243853,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d1/5b/52/d15b5288-48be-c7e3-431d-cc5c05b173d9/mzaf_12365452462285690065.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "最長的電影",
+        "time": 235840,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/23/9e/f1/239ef188-f6cf-29c7-8ef8-d3fbba0ad534/mzaf_17845832856420747099.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "capricorn2008",
+    "collectionId": 1624000713,
+    "collectionName": "魔杰座",
+    "artistName": "周杰倫",
+    "releaseDate": "2008-10-15T07:00:00Z",
+    "trackCount": 11,
+    "copyright": "℗ 2008 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/1b/63/9e/1b639e5b-f8ca-a6e1-8612-6396bc9ff0eb/4711448407424.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "龍戰騎士",
+        "time": 271147,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/62/7d/2b/627d2b45-3583-d7c3-bab1-0a4d46bf4ebc/mzaf_9536114885850388630.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "給我一首歌的時間",
+        "time": 253560,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/36/f0/9d/36f09d08-3429-5414-f032-b662717cdae5/mzaf_9863882357272643573.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "蛇舞 (feat. Lara梁心頤)",
+        "time": 174760,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/43/d6/21/43d62107-63c2-8645-1d8d-58818a735eb9/mzaf_14477694555305186026.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "花海",
+        "time": 264080,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1c/3a/eb/1c3aebf6-4a62-d5ea-c817-135d74a3a69c/mzaf_15367067968247495108.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "魔術先生",
+        "time": 227720,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/22/6c/31/226c3163-3fa6-4adc-ff9d-65bb24ebff0f/mzaf_16430790601400423447.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "說好的幸福呢",
+        "time": 256720,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/80/f3/b9/80f3b9f7-4c57-5806-cd1e-599eedfbba7e/mzaf_16794607708915683607.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "蘭亭序",
+        "time": 253960,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f3/3c/a7/f33ca73a-8d89-6b63-4130-fe5a8b2ed222/mzaf_5252536380931031480.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "流浪詩人",
+        "time": 169133,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e8/e7/dc/e8e7dcd8-901e-1ffe-b2b8-9dfbf86abeb2/mzaf_7071711135829822099.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "時光機",
+        "time": 311987,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4a/11/07/4a1107a0-4725-1f88-2a62-ba1b6cf9e0a4/mzaf_2768290065931487289.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "喬克叔叔",
+        "time": 256600,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6e/62/f1/6e62f1d9-5fda-22ad-af1e-50335b5c46af/mzaf_6690486589349201820.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "稻香",
+        "time": 223453,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/af/d8/da/afd8daa7-b2aa-fb44-b4e0-258ad25187f5/mzaf_18323630198043973445.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "era2010",
+    "collectionId": 536247746,
+    "collectionName": "跨時代",
+    "artistName": "周杰倫",
+    "releaseDate": "2010-05-18T07:00:00Z",
+    "trackCount": 11,
+    "copyright": "℗ 2010 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/53/2d/dd/532dddf0-87d7-b9eb-7d8b-4eb194c84252/asset.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "跨時代",
+        "time": 194453,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/59/df/a2/59dfa298-ed64-ed54-1669-9d1c20a2da7e/mzaf_8369713790156179848.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "説了再見",
+        "time": 282720,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b8/38/dd/b838dd8f-828b-9afc-ecaf-a889737c7d63/mzaf_843469504868868567.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "煙花易冷",
+        "time": 263173,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1e/e2/ae/1ee2aeca-d817-3e80-62d8-b351a1d6efb9/mzaf_13139180540057577530.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "免費教學錄影帶",
+        "time": 238960,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/93/d8/bd/93d8bdc6-f706-b61c-f13b-a06a5138a662/mzaf_10653008037228021214.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "好久不見",
+        "time": 252453,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/92/c9/49/92c949e1-6622-42e8-38cf-b013ac9cb5ad/mzaf_4718354764470687422.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "雨下一整晩",
+        "time": 256680,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/f3/9e/39f39ea4-0507-6533-654d-c819b6c05a9c/mzaf_17299186681919806920.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "嘻哈空姐",
+        "time": 168827,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d8/63/16/d86316a5-2fb2-d96b-3779-b3a44d8e604e/mzaf_4336056979446821375.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "我落涙 . 情緒零碎",
+        "time": 258147,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e3/e7/55/e3e75568-4b8f-5886-764d-e3b7d837bd1a/mzaf_14012557659642720204.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "愛的飛行日記 (feat. 楊瑞代)",
+        "time": 254787,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c5/0d/2b/c50d2b3e-9d46-05a5-9316-a4328bdebb24/mzaf_13265307552985470759.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "自導自演",
+        "time": 255333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/09/d5/64/09d564fd-4afd-71e0-1bf4-e009e0bb71cf/mzaf_18111797732170218018.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "超人不會飛",
+        "time": 299800,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/71/52/95/715295f2-b705-b9e7-083f-d7084c498645/mzaf_8363492262613482042.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "exclaim2011",
+    "collectionId": 535754551,
+    "collectionName": "驚嘆號",
+    "artistName": "周杰倫",
+    "releaseDate": "2011-11-11T08:00:00Z",
+    "trackCount": 11,
+    "copyright": "℗ 2011 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/84/c3/57/84c3574a-3032-59c9-4f0b-de8f943c94e1/asset.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "驚嘆號",
+        "time": 231267,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/44/1f/67/441f674f-802e-7862-098e-71cbd6d6e1cf/mzaf_9073995650166098322.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "迷魂曲",
+        "time": 230320,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/25/4b/13/254b13d0-28e6-6fa0-1610-7b34a20bc5b6/mzaf_7303028287358560577.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "Mine Mine",
+        "time": 268173,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/de/ce/28/dece286c-05f1-1012-8b6f-8e6e223ada4e/mzaf_12463810760251867975.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "公主病",
+        "time": 218760,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1d/f1/5e/1df15e93-0064-1086-1491-fe5c6f879509/mzaf_15294664621228824275.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "你好嗎",
+        "time": 224427,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/66/9b/65/669b65ce-4b12-d599-2293-ac123a74a78b/mzaf_3161040461249644155.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "療傷燒肉粽",
+        "time": 187413,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/29/ce/13/29ce13cf-b920-f5a5-06ce-adef4eb58d86/mzaf_1422347133694598327.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "琴傷",
+        "time": 199560,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1b/2f/fb/1b2ffb1e-acd3-7382-b404-dbba6089947b/mzaf_7500739621618700055.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "水手怕水",
+        "time": 161333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b2/8c/e5/b28ce5dd-be7e-6894-e900-52de4b85dab4/mzaf_13711612621993272903.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "世界未末日",
+        "time": 263413,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/f0/cc/e2f0cc7a-d944-bc70-aaef-e77a9efe4e58/mzaf_14286024260908933058.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "皮影戲",
+        "time": 209213,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5b/1b/cf/5b1bcf0a-4c9e-03a8-19e4-8af39f6b0b28/mzaf_7796746082009923929.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "超跑女神",
+        "time": 156627,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d2/08/12/d20812be-908e-34e6-e77a-42775bb752de/mzaf_17547469280154762365.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "opus2012",
+    "collectionId": 587743633,
+    "collectionName": "十二新作",
+    "artistName": "周杰倫",
+    "releaseDate": "2012-12-28T08:00:00Z",
+    "trackCount": 12,
+    "copyright": "℗ 2012 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/81/83/e6/8183e6c0-7137-7009-347e-326b53cb4a3b/2000x2000pix.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "四季列車",
+        "time": 159613,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/31/41/52/314152df-1140-6aa0-b9e7-07518efe84c8/mzaf_8483277474585207749.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "手語",
+        "time": 288640,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/25/f1/7c/25f17c7f-3efd-b26e-7a06-0909374babd4/mzaf_15989904049789665104.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "公公偏頭痛",
+        "time": 183133,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ca/9c/2a/ca9c2ad9-267a-92f3-5552-81ea16c99a01/mzaf_570082078480858660.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "明明就",
+        "time": 260387,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f8/26/78/f8267897-56d4-113e-1229-25835d85a9cd/mzaf_6646037562562297510.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "傻笑 (feat. 袁詠琳)",
+        "time": 289960,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c8/27/c4/c827c444-76af-00d0-6656-e6b16f81a0a4/mzaf_11537641527730029510.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "比較大的大提琴 (feat. 梁心頤 & 楊瑞代)",
+        "time": 252787,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2d/1c/9e/2d1c9edb-c5c2-b4ad-f6ff-995c09a7b683/mzaf_13110841603799890892.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "愛你沒差",
+        "time": 280720,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9b/29/cc/9b29cc93-861f-6ab1-7a6e-4d241044d2c1/mzaf_1884005757677064304.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "紅塵客棧",
+        "time": 274067,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b1/05/97/b10597b7-4202-ec69-4276-e75250010e88/mzaf_14577374834119768310.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "夢想啓動",
+        "time": 205467,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/3f/0d/d2/3f0dd27b-b632-a8b9-0190-ca1b4c6bd579/mzaf_4716195751800538605.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "大笨鐘",
+        "time": 242840,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9f/17/8f/9f178f75-a769-ca20-4491-8802e2980ed2/mzaf_3767110424197315213.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "哪裡都是你",
+        "time": 279040,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b3/52/80/b3528082-9303-73a2-0929-4c369222fdc1/mzaf_13740674508501530259.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "烏克麗麗",
+        "time": 175200,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/15/e7/af/15e7afab-81e6-676e-bde2-59b70fece9e2/mzaf_10401156824320305062.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "aiyo2014",
+    "collectionId": 944321428,
+    "collectionName": "哎呦, 不錯哦",
+    "artistName": "周杰倫",
+    "releaseDate": "2014-12-26T08:00:00Z",
+    "trackCount": 12,
+    "copyright": "℗ 2014 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/16/db/ff/16dbff09-0750-29b0-07b7-3fa44f8a556e/dj.nzqvfsza.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "陽明山",
+        "time": 152152,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/7f/24/947f24d2-d1a2-8f05-4c43-dc2656cd7a2b/mzaf_4466420568560197213.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "竊愛",
+        "time": 204171,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ca/a6/b1/caa6b17d-dc2a-7963-59ee-8d3d1135c6b7/mzaf_13232979677664923489.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "算什麼男人",
+        "time": 288488,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f9/de/d8/f9ded803-0f97-2417-4986-68192f72861b/mzaf_17484332538573200084.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "天涯過客",
+        "time": 253353,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1d/18/ab/1d18ab0f-bf4e-43ce-03fb-a71afa92ace5/mzaf_18009721319283952345.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "怎麼了 (feat. 袁詠琳)",
+        "time": 232097,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/91/c3/e3/91c3e3fc-3474-2658-d501-90a0c4d43593/mzaf_17593631563668851298.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "一口氣全唸對",
+        "time": 158992,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7d/dc/94/7ddc94fe-363f-1996-cc20-1fa5b0cc5744/mzaf_3519685514311689977.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "我要夏天 (feat. 楊瑞代)",
+        "time": 219886,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/54/a4/c7/54a4c72c-f565-5f14-bd39-989167308ef6/mzaf_13377846829672228099.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "手寫的從前",
+        "time": 297564,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/58/12/32/58123273-949d-69ec-1651-55ec8c1b7d7b/mzaf_2028662354983002746.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "鞋子特大號",
+        "time": 221188,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/42/de/94/42de9459-e93e-ddd0-116c-f81ad4aa0e78/mzaf_10814463779419394282.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "聽爸爸的話",
+        "time": 263463,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/74/c5/bc/74c5bc59-9856-62a3-e703-f49cc4a2e837/mzaf_17060628070302752691.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "美人魚",
+        "time": 219453,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/71/67/4b/71674b0c-aefd-19c4-c87c-898402000b96/mzaf_69511480243187357.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "聽見下雨的聲音",
+        "time": 279412,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4a/76/87/4a768770-85b4-846f-f779-259801e1803f/mzaf_13011721415631268082.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "bedtime2016",
+    "collectionId": 1118757859,
+    "collectionName": "周杰倫的床邊故事",
+    "artistName": "周杰倫",
+    "releaseDate": "2016-06-24T07:00:00Z",
+    "trackCount": 10,
+    "copyright": "℗ 2016 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/58/28/f4/5828f491-62ab-61b6-25b4-23838e4f1dcf/dj.sxbqzong.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "床邊故事",
+        "time": 225808,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6c/50/9b/6c509bcf-aac6-d502-2b79-48cec9ca54aa/mzaf_6096657394986093401.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "說走就走",
+        "time": 266000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/69/fa/d9/69fad931-d034-bfd5-3beb-8de351fbb189/mzaf_8240929839869616655.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "一點點",
+        "time": 222106,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4d/3b/65/4d3b6506-5fe9-0a5f-5814-d9b00ead366c/mzaf_6256536347232280073.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "前世情人",
+        "time": 202607,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ed/d4/92/edd4925d-3a55-1a8c-100a-f31f254a7c74/mzaf_732340226070484304.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "英雄",
+        "time": 201260,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5a/0c/8c/5a0c8c25-b7ab-5fdf-0ffd-f7dd95d9b547/mzaf_18433814350767379460.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "不該 (with 張惠妹)",
+        "time": 291407,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/f5/19/0df519a2-6d7f-335b-91de-6af767d4bb5b/mzaf_11003893469591393047.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "土耳其冰淇淋",
+        "time": 195367,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/10/58/82/105882f9-dc42-0446-b5ef-308d5186d4b2/mzaf_15189855122304129640.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "告白氣球",
+        "time": 215590,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e5/24/59/e5245986-c2d0-a701-5bde-bbc9373da1dc/mzaf_13819014783674734406.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "Now You See Me",
+        "time": 175529,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5a/4a/ee/5a4aee2b-00f2-23cf-c215-7705be46937d/mzaf_14140462456146546791.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "愛情廢柴",
+        "time": 285616,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/79/fc/09/79fc092d-ba1e-2539-b34b-1f8d045e720c/mzaf_17612899906071103311.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "greatest2022",
+    "collectionId": 1632190508,
+    "collectionName": "最偉大的作品",
+    "artistName": "周杰倫",
+    "releaseDate": "2022-07-15T07:00:00Z",
+    "trackCount": 12,
+    "copyright": "℗ 2022 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/1a/07/93/1a079307-f4a0-9998-f5a3-bcd6aadc6dd8/dj.ihfqdaey.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "Intro",
+        "time": 29813,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/40/25/af/4025af64-a65c-b90b-dd3e-ed51be4b5b3b/mzaf_17380711264724341313.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "最偉大的作品",
+        "time": 244046,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/41/02/92/41029262-68f1-8c45-082f-721a20fe3b03/mzaf_10254939471295366897.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "還在流浪",
+        "time": 265813,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ba/91/81/ba918179-8639-820c-96bc-73019d1aacd7/mzaf_1028958656840124828.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "說好不哭",
+        "time": 220693,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4f/fd/ab/4ffdab66-7060-48d2-3fcf-cea0a68eaeed/mzaf_1706730775973320942.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "紅顏如霜",
+        "time": 257106,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6b/a4/32/6ba43285-4d0b-c3c2-eb4f-0fa7959d63e9/mzaf_6018442156980533200.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "不愛我就拉倒",
+        "time": 246280,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/56/ed/09/56ed095a-a4fc-178b-f042-cbb34bc0dc31/mzaf_13895043010741808528.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "Mojito",
+        "time": 185453,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ae/2d/6c/ae2d6cfc-6fb8-b0b1-b3e4-b436392d6d15/mzaf_8392626921408321134.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "錯過的煙火",
+        "time": 257840,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/80/c5/de/80c5de18-27a0-d792-912e-4862165f1438/mzaf_418073950907356711.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "等你下課 (with 楊瑞代)",
+        "time": 270000,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/48/d0/ea/48d0ea04-25a2-0620-b218-8c13de116388/mzaf_9781198684801683064.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "粉色海洋",
+        "time": 186813,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/89/00/12/89001257-e572-5e25-b1c8-96b59c9821f7/mzaf_3666440688250849024.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "倒影",
+        "time": 234227,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/99/94/48/9994480e-6b62-0343-68bd-32923094628e/mzaf_13252898696056393603.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "我是如此相信",
+        "time": 265013,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7e/5f/76/7e5f7604-36d3-e4db-3d85-9f7ce6e7b969/mzaf_4195907138539646603.plus.aac.p.m4a"
+      }
+    ]
+  },
+  {
+    "key": "sun2026",
+    "collectionId": 1887246588,
+    "collectionName": "太陽之子",
+    "artistName": "周杰倫",
+    "releaseDate": "2026-03-25T07:00:00Z",
+    "trackCount": 13,
+    "copyright": "℗ 2026 JVR MUSIC INTERNATIONAL LTD.",
+    "artwork": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/47/31/e9/4731e94b-a04e-87fd-e7e4-6ab6fd11e17b/4000x4000_fa.jpg/100x100bb.jpg",
+    "tracks": [
+      {
+        "n": 1,
+        "disc": 1,
+        "name": "太陽之子",
+        "time": 297371,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/38/20/45/38204560-b56f-8aa4-1d13-4c524f1faee6/mzaf_12937873808186938071.plus.aac.p.m4a"
+      },
+      {
+        "n": 2,
+        "disc": 1,
+        "name": "西西里",
+        "time": 229404,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/42/44/d1/4244d117-6a95-a224-7cda-f964a9803371/mzaf_10133339674687577132.plus.aac.p.m4a"
+      },
+      {
+        "n": 3,
+        "disc": 1,
+        "name": "那天下雨了",
+        "time": 223333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7c/19/f8/7c19f82f-f181-6769-df31-bc89946996a0/mzaf_6720338736746095542.plus.aac.p.m4a"
+      },
+      {
+        "n": 4,
+        "disc": 1,
+        "name": "湘女多情",
+        "time": 238362,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ed/ce/17/edce17df-fa0f-29d7-1842-195bd12a899f/mzaf_17789005965448284808.plus.aac.p.m4a"
+      },
+      {
+        "n": 5,
+        "disc": 1,
+        "name": "誰稀罕",
+        "time": 262337,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/50/50/ac/5050acfa-caa8-e1d3-ab2e-5748d7437aac/mzaf_6091084097433588825.plus.aac.p.m4a"
+      },
+      {
+        "n": 6,
+        "disc": 1,
+        "name": "七月的極光",
+        "time": 193356,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6d/78/f9/6d78f9ef-7cf7-867a-9236-52bfd9b0f679/mzaf_6960775659003963954.plus.aac.p.m4a"
+      },
+      {
+        "n": 7,
+        "disc": 1,
+        "name": "愛琴海",
+        "time": 214333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3e/a1/66/3ea166d5-5326-6e14-df36-2714a42e9816/mzaf_17385480405359011704.plus.aac.p.m4a"
+      },
+      {
+        "n": 8,
+        "disc": 1,
+        "name": "I Do",
+        "time": 216333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/1f/91/7c/1f917c9c-3d8f-0a4a-1d3b-ba12f8f4b923/mzaf_8971350328977764490.plus.aac.p.m4a"
+      },
+      {
+        "n": 9,
+        "disc": 1,
+        "name": "聖徒",
+        "time": 175333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/d0/d9/39d0d917-cbeb-d72b-9b4b-3fc08cda7be2/mzaf_16753530537678381393.plus.aac.p.m4a"
+      },
+      {
+        "n": 10,
+        "disc": 1,
+        "name": "女兒殿下",
+        "time": 224349,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d9/ae/2c/d9ae2c09-5fea-e7a1-14e9-6ef8421888a4/mzaf_7567846761999817745.plus.aac.p.m4a"
+      },
+      {
+        "n": 11,
+        "disc": 1,
+        "name": "淘金小鎮",
+        "time": 250333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0a/02/53/0a0253b2-5914-7813-510d-e54d93b76e1b/mzaf_13777952405454268426.plus.aac.p.m4a"
+      },
+      {
+        "n": 12,
+        "disc": 1,
+        "name": "鄉間的路",
+        "time": 202333,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f8/8c/ee/f88ceef9-6607-c478-a744-62d7d4e98500/mzaf_6545722135121643420.plus.aac.p.m4a"
+      },
+      {
+        "n": 13,
+        "disc": 1,
+        "name": "聖誕星 (feat. 楊瑞代)",
+        "time": 181356,
+        "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f8/2a/09/f82a09b2-93a5-1341-c3b0-d3a6b3b03156/mzaf_8718402528884924147.plus.aac.p.m4a"
+      }
+    ]
+  }
+]
