@@ -334,9 +334,9 @@ a, button, input, [role="button"] { touch-action: manipulation; }
 main { padding-top: var(--nav-h); }
 
 .hero {
-  min-height: calc(100svh - var(--nav-h));
+  min-height: calc(96svh - var(--nav-h));
   display: flex; align-items: center;
-  padding: clamp(34px, 5vh, 68px) 0 clamp(48px, 7vh, 90px);
+  padding: clamp(24px, 3.4vh, 46px) 0 clamp(30px, 4.4vh, 56px);
   position: relative;
   overflow: hidden;
 }
@@ -355,8 +355,8 @@ main { padding-top: var(--nav-h); }
 }
 
 .eyebrow {
-  font-size: .74rem; letter-spacing: .34em; text-transform: none;
-  color: var(--paper-3); margin-bottom: clamp(16px, 2.4vh, 30px);
+  font-size: .78rem; letter-spacing: .3em; text-transform: none;
+  color: var(--paper-3); margin-bottom: clamp(14px, 2vh, 24px);
   display: flex; align-items: center; gap: .8em;
 }
 .eyebrow::before {
