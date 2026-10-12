@@ -1,0 +1,26 @@
+# 生成物与第三方资产不参与格式化，避免制造无意义的整文件 diff
+node_modules/
+package-lock.json
+
+assets/
+screenshots/
+
+# 生成物：源头是 _data/build.mjs，改它无意义
+js/data.js
+
+# 第三方字典与抓取下来的原始 CSS
+_data/TSCharacters.js
+_data/TSPhrases.js
+_data/gf.css
+_data/albums-raw.json
+_data/colors.json
+
+# ── 刻意保留手写排版的展示层 ────────────────────────────────────────────
+# css/style.css 与 index.html 采用紧凑分组写法（一行放多个相关属性），
+# 是刻意的可读性选择；Prettier 会把 style.css 从 1564 行拆到 3067 行。
+# README.md 为中文文档，按句断行，Prettier 会重排表格填充。
+# 三者的格式一致性靠 .editorconfig 与 review 保证。
+# 若要全量统一：删掉下面三行，跑 npm run format 即可。
+css/style.css
+index.html
+README.md

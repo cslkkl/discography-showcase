@@ -1,0 +1,21 @@
+# 统一编辑器行为，避免不同工具写入 CRLF 或把行尾搅混
+# 与 .gitattributes 的 eol=lf、scripts/check-line-endings.py 的目标一致
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+[*.{js,mjs,json,css,html}]
+indent_size = 2
+
+[*.md]
+# 中文文档按句断行，行尾空格在某些 Markdown 方言里是有意义的硬换行
+trim_trailing_whitespace = false
+
+[*.{png,jpg,jpeg,webp,gif,ico,woff,woff2}]
+insert_final_newline = false

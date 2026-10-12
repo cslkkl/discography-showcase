@@ -1,0 +1,30 @@
+{
+  "name": "jay-chou-album-showcase",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "周杰倫十六張錄音室專輯的靜態展示站；站點本身零執行期依賴",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "build": "node _data/build.mjs",
+    "serve": "node _data/serve.mjs 8099",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:docs": "python scripts/check-markdown-links.py . --fragments --refs",
+    "check:eol": "python scripts/check-line-endings.py .",
+    "check:changed": "python scripts/classify-changed-files.py",
+    "check": "npm run lint && npm run format:check && npm run check:docs && npm run check:eol"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.0.0",
+    "prettier": "^3.3.0"
+  }
+}
