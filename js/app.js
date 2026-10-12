@@ -92,6 +92,8 @@
     lang = next;
     document.documentElement.lang = next === 's' ? 'zh-Hans' : 'zh-Hant';
     document.documentElement.setAttribute('data-lang', next);
+    var amState = $('#amLangState');
+    if (amState) amState.textContent = next === 's' ? '簡' : '繁';
     var toggle = $('#langToggle');
     if (toggle) {
       // localize() caches each attribute's first-seen value, so drop the cache
@@ -1988,6 +1990,19 @@
         '<span class="am-name">所有歌手</span>' +
         '<span class="am-meta">回到入口</span></a>'
     );
+    /* 窄屏专用工具项：顶栏放不下时，简繁与随机入口落在选单里 */
+    html.push(
+      '<button class="am-item am-tool" type="button" role="menuitem" data-tool="lang">' +
+        '<span class="am-seal" aria-hidden="true">文</span>' +
+        '<span class="am-name">切換繁簡</span>' +
+        '<span class="am-meta" id="amLangState">' +
+        (lang === 's' ? '簡' : '繁') +
+        '</span></button>' +
+        '<button class="am-item am-tool" type="button" role="menuitem" data-tool="random">' +
+        '<span class="am-seal" aria-hidden="true">隨</span>' +
+        '<span class="am-name">隨機一曲</span>' +
+        '<span class="am-meta">30 秒</span></button>'
+    );
     menu.innerHTML = html.join('');
   }
 
@@ -2013,6 +2028,15 @@
       if (menu.hidden) return;
       if (wrap && wrap.contains(e.target)) return;
       setOpen(false);
+    });
+    /* 窄屏工具项：与顶栏按钮同一套动作，不复制逻辑 */
+    menu.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-tool]') : null;
+      if (!t) return;
+      var act = t.getAttribute('data-tool');
+      setOpen(false);
+      if (act === 'lang') setLang(lang === 's' ? 't' : 's');
+      else if (act === 'random') document.getElementById('randomBtn').click();
     });
     document.addEventListener('keydown', function (e) {
       if (menu.hidden) return;

@@ -286,6 +286,9 @@ a, button, input, [role="button"] { touch-action: manipulation; }
 }
 .am-item .ico { width: .85rem; height: .85rem; color: var(--accent); }
 .am-all { margin-top: 4px; border-top: 1px solid var(--line); border-radius: 0 0 var(--r) var(--r); }
+/* 窄屏才出现的工具项（简繁切换、随机入口）：宽屏用顶栏按钮，不重复列 */
+.am-tool { display: none; margin-top: 4px; border-top: 1px solid var(--line); }
+.am-tool + .am-tool { margin-top: 0; border-top: 0; }
 
 .lang {
   display: flex; align-items: center; gap: 2px;
@@ -1700,6 +1703,10 @@ html { scroll-padding-bottom: 96px; }
 
 @media (max-width: 620px) {
   .hero-title { font-size: clamp(2.9rem, 15vw, 4.4rem); }
+  /* 窄屏顶栏只留品牌、歌手切换与选单：简繁与随机入口收进选单，
+     否则 390px 下「随机一曲」会被挤出画面 */
+  .tools > .lang, .tools > #randomBtn { display: none; }
+  .am-tool { display: grid; }
   /* landing: 單欄，封面疊放縮小，箭頭退場 */
   .ld-link { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .lds { width: 132px; }
