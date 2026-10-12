@@ -90,21 +90,25 @@ node _data/serve.mjs 8099
 
 ## 想聽整首
 
-會員權益無法接入：網易雲等平台沒有面向第三方的官方播放介面，
-非官方介面需服務端持有個人憑證，既有違服務條款又會暴露帳號。評估過程見
-[.agents/notes/網易雲接入可行性.md](.agents/notes/網易雲接入可行性.md)。
+站內每首只放 **Apple 官方 30 秒試聽**，這是刻意保留的邊界：站內不含任何完整錄音。
+要聽整首，走官方入口——會員權益無法接入第三方站，
+非官方介面需服務端持有個人憑證，既有違服務條款又會暴露帳號。
+評估過程見 [.agents/notes/網易雲接入可行性.md](.agents/notes/網易雲接入可行性.md)。
 
-若你自己擁有音檔，放進專案並在 `_data/local-audio.json` 登記：
+**若你自己擁有音檔**（自有 CD 抓軌、購買的 DRM-free 數位專輯），
+把它們放進 `assets/audio/<專輯id>/`，跑一次工具即可整首、離線播放：
 
-```json
-{
-  "jay2000-1": "assets/audio/jay2000/01.m4a",
-  "busy2007-3": "assets/audio/busy2007/03.m4a"
-}
+```powershell
+node _data/local-audio.mjs --list-albums   # 查專輯 id
+node _data/local-audio.mjs --write         # 掃描並登記，檔名可先不正規
+npm run build                              # 本機檔案優先，官方試聽留作後備
 ```
 
-鍵為 `專輯id-曲目序號`（如 `jay2000`、`busy2007`）。`npm run build` 之後本機檔案優先，
-官方試聽留作後備。
+工具會按檔名序號或曲名自動對應曲目，缺哪首、哪些檔對不上都會報出來。
+`--write --rename` 可把檔名補正成「兩位數序號 + 描述」（保留原描述文字）。
+
+音檔與登記檔**都不進版本庫**（見 [.gitignore](.gitignore)），
+所以音檔只留在你本機；換一台機器或遠端部署時，播放會自動回退到官方試聽。
 
 ## 想加一位歌手
 
