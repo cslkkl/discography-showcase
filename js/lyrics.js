@@ -27,8 +27,11 @@
      只取时间轴行；[ti:] [ar:] [al:] 等标签丢弃。
      开头几行常是「词：方文山／曲：周杰伦／编曲：…」，属制作信息而非歌词，
      混进舞台会很难看，这里按前缀识别删掉（正文里出现这些词不受影响）。 */
+  /* 制作人员行：中文 LRC 用「词：／曲：」，英文 LRC 用「Composed by:／Written by:」。
+     两边都要滤掉，否则舞台上会出现一行没人唱的制作信息。
+     英文分支要求行首是这些词、冒号前不超过 30 字，避免误删正文。 */
   var CREDIT =
-    /^(词|詞|填词|填詞|作词|作詞|曲|作曲|编曲|編曲|制作人|製作人|吉他|贝斯|貝斯|鼓|和声|和聲|录音|錄音|混音|母带|母帶|发行|發行|OP|SP|监制|監製|出品|企划|企劃)\s*[:：]/;
+    /^(词|詞|填词|填詞|作词|作詞|曲|作曲|编曲|編曲|制作人|製作人|吉他|贝斯|貝斯|鼓|和声|和聲|录音|錄音|混音|母带|母帶|发行|發行|OP|SP|监制|監製|出品|企划|企劃)\s*[:：]|^(composed|written|lyrics|lyric|music|words|produced|producer|arranged|arranger|published|mixed|mix|recorded|mastered|performed|vocals|backing vocals|label|engineer|guitar|bass|drums|piano|strings|additional)\b([^:：]{0,30}[:：]|\s+by\b)/i;
 
   /* 演唱者标记：对唱曲里整行只有「男：」「女：」「合：」「周杰伦：」这类标记，
      后面没有任何歌词。全库 175 首实测只有 12 种这种文本（合计 114 行），
@@ -75,9 +78,18 @@
       /* 增强型逐字标签 <mm:ss.xx> 这里不支持：剥掉后按行处理，至少不把标签显示出来 */
       body = body.replace(/<\d{1,3}:\d{1,2}(?:[.:]\d{1,3})?>/g, '').trim();
       if (!body) continue;
-      /* 标题头行：「<歌名> - 周杰伦 (Jay Chou)」带时间戳但不是歌词。
-         判定要求「以歌名开头且含破折号」，副歌里重复歌名的那一行不会被误删。 */
-      if (tKey && normForMatch(body).indexOf(tKey) === 0 && /[-–—]/.test(body)) continue;
+      /* 标题头行：带时间戳但不是歌词。两种顺序都有，都要认：
+         「歌名 - 周杰倫 (Jay Chou)」（jay/taylor 的档）与
+         「林俊杰 - 就是我」（jj/gem 的档）。
+         行尾命中时要求破折号前是 14 字以内的短前缀（歌手名），
+         否则正文里「… - 就是我」这种句子会被误删。 */
+      if (tKey && /[-–—]/.test(body)) {
+        var nb = normForMatch(body);
+        var head = nb.indexOf(tKey) === 0;
+        var dash = body.search(/[-–—]/);
+        var tail = nb.slice(-tKey.length) === tKey && dash <= 14;
+        if (head || tail) continue;
+      }
       for (var s = 0; s < stamps.length; s++) {
         var st = stamps[s];
         var frac = st[3] || '0';
