@@ -57,11 +57,12 @@ npm run hooks:install  # 啟用 .githooks（新複製倉庫後跑一次）
 
 CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂移先報告再改。
 
-- 歌手 5 位：jacky-cheung（40 專輯/433 曲）、jay-chou（16/175）、taylor-swift（12/174）、terry-lin（10/126）、xue-zhiqian（13/131），共 1039 曲全部可試聽
-- 主題三層實測：五位歌手各有強調色與母題（spotlight / ink / midnight / aria / neon）；同歌手每張專輯抽屜色從封面派生且互不重複
-- 入口頁是一台唱片架：五位歌手可逐一選中，姓名、統計、序號、強調色與 `href` 同步；
-  無參數或無效 `?a=` 回入口
-- 歌手頁 10 個 `<section>`（三視圖合併後實測五位歌手一致），14 個展示面；
+- 歌手 7 位：gem（6 專輯/70 曲）、jay-chou（16/175）、jj-lin（14/169）、khalil-fong（10/128）、taylor-swift（12/174）、terry-lin（10/126）、xue-zhiqian（13/131），共 973 曲全部可試聽
+- 主題三層實測：七位歌手各有強調色與母題（prism / ink / ripple / groove / midnight / aria / neon），
+  對比度 4.80:1 至 9.44:1；同歌手每張專輯抽屜色從封面派生且互不重複
+- 入口頁是一台唱片架：七位歌手可逐一選中，姓名、統計、序號、強調色與 `href` 同步；
+  無參數或無效 `?a=` 回入口，已刪歌手的殘留選擇回退首位
+- 歌手頁 10 個 `<section>`（三視圖合併後實測七位歌手一致），14 個展示面；
   無合作者標注的歌手（薛之謙）該區自動收起
 - `eslint .` 0 問題；`prettier --check .` 全通過
 - `check-line-endings.py` 937 檔 0 不一致；`check-markdown-links.py` 0 錯誤

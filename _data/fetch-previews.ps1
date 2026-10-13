@@ -43,11 +43,13 @@ foreach ($a in $raw) {
   Start-Sleep -Milliseconds 260
 }
 
-# 這裡原本是 `ConvertTo-Json | Set-Content -Encoding UTF8`。
-# Windows PowerShell 5.1 的 `-Encoding UTF8` 會寫入 BOM，且 Set-Content 預設 CRLF：
-# BOM 會讓 build.mjs 的 JSON.parse 直接丟 SyntaxError（整份 data.js 生不出來），
-# CRLF 則與 .gitattributes 的 LF 約定不符。改用 .NET 寫入，明確指定無 BOM 的 UTF-8，
-# 並把行尾正規化為 LF。
+# NOTE: keep this file pure ASCII. This host uses ACP 936 (GBK), and Windows
+# PowerShell 5.1 decodes a BOM-less UTF-8 .ps1 as GBK. A full-width character at
+# the end of a comment makes the decoder swallow the following LF, which silently
+# comments out the next line of code. That shipped once: the line below became
+# part of this comment, $json stayed null, and albums-raw.json was written as
+# 0 bytes with exit code 0. scripts/check-ps1-ascii.py guards against it.
+# Write with .NET to control BOM and line endings explicitly (no BOM, LF).
 $json = $raw | ConvertTo-Json -Depth 8
 $json = $json -replace "`r`n", "`n"
 [System.IO.File]::WriteAllText($rawPath, $json, (New-Object System.Text.UTF8Encoding($false)))
