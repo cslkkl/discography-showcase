@@ -1756,6 +1756,8 @@
     plAudio.src = hit.track.audio;
     plPaint(hit.album, hit.track);
     plShow();
+    /* 歌詞隨曲目預載；舞台開著時載完會自動接上（見 js/lyrics.js） */
+    if (window.JCLyrics) window.JCLyrics.loadFor(hit.album.id, hit.album.title, hit.track);
     if (autoplay !== false) plPlay();
     syncPlayingRows();
     setMediaSession(hit.album, hit.track);
@@ -1827,6 +1829,8 @@
     }
     if (plBar) plBar.classList.remove('is-up', 'is-looping');
     document.body.classList.remove('has-player');
+    /* 播放列關掉就沒有音源了，歌詞舞台一起收，否則會停在最後一句 */
+    if (window.JCLyrics && window.JCLyrics.isOpen()) window.JCLyrics.close();
     plState = { album: null, n: null, queue: [], qi: -1, loop: false, scrubbing: false };
     ['#plRange', '#plPrev', '#plNext', '#plToggle'].forEach(function (s) {
       var el2 = $(s);
@@ -1979,6 +1983,34 @@
       plBar.classList.toggle('is-looping', plState.loop);
     });
     $('#plClose').addEventListener('click', plClose);
+
+    /* 全屏歌詞：開關按鈕與舞台本身都在 js/lyrics.js 里 */
+    var lyricBtn = $('#plLyrics');
+    if (lyricBtn && window.JCLyrics) {
+      lyricBtn.addEventListener('click', function () {
+        var on = window.JCLyrics.isOpen();
+        if (on) window.JCLyrics.close();
+        else {
+          var hit = plState.album ? trackOf(plState.album, plState.n) : null;
+          window.JCLyrics.open(hit ? hit.album.title : '', hit ? hit.track.zh : '');
+        }
+        lyricBtn.setAttribute('aria-pressed', String(!on));
+        lyricBtn.setAttribute('aria-expanded', String(!on));
+      });
+      /* 舞台是模態層：Esc 先給它，避免同時把抽屜或歌手選單也關掉 */
+      document.addEventListener(
+        'keydown',
+        function (e) {
+          if (e.key !== 'Escape' || !window.JCLyrics.isOpen()) return;
+          e.stopPropagation();
+          e.preventDefault();
+          window.JCLyrics.close();
+          lyricBtn.setAttribute('aria-pressed', 'false');
+          lyricBtn.setAttribute('aria-expanded', 'false');
+        },
+        true
+      );
+    }
 
     var range = $('#plRange');
     range.addEventListener('input', function () {

@@ -1814,6 +1814,111 @@ html { scroll-padding-bottom: 96px; }
 .ld-foot .ld-inner { padding: 26px var(--gutter); }
 .ld-foot p { font-size: .75rem; letter-spacing: .06em; color: var(--paper-3); }
 
+/* ── 27. lyric stage (full screen) ─────────────────────────────────────── */
+/* 一次只呈現一句：前一句與下一句淡出在上下，當前句橫貫全屏並逐字點亮。
+   逐行 LRC 沒有逐字時間軸，點亮進度由行時長插值（js/lyrics.js 的 sweep）。
+   極短的行不做轉場，否則相鄰兩句的動畫會互相踩踏。 */
+.lyric-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 90; /* 在抽屜（80）之上、提示條之下 */
+  display: grid;
+  grid-template-rows: 1fr auto;
+  align-content: center;
+  gap: clamp(18px, 3vh, 34px);
+  padding: clamp(28px, 6vh, 74px) var(--gutter) clamp(84px, 12vh, 118px);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(var(--tint), .72), transparent 70%),
+    color-mix(in srgb, var(--ink-0) 94%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+  backdrop-filter: blur(18px) saturate(125%);
+  animation: ls-in .34s var(--ease) both;
+}
+.lyric-stage[hidden] { display: none; }
+@keyframes ls-in { from { opacity: 0; } to { opacity: 1; } }
+
+.ls-inner {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(10px, 2.2vh, 26px);
+  text-align: center;
+  max-width: 22ch;
+  margin: 0 auto;
+}
+.ls-prev,
+.ls-next {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--f-serif);
+  font-size: clamp(15px, 1.5vw, 21px);
+  line-height: 1.5;
+  color: var(--paper-3);
+  transition: opacity .3s var(--ease), filter .3s var(--ease);
+}
+.ls-prev { opacity: .5; filter: blur(.4px); }
+.ls-next { opacity: .38; filter: blur(.6px); }
+
+.ls-cur {
+  margin: 0;
+  max-width: 20ch;
+  font-family: var(--f-serif);
+  font-weight: 600;
+  font-size: clamp(30px, 5.6vw, 74px);
+  line-height: 1.28;
+  letter-spacing: .01em;
+  color: var(--paper);
+  text-wrap: balance;
+}
+/* 逐字點亮：未唱到的字維持低對比，唱到的字吃強調色並帶一層光暈 */
+.ls-ch {
+  transition: color .22s var(--ease), text-shadow .22s var(--ease);
+  color: var(--paper-2);
+}
+.ls-ch.is-on {
+  color: var(--accent);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 42%, transparent);
+}
+/* 極短的行來不及逐字，直接整句呈現，避免視覺抖動 */
+.ls-cur[data-cls='micro'] .ls-ch { transition: none; }
+.ls-cur[data-cls='micro'] .ls-ch.is-on { text-shadow: none; }
+
+.ls-meta,
+.ls-hint {
+  margin: 0;
+  text-align: center;
+  font-size: .75rem;
+  letter-spacing: .1em;
+}
+.ls-meta { color: var(--paper-2); }
+.ls-hint { color: var(--paper-3); margin-top: 6px; }
+
+.ls-close {
+  position: absolute;
+  top: clamp(16px, 3vh, 26px);
+  right: var(--gutter);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  color: var(--paper-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease), background .18s var(--ease);
+}
+.ls-close:hover,
+.ls-close:focus-visible {
+  color: var(--paper);
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, .05);
+}
+.ls-close .ico { width: 1.05rem; height: 1.05rem; }
+
+/* 舞台開著時鎖住底層捲動，並讓播放鍵保持可見（舞台自帶底部留白） */
+html.has-lyrics,
+html.has-lyrics body { overflow: hidden; }
+html.has-lyrics .player { z-index: 95; }
+
 /* ── 25. responsive ────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   :root { --nav-h: 62px; }
@@ -1981,4 +2086,10 @@ html { scroll-padding-bottom: 96px; }
   .ld-group { transform: translateX(var(--x, 0%)) scale(var(--s, 1)); }
   /* rings appear already drawn, and the chart bars are full height */
   .ring-path { stroke-dashoffset: 0 !important; opacity: .8; }
+
+  /* 歌詞舞台：取消掃光過渡與入場動畫；逐字仍是完整資訊，只是不做動效 */
+  .lyric-stage { animation: none; }
+  .ls-ch { transition: none; }
+  .ls-prev,
+  .ls-next { filter: none; transition: none; }
 }
