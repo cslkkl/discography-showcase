@@ -87,6 +87,21 @@ function distance(a, b) {
 const pad2 = (n) => String(n).padStart(2, '0');
 const stripExt = (name) => name.replace(/\.[^.]+$/, '');
 
+/* 站點曲名可能含 Windows 檔名非法字元（`?` 最常見，如 "Guilty as Sin?"）。
+   直接拿去當檔名會讓 link() 以 ENOENT 失敗——而且失敗發生在報告之後，
+   先前只體現為一行「失敗 N」看不出原因。換成全形同義字，保留可讀性；
+   落盤後 local-audio.mjs 依「開頭序號」對應，故標題部分不影響匹配。 */
+function safeName(s) {
+  return String(s)
+    .replace(/\?/g, '？')
+    .replace(/\*/g, '＊')
+    .replace(/:/g, '：')
+    .replace(/"/g, '”')
+    .replace(/[<>]/g, '')
+    .replace(/\|/g, '｜')
+    .replace(/[\\/]/g, '／');
+}
+
 /* FLAC 檔頭的總取樣數 ÷ 取樣率，用來確認對到的是不是那一首 */
 function flacSeconds(file) {
   let fd;
@@ -157,8 +172,15 @@ const plan = [];
 const unmatched = [];
 const fuzzy = [];
 const problems = [];
+const rejected = [];
 let durChecked = 0;
 let durOk = 0;
+
+/* 秒 → m:ss，供時長訊息使用 */
+const clock = (sec) => {
+  const s = Math.round(sec);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
 
 for (const file of audioFiles) {
   const base = stripExt(path.basename(file));
@@ -197,26 +219,67 @@ for (const file of audioFiles) {
   const pick = cands[0];
   if (sec && pick.sec) {
     durChecked++;
-    if (Math.abs(sec - pick.sec) <= 3) durOk++;
-    else
+    const diff = Math.abs(sec - pick.sec);
+    if (diff <= 3) {
+      durOk++;
+    } else if (diff > 5) {
+      /* 差得太多就不是同一版：現場版、剪輯版、電台版常與正式版同名。
+         寧缺勿濫——拒絕落盤，讓那一首留在「仍缺」清單裡由人處理。 */
+      rejected.push({
+        base,
+        zh: pick.zh,
+        why: `檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}（差 ${diff.toFixed(1)}s）`
+      });
+      continue;
+    } else {
+      /* 3 到 5 秒之間：母帶與目錄時長常有此差距，接受但記錄 */
       problems.push(
-        `${base}：時長對不上，檔案 ${sec.toFixed(1)}s vs 資料 ${pick.sec}s` +
-          `（差 ${(sec - pick.sec).toFixed(1)}s）`
+        `${base}：時長差 ${diff.toFixed(1)}s（檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}），已接受`
       );
+    }
   }
   const ext = path.extname(file).toLowerCase();
   const lrc = lrcByBase.get(base.toLowerCase()) || null;
   plan.push({ file, ext, lrc, pick, how });
 }
 
-/* 同一首被多個檔案命中時只留第一個，其餘報出來 */
+/* 同一個檔名可能同時存在正式版與伴奏／卡拉OK／現場版，它們的曲名正規化後一樣。
+   先給每個檔案定「版本分數」，同一首被多個檔案命中時擇優，不要誰先掃到誰贏：
+   正式版 0 分，越好分數越低。沒有這一步，`Lover ((PianoVocal)).mp3` 會在
+   `Lover.flac` 之前被掃到而搶走位置，正式版反被當成重複檔丟掉。 */
+const VARIANT_RULES = [
+  [/(\(|\s)(karaoke|instrumental|伴奏|純音樂|纯音乐|off vocal)/i, 60],
+  [/(piano ?vocal|piano ?version|鋼琴|钢琴|acoustic|unplugged|不插電|demo)/i, 40],
+  [/(commentary|訪談|访谈|口白|narration|interlude)/i, 50],
+  [/(live|現場|现场|演唱會|演唱会)/i, 30],
+  [/(remix|混音|re-?mix)/i, 20],
+  [/(\(|\s)(version|版)\)?\s*$/i, 10]
+];
+function variantScore(name) {
+  let score = 0;
+  for (const [re, w] of VARIANT_RULES) if (re.test(name)) score += w;
+  return score;
+}
+/* 同一首被多個檔案命中時擇優：版本分數低者優先，同分再比副檔名（無損優先）與檔名長度
+   （短的通常是正式版，長的常帶 (Karaoke Version) 這類後綴）。 */
+const EXT_RANK = { '.flac': 0, '.wav': 1, '.m4a': 2, '.aac': 3, '.mp3': 4, '.ogg': 5, '.opus': 6 };
 const taken = new Map();
 const finalPlan = [];
-for (const p of plan) {
+const sorted = plan.slice().sort((a, b) => {
+  const va = variantScore(path.basename(a.file));
+  const vb = variantScore(path.basename(b.file));
+  if (va !== vb) return va - vb;
+  const ea = EXT_RANK[a.ext] ?? 9;
+  const eb = EXT_RANK[b.ext] ?? 9;
+  if (ea !== eb) return ea - eb;
+  return path.basename(a.file).length - path.basename(b.file).length;
+});
+for (const p of sorted) {
   const slot = p.pick.albumId + '-' + p.pick.n;
   if (taken.has(slot)) {
+    const why = variantScore(path.basename(p.file)) > 0 ? '版本較次' : '重複檔';
     problems.push(
-      `${path.basename(p.file)}：第 ${p.pick.n} 首已有檔案（${taken.get(slot)}），已略過`
+      `${path.basename(p.file)}：第 ${p.pick.n} 首已由 ${taken.get(slot)} 取得（${why}），已略過`
     );
     continue;
   }
@@ -245,6 +308,10 @@ if (problems.length) {
   console.log('\n需要處理：');
   problems.forEach((p) => console.log('  ! ' + p));
 }
+if (rejected.length) {
+  console.log(`\n拒絕落盤 ${rejected.length} 個（時長差超過 5 秒，判定非同一版本）：`);
+  rejected.forEach((r) => console.log(`  x ${r.base} → 曲目「${r.zh}」：${r.why}`));
+}
 console.log(`\n來源裡多出 ${unmatched.length} 個（不屬這 ${tracks.length} 首）：`);
 unmatched.slice(0, 40).forEach((u) => console.log('  ' + u));
 if (unmatched.length > 40) console.log(`  …另有 ${unmatched.length - 40} 個`);
@@ -262,17 +329,20 @@ let linked = 0;
 let lrcLinked = 0;
 let reused = 0;
 let failed = 0;
+const failures = [];
 for (const p of finalPlan) {
   const dir = path.join(root, 'assets', 'audio', p.pick.albumId);
   fs.mkdirSync(dir, { recursive: true });
-  const destName = `${pad2(p.pick.n)} ${p.pick.zh}${p.ext}`;
+  const destName = `${pad2(p.pick.n)} ${safeName(p.pick.zh)}${p.ext}`;
   const dest = path.join(dir, destName);
   if (fs.existsSync(dest)) {
     const a = fs.statSync(p.file);
     const b = fs.statSync(dest);
     if (a.ino === b.ino && a.dev === b.dev) reused++;
     else {
-      problems.push(`${destName} 已存在且非同源，未覆蓋`);
+      failures.push(
+        `${destName}：目的地已存在且非同一來源（現有 ${b.size} bytes vs 來源 ${a.size} bytes），未覆蓋`
+      );
       failed++;
     }
   } else {
@@ -281,22 +351,33 @@ for (const p of finalPlan) {
       linked++;
     } catch (e) {
       failed++;
-      problems.push(`${destName}：硬連結失敗 ${e.message}`);
+      failures.push(`${destName}：硬連結失敗 ${e.message}`);
     }
   }
   if (p.lrc) {
-    const ldest = path.join(dir, `${pad2(p.pick.n)} ${p.pick.zh}.lrc`);
+    const ldest = path.join(dir, `${pad2(p.pick.n)} ${safeName(p.pick.zh)}.lrc`);
     try {
       if (!fs.existsSync(ldest)) {
         fs.linkSync(p.lrc, ldest);
         lrcLinked++;
       }
     } catch (e) {
-      problems.push(`${path.basename(ldest)}：歌詞硬連結失敗 ${e.message}`);
+      failed++;
+      failures.push(`${path.basename(ldest)}：歌詞硬連結失敗 ${e.message}`);
     }
   }
+}
+
+/* 失敗一律印在最後並以非零退出：先前它出現在報告之後且不影響退出碼，
+   掃過去看不出有檔案沒落盤。 */
+if (failures.length) {
+  console.error(`\n落盤失敗 ${failed} 個：`);
+  failures.forEach((f) => console.error('  x ' + f));
+} else if (problems.length) {
+  console.log(`\n對應過程有 ${problems.length} 條需要處理（見上方「需要處理」）。`);
 }
 console.log(
   `\n已落盤：音檔 ${linked} 個（已同源 ${reused}）、歌詞 ${lrcLinked} 個、失敗 ${failed}`
 );
 console.log('下一步：node _data/local-audio.mjs --write && npm run build:local');
+process.exit(failed ? 1 : 0);
