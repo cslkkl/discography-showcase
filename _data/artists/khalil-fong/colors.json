@@ -1,0 +1,72 @@
+{
+    "khalil2005":  {
+                       "avg":  "#ABA59F",
+                       "vivid":  "#BCAF9B",
+                       "lum":  0.65,
+                       "hue1":  45,
+                       "hue2":  255
+                   },
+    "khalil2006":  {
+                       "avg":  "#40453F",
+                       "vivid":  "#A6936F",
+                       "lum":  0.266,
+                       "hue1":  175,
+                       "hue2":  35
+                   },
+    "khalil2007":  {
+                       "avg":  "#56828D",
+                       "vivid":  "#54C1C5",
+                       "lum":  0.477,
+                       "hue1":  175,
+                       "hue2":  355
+                   },
+    "khalil2008":  {
+                       "avg":  "#A69474",
+                       "vivid":  "#D1B781",
+                       "lum":  0.586,
+                       "hue1":  45,
+                       "hue2":  255
+                   },
+    "khalil2009":  {
+                       "avg":  "#E4E4E7",
+                       "vivid":  "#65677C",
+                       "lum":  0.896,
+                       "hue1":  235,
+                       "hue2":  5
+                   },
+    "khalil2011":  {
+                       "avg":  "#717170",
+                       "vivid":  "#D7D2CD",
+                       "lum":  0.443,
+                       "hue1":  null,
+                       "hue2":  null
+                   },
+    "khalil2012":  {
+                       "avg":  "#BDBBB6",
+                       "vivid":  "#D7CCC1",
+                       "lum":  0.732,
+                       "hue1":  25,
+                       "hue2":  185
+                   },
+    "khalil2014":  {
+                       "avg":  "#3A5B65",
+                       "vivid":  "#2A5865",
+                       "lum":  0.332,
+                       "hue1":  195,
+                       "hue2":  45
+                   },
+    "khalil2016":  {
+                       "avg":  "#4E4328",
+                       "vivid":  "#E5CB76",
+                       "lum":  0.265,
+                       "hue1":  45,
+                       "hue2":  255
+                   },
+    "khalil2024":  {
+                       "avg":  "#CBAB83",
+                       "vivid":  "#E89590",
+                       "lum":  0.686,
+                       "hue1":  345,
+                       "hue2":  65
+                   }
+}
