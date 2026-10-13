@@ -159,15 +159,21 @@ function buildArtist(ed) {
     const meta = ed.albums[a.key];
     if (!meta) throw new Error(`missing editorial metadata for ${ed.id}/${a.key}`);
     const date = new Date(a.releaseDate);
-    const tracks = a.tracks.map((t) => {
+    /* 曲目序號 `n` 是站點內的鍵：音檔路徑、本機登記檔、播放定位都用 (專輯id, n)。
+       所以它必須在專輯內唯一且連續，不能直接沿用目錄的 trackNumber——
+       雙 CD 精選集會按碟重新從 1 編號（林志炫《單身情歌.超炫精選》兩首 #2、
+       兩首 #4），撞鍵會讓兩首歌指向同一個音檔。缺號（《True Live》缺 #2）
+       也一併補平。碟號另存 disc 供顯示，不參與鍵。 */
+    const tracks = a.tracks.map((t, ti) => {
       const preview = t.p || null;
-      const key = a.key + '-' + t.n;
+      const n = ti + 1;
+      const key = a.key + '-' + n;
       const local = localAudio[key] || null;
       /* 歌詞只有在本機聽歌模式才寫入：它與音檔同屬第三方版權文本，
          公開產物不該帶本機路徑，也本就不含歌詞內容。 */
       const lyric = localLyrics[key] || null;
       const rec = {
-        n: t.n,
+        n,
         disc: t.disc || 1,
         zh: clean(t.name),
         sec: Math.round((t.time || 0) / 1000),
