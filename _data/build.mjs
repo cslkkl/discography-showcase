@@ -15,7 +15,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
-const read = (p) => fs.readFileSync(path.join(here, p), 'utf8');
+/* 去 BOM：Windows PowerShell 5.1 的 `Set-Content -Encoding UTF8` 會寫入 BOM，
+   而 JSON.parse 不接受開頭的 U+FEFF。抓取腳本補試聽時會回寫這些 json，
+   這裡容錯一次，任何工具寫出的 BOM 都不會再讓整份 data.js 生不出來。 */
+const read = (p) => fs.readFileSync(path.join(here, p), 'utf8').replace(/^\uFEFF/, '');
 
 /* ---------- traditional -> simplified tables (OpenCC TSPhrases + TSCharacters) ----------
  * OpenCC resolves phrase level rules before falling back to single characters;

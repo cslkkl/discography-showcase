@@ -1,7 +1,7 @@
 # 声之年轮 — 维护索引
 
 多歌手唱片陳列站：以年輪與數據陳列歌手的完整錄音室目錄。
-現收錄張學友、周杰倫、Taylor Swift、林志炫、薛之謙。零執行期依賴，無建置步驟，
+現收錄周杰倫、Taylor Swift、林志炫、薛之謙、林俊傑、方大同、鄧紫棋。零執行期依賴，無建置步驟，
 `index.html` 選歌手、`artist.html` 陳列。
 
 ## 全局規則
@@ -101,8 +101,11 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   驗證改用 DOM 斷言，或在截圖前隱藏其餘 `section` 並回到頂部
 - 全螢幕 `mix-blend-mode` 顆粒會讓每一幀重繪整個視口，改為靜態
 - `.rack-pin` 用 `overflow: hidden` 或 `will-change` 都會破壞 sticky，用 `clip`
-- PowerShell `Set-Content` / `Add-Content` 預設寫 CRLF，會讓 `.json` 或 `.gitignore`
-  變成純 CRLF 或混合行尾；提交前跑 `check:eol`（本項目追加一行的時候踩過一次）
+- PowerShell `Set-Content` / `Add-Content` 預設寫 CRLF，且 5.1 的 `-Encoding UTF8` 會寫入 BOM。
+  兩者都會污染事實層：BOM 讓 `build.mjs` 的 `JSON.parse` 直接丟 SyntaxError（整份 data.js
+  生不出來），CRLF 與 `.gitattributes` 的 LF 約定不符。抓取腳本改用
+  `[System.IO.File]::WriteAllText` + `UTF8Encoding($false)`；`build.mjs` 的 `read()`
+  也去一次 BOM 作容錯
 - iTunes 回傳的日文新字體（説 / 啓 / 晩 / 涙）需經該歌手 meta.mjs 的 kanjiFix 轉正
 - 大陸歌手在 TW 店的目錄元数据可能已是繁體（如薛之謙）；若遇到簡體來源，
   繁體模式下曲目名會保持簡體，須在該歌手 meta.mjs 註明

@@ -79,6 +79,10 @@ Get-ChildItem $coverDir -Filter *.jpg | Sort-Object Name | ForEach-Object {
   Write-Output ("{0,-14} avg={1} vivid={2} lum={3} hue1={4} hue2={5}" -f $k, $out[$k].avg, $out[$k].vivid, $out[$k].lum, $out[$k].hue1, $out[$k].hue2)
 }
 if ($out.Count -eq 0) { throw "no covers matched the album keys of artist '$Artist'" }
+# PowerShell 5.1 的 `-Encoding UTF8` 會寫入 BOM，Set-Content 又預設 CRLF；
+# 兩者都會污染事實層的 json（BOM 還讓 build.mjs 的 JSON.parse 失敗）。
+# 明確寫無 BOM 的 UTF-8 與 LF 行尾。
 $json = $out | ConvertTo-Json -Depth 5
-Set-Content -Path $outPath -Value $json -Encoding UTF8
+$json = $json -replace "`r`n", "`n"
+[System.IO.File]::WriteAllText($outPath, $json, (New-Object System.Text.UTF8Encoding($false)))
 Write-Output "SAVED $outPath ($($out.Count) covers)"

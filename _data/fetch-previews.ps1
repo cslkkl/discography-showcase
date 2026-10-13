@@ -43,7 +43,14 @@ foreach ($a in $raw) {
   Start-Sleep -Milliseconds 260
 }
 
-$raw | ConvertTo-Json -Depth 8 | Set-Content -Encoding UTF8 $rawPath
+# 這裡原本是 `ConvertTo-Json | Set-Content -Encoding UTF8`。
+# Windows PowerShell 5.1 的 `-Encoding UTF8` 會寫入 BOM，且 Set-Content 預設 CRLF：
+# BOM 會讓 build.mjs 的 JSON.parse 直接丟 SyntaxError（整份 data.js 生不出來），
+# CRLF 則與 .gitattributes 的 LF 約定不符。改用 .NET 寫入，明確指定無 BOM 的 UTF-8，
+# 並把行尾正規化為 LF。
+$json = $raw | ConvertTo-Json -Depth 8
+$json = $json -replace "`r`n", "`n"
+[System.IO.File]::WriteAllText($rawPath, $json, (New-Object System.Text.UTF8Encoding($false)))
 Write-Output ""
 Write-Output ("TOTAL tracks={0}  withPreview={1}  missing={2}" -f $totalTracks, $withPreview, $missing.Count)
 if ($missing.Count) { $missing | Select-Object -First 20 | ForEach-Object { "  no preview: $_" } }
