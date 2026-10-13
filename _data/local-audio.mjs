@@ -266,7 +266,7 @@ for (const k of Object.keys(entries).sort((a, b) => a.localeCompare(b, 'en')))
 fs.writeFileSync(OUT_FILE, JSON.stringify(sorted, null, 2) + '\n', { encoding: 'utf8' });
 console.log('');
 console.log(`已寫出 _data/local-audio.json（${Object.keys(sorted).length} 首）。`);
-console.log('下一步：npm run build（本機檔案優先，官方試聽留作後備）');
+console.log('下一步：npm run build:local（本機檔案優先，官方試聽留作後備）');
 
 function countFiles(dir) {
   try {

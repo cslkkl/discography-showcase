@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "node _data/build.mjs",
+    "build:local": "node _data/build.mjs --local",
     "serve": "node _data/serve.mjs 8099",
     "audio": "node _data/local-audio.mjs",
     "lint": "eslint .",

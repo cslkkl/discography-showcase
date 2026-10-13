@@ -46,6 +46,10 @@
 格式 `{ "jay2000-1": "assets/audio/jay2000/01.m4a" }`。
 鍵以專輯 id 為前綴，而專輯 id 全局唯一，故一份檔案服務所有歌手。
 
+**本地音檔是 opt-in**：`npm run build` 一律忽略這份檔案，因為
+`js/data.js` 是要公開的產物，不能指向只有本機有的檔案；
+要把它們折進來自己聽，用 `npm run build:local`（即 `--local`）。
+
 這份檔案由 `local-audio.mjs` 生成，不要手寫：
 
 ```
@@ -61,7 +65,7 @@ node _data/local-audio.mjs --artist <id> [--album <id>]   # 只處理其中一�
 - 檔名對應：先看前綴數字（`01`／`1 -`／`[04]`），沒有數字才用曲名比對；
   曲名比對同時接受繁體原名與簡體轉換
 - `--rename` 只補正序號，描述文字原樣保留（`3 - 星晴.m4a` → `03 星晴.m4a`）
-- 工具只寫 `local-audio.json`；要生效需再接 `npm run build`
+- 工具只寫 `local-audio.json`；要生效需再接 `npm run build:local`
 - 音檔與登記檔都不進版本庫，見 [../.gitignore](../.gitignore)；
   遠端沒有音檔時播放會回退到 Apple 試聽
 

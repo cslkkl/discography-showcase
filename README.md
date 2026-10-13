@@ -103,7 +103,7 @@ node _data/serve.mjs 8099
 ```powershell
 node _data/local-audio.mjs --list-albums   # 查專輯 id
 node _data/local-audio.mjs --write         # 掃描並登記，檔名可先不正規
-npm run build                              # 本機檔案優先，官方試聽留作後備
+npm run build:local                        # 本機檔案優先，官方試聽留作後備
 ```
 
 工具會按檔名序號或曲名自動對應曲目，缺哪首、哪些檔對不上都會報出來。
