@@ -10,7 +10,9 @@
 
 - `build.mjs`：唯一生成器。遍歷 `artists/*`，讀各自的 `albums-raw.json` + `colors.json` +
   `meta.mjs`，寫出 `js/data.js`（`window.DISCOGRAPHY`）。新增歌手不需要改這個檔案
-- `serve.mjs`：零依賴靜態伺服器，供本機預覽與自動化驗證；埠號由參數指定
+- `serve.mjs`：零依賴靜態伺服器，供本機預覽與自動化驗證；埠號由參數指定。
+  支援 HTTP Range 與串流：本機音檔單曲可達 200 MB，整檔讀入會爆記憶體，
+  且沒有 `accept-ranges` 時瀏覽器把音源視為不可尋址、進度條拖不動
 - `local-audio.mjs`：掃描自有音檔目錄，生成 `_data/local-audio.json`。用法與對應規則見下
 
 ### 每位歌手一個資料夾
