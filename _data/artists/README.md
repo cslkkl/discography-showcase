@@ -37,6 +37,10 @@ artists/<id>/
    顏色建議從這位歌手的封面主色或應援色取，取完檢查與 `accentOn` 的對比
 5. 試聽：`fetch-previews.ps1 -Artist <id>`
 6. `npm run build`，然後打開入口頁確認新歌手出現在清單
+7. 有自有音檔時，把來源目錄對齊落盤（見 [_data/README.md](../README.md) 的
+   `place-media.mjs`）：`node _data/place-media.mjs --artist <id> --from <來源目錄> --write`，
+   再 `node _data/local-audio.mjs --write` 登記，最後 `npm run build:local`。
+   歌詞放在音檔同目錄同名 `.lrc` 即可一起被登記
 
 ## 規則
 

@@ -14,6 +14,8 @@
   支援 HTTP Range 與串流：本機音檔單曲可達 200 MB，整檔讀入會爆記憶體，
   且沒有 `accept-ranges` 時瀏覽器把音源視為不可尋址、進度條拖不動
 - `local-audio.mjs`：掃描自有音檔目錄，生成 `_data/local-audio.json`。用法與對應規則見下
+- `place-media.mjs`：把使用者自備的音檔與歌詞從來源目錄對齊進 `assets/audio/<專輯id>/`。
+  依「檔名序號 → 曲名」對應，用 FLAC 檔頭時長交叉驗證，同卷硬連結落盤（不佔額外空間）
 
 ### 每位歌手一個資料夾
 
