@@ -95,11 +95,17 @@ const fmtRuntime = (ms) => {
  * only for your own listening with `npm run build:local` (--local). */
 const withLocal = process.argv.includes('--local');
 let localAudio = {};
+let localLyrics = {};
 if (withLocal) {
   try {
     localAudio = JSON.parse(read('local-audio.json'));
   } catch {
     localAudio = {};
+  }
+  try {
+    localLyrics = JSON.parse(read('local-lyrics.json'));
+  } catch {
+    localLyrics = {};
   }
 }
 
@@ -152,8 +158,12 @@ function buildArtist(ed) {
     const date = new Date(a.releaseDate);
     const tracks = a.tracks.map((t) => {
       const preview = t.p || null;
-      const local = localAudio[a.key + '-' + t.n] || null;
-      return {
+      const key = a.key + '-' + t.n;
+      const local = localAudio[key] || null;
+      /* 歌詞只有在本機聽歌模式才寫入：它與音檔同屬第三方版權文本，
+         公開產物不該帶本機路徑，也本就不含歌詞內容。 */
+      const lyric = localLyrics[key] || null;
+      const rec = {
         n: t.n,
         disc: t.disc || 1,
         zh: clean(t.name),
@@ -164,6 +174,9 @@ function buildArtist(ed) {
         preview: preview,
         local: !!local
       };
+      /* 沒有歌詞就不寫這個欄位：公開產物因此與加入歌詞前逐位元組相同 */
+      if (lyric) rec.lyrics = lyric;
+      return rec;
     });
     const totalMs = a.tracks.reduce((s, t) => s + (t.time || 0), 0);
     const c = colors[a.key] || {};
