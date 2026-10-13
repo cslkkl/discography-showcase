@@ -59,10 +59,10 @@ npm run hooks:install  # 啟用 .githooks（新複製倉庫後跑一次）
 CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂移先報告再改。
 
 - 歌手 7 位：gem（6 專輯/70 曲）、jay-chou（16/175）、jj-lin（14/169）、khalil-fong（10/128）、taylor-swift（12/174）、terry-lin（10/126）、xue-zhiqian（13/131），共 973 曲全部可試聽
-- 自有音檔：973 曲中 970 首可整首播放（99.7%）、885 首有歌詞；其餘 3 首只有官方 30 秒試聽：
-  Taylor Swift 的 8 秒 outro（來源沒有這個檔）、林志炫《蒙娜麗莎的眼淚》#8 Miss Mama（目錄 4:30、
-  來源只有 3:46 版）、《True Live》#2 有些女人不能碰（目錄 4:46、來源只有 5:02 版）。
-  後兩者是同名不同錄音：與其播錯版本，不如留試聽。音檔與歌詞都是 gitignored 的 sidecar
+- 自有音檔：973 曲中 972 首可整首播放（99.9%）、885 首有歌詞；僅 1 首只有官方 30 秒試聽
+  （Taylor Swift 的 8 秒口白 outro，來源目錄沒有這個檔）。同名不同錄音的槽位已逐首核對時長，
+  含林志炫〈Miss Mama〉（4:31 與 3:46 兩版）與〈有些女人不能碰〉（4:47 與 5:02 兩版）；
+  音檔與歌詞都是 gitignored 的 sidecar
 - 曲目序號 `n` 在每張專輯內連續唯一：雙 CD 精選曾按碟重編而撞鍵（兩首歌共用一個音檔），
   現由 `build.mjs` 統一重編，碟號另存 `disc`
 - 主題三層實測：七位歌手各有強調色與母題（prism / ink / ripple / groove / midnight / aria / neon），
