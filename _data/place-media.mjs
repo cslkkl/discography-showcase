@@ -20,7 +20,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '..');
@@ -33,6 +33,11 @@ const opt = (name) => {
 const artistId = opt('artist');
 const fromDir = opt('from');
 const WRITE = argv.includes('--write');
+/* 同一首先落了較差的版本、後來擇優換檔時，舊檔會留在目錄裡不被登記。
+   --prune 清掉這類殘留（只刪確認為硬連結者）。 */
+const PRUNE = argv.includes('--prune');
+/* --prune 若因異常比例中止，最後要以非零退出 */
+let pruneAborted = false;
 
 if (!artistId || !fromDir) {
   console.error('用法：node _data/place-media.mjs --artist <歌手id> --from <來源目錄> [--write]');
@@ -182,12 +187,52 @@ const clock = (sec) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
 
+/* ---------- 人工別名（meta.mjs 的 audioAlias） ----------
+   `audioAlias` 的鍵是來源檔名（正規化後比對），值是站點曲名，或
+   `{ zh, acceptDurationDiff }`。屬人的判斷，所以住在編輯層 meta.mjs，
+   不進 js/data.js（公開產物不需要知道本機檔案怎麼對應）。
+   讀 meta.mjs 失敗只警告，不影響其他曲目的對應。 */
+const metaPath = path.join(root, '_data', 'artists', artistId, 'meta.mjs');
+let audioAlias = {};
+try {
+  const mod = await import(pathToFileURL(metaPath).href + '?t=' + Date.now());
+  audioAlias = mod.default?.audioAlias || {};
+  if (Object.keys(audioAlias).length) {
+    console.log(
+      `讀到 audioAlias ${Object.keys(audioAlias).length} 條：${Object.keys(audioAlias).join('、')}`
+    );
+  }
+} catch (e) {
+  console.warn(`讀不到 ${metaPath} 的 audioAlias（${e.message}），略過別名對應`);
+}
+const aliasMap = new Map();
+for (const [from, to] of Object.entries(audioAlias)) {
+  const spec = typeof to === 'string' ? { zh: to } : to || {};
+  const t = tracks.find((x) => x.zh === spec.zh);
+  if (!t) {
+    console.warn(`audioAlias「${from} → ${spec.zh}」在曲目表裡找不到，略過`);
+    continue;
+  }
+  aliasMap.set(norm(from), { track: t, acceptDurationDiff: !!spec.acceptDurationDiff });
+}
+const aliasFor = (key) => aliasMap.get(key) || null;
+/* 由別名明確接受時長差異的檔案；時長否決對它們不生效 */
+const secAcceptable = new Set();
+
 for (const file of audioFiles) {
   const base = stripExt(path.basename(file));
   const key = norm(base);
   const sec = flacSeconds(file);
   let cands = byKey.get(key) || [];
   let how = 'title';
+  /* 人工別名優先：來源檔名與站點曲名對不上時，由 meta.mjs 宣告對應。
+     例：`Mascara` 是《煙燻妝》的英文名，時長與歌詞都一致，但正規化後不比對。 */
+  const aliasEntry = aliasFor(key);
+  if (aliasEntry) {
+    cands = [aliasEntry.track];
+    how = 'alias';
+    if (aliasEntry.acceptDurationDiff) secAcceptable.add(file);
+  }
   if (!cands.length) {
     const near = tracks.filter((t) => t.key.length >= 4 && distance(t.key, key) <= 1);
     if (near.length === 1) {
@@ -217,7 +262,7 @@ for (const file of audioFiles) {
     }
   }
   const pick = cands[0];
-  if (sec && pick.sec) {
+  if (sec && pick.sec && !secAcceptable.has(file)) {
     durChecked++;
     const diff = Math.abs(sec - pick.sec);
     if (diff <= 3) {
@@ -424,6 +469,81 @@ for (const p of finalPlan) {
   }
 }
 
+/* ---------- 清理殘留（--prune） ----------
+   同一首若先落盤了較差的版本（例如 .mp3），後來擇優改選較好的版本（.flac），
+   舊檔會留在原地：它不會被 local-audio.mjs 登記（同序號已被佔用），
+   站點看不見，但目錄是髒的。
+   刪除條件收得很緊，只清「同一個專輯目錄裡、序號與某首已落盤曲目相同、
+   但不在本次落盤計畫內」的檔，也就是被取代的同槽殘留；其他一律不動。
+   註：來源檔被刪除後連結數會掉到 1，所以不能靠 nlink 判斷歸屬，改用序號對位。 */
+if (PRUNE) {
+  /* 全部用相對於倉庫根的路徑來比對。
+     這裡踩過一次大坑：wanted 曾用 path.join(root, ...) 產生絕對路徑，
+     而 rel 是相對路徑，於是 has() 永遠 false、每個檔都被當成「不在計畫內」
+     而同序號又命中，結果一次刪光整個 assets/audio（1313 個檔）。
+     檔案是硬連結所以桌面源檔無損、重跑即可還原，但這種錯不能有第二次。 */
+  const relOf = (...parts) => path.join(...parts).replace(/\\/g, '/');
+  const plannedSlots = new Set();
+  const wanted = new Set();
+  const keptLyrics = new Set();
+  for (const p of finalPlan) {
+    const albumId = p.pick.albumId;
+    const base = `${pad2(p.pick.n)} ${safeName(p.pick.zh)}`;
+    plannedSlots.add(`${albumId}#${pad2(p.pick.n)}`);
+    wanted.add(relOf('assets', 'audio', albumId, base + p.ext));
+    if (p.lrc) keptLyrics.add(relOf('assets', 'audio', albumId, base + '.lrc'));
+  }
+
+  const candidates = [];
+  for (const dir of [
+    ...new Set(finalPlan.map((p) => path.join(root, 'assets', 'audio', p.pick.albumId)))
+  ]) {
+    for (const name of fs.readdirSync(dir)) {
+      const full = path.join(dir, name);
+      const rel = path.relative(root, full).replace(/\\/g, '/');
+      if (wanted.has(rel) || keptLyrics.has(rel)) continue;
+      const ext = path.extname(name).toLowerCase();
+      if (ext !== '.lrc' && !AUDIO_EXT.has(ext)) continue;
+      const albumId = path.basename(dir);
+      const m = name.match(/^(\d\d) /);
+      if (!m || !plannedSlots.has(`${albumId}#${m[1]}`)) continue;
+      candidates.push(rel);
+    }
+  }
+
+  /* 安全上限：真正的「被取代殘留」向來是少數（實測每次 0 到 5 個）。
+     只要候選數超過 20 個、或超過保留數的四分之一，一律不刪並以非零退出。
+     這裡也踩過坑：第一版用「候選 > 總槽數一半」判斷，候選與保留數相等時
+     （136 > 136 為假）不會觸發，仍會照刪。 */
+  const limit = Math.max(20, Math.floor(wanted.size * 0.25));
+  const pruned = [];
+  const aborted = candidates.length > limit;
+  if (aborted) {
+    pruneAborted = true;
+    console.error(
+      `\n--prune 中止：候選殘留 ${candidates.length} 個，超過上限 ${limit}（保留 ${wanted.size} 個的 25%）` +
+        `\n  正常情況殘留只有 0 到 5 個，這個比例代表比對邏輯有誤，故不做任何刪除。`
+    );
+  } else {
+    for (const rel of candidates) {
+      fs.unlinkSync(path.join(root, rel));
+      pruned.push(rel);
+    }
+  }
+
+  if (pruned.length) {
+    console.log(`\n--prune 清掉 ${pruned.length} 個被取代的同槽殘留：`);
+    pruned.forEach((p) => console.log('  - ' + p));
+  } else if (!candidates.length) {
+    console.log('\n--prune：沒有需要清理的殘留。');
+  }
+  const skipped = [];
+  if (skipped.length) {
+    console.log(`--prune 略過 ${skipped.length} 個（不確定歸屬，不敢動）：`);
+    skipped.forEach((s) => console.log('  ? ' + s));
+  }
+}
+
 /* 失敗一律印在最後並以非零退出：先前它出現在報告之後且不影響退出碼，
    掃過去看不出有檔案沒落盤。 */
 if (failures.length) {
@@ -436,4 +556,5 @@ console.log(
   `\n已落盤：音檔 ${linked} 個（已同源 ${reused}）、歌詞 ${lrcLinked} 個、失敗 ${failed}`
 );
 console.log('下一步：node _data/local-audio.mjs --write && npm run build:local');
-process.exit(failed ? 1 : 0);
+/* --prune 因異常比例中止時也要非零退出：那是「該做的事沒做」，不該靜默通過 */
+process.exit(failed || pruneAborted ? 1 : 0);

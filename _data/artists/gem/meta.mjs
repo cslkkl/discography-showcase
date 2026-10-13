@@ -40,6 +40,13 @@ export default {
    * 哪幾個平台確實有貨是人工判斷，確認後補進這個陣列即可。 */
   listen: ['apple', 'youtube'],
 
+  /* 音檔別名：來源檔名與站點曲名對不上時的人工對應，只有 `place-media.mjs` 會讀。
+   * `Mascara.flac` 是《煙燻妝》的英文名版本：歌詞正文與站點曲目一致，
+   * 時長同為 4:05，只是檔名用了英文，正規化後無法自動比對。 */
+  audioAlias: {
+    Mascara: '煙燻妝'
+  },
+
   /* iTunes 目錄混入的簡體字轉正 */
   kanjiFix: [['兴', '興']],
   phraseFix: [],
