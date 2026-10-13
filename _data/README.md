@@ -52,6 +52,10 @@
 `js/data.js` 是要公開的產物，不能指向只有本機有的檔案；
 要把它們折進來自己聽，用 `npm run build:local`（即 `--local`）。
 
+**注意**：跑一次 `npm run build` 就會讓全部曲目退回官方 30 秒試聽（本機音檔被略過），
+已發生過一次「昨天還能整首播、今天只剩 30 秒」的誤會。自己聽歌請用 `npm run listen`，
+它等於 `local-audio.mjs --write` 加 `build.mjs --local`。
+
 同一個工具也會登記**歌詞**：與音檔同目錄、同序號或同名的 sidecar `.lrc`
 （例如 `assets/audio/jay2000/01 可愛女人.lrc`）會寫進 `_data/local-lyrics.json`，
 `build:local` 時逐曲寫成 `track.lyrics`。歌詞與音檔都不進版本庫。

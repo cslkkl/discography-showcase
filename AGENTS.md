@@ -26,6 +26,7 @@
 npm run serve          # http://127.0.0.1:8099
 npm run build          # 遍历 _data/artists/* 重生成 js/data.js（略過自有音檔，产物可公开）
 npm run build:local    # 同上，但折入 assets/audio 里的自有音档，供本机整首播放
+npm run listen         # 登记自有音档后直接按本机态构建；听歌用这条
 npm run lint           # ESLint
 npm run format         # Prettier 寫入
 npm run check          # lint + format:check + check:docs + check:eol
