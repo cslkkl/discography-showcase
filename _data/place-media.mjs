@@ -36,6 +36,8 @@ const WRITE = argv.includes('--write');
 /* 同一首先落了較差的版本、後來擇優換檔時，舊檔會留在目錄裡不被登記。
    --prune 清掉這類殘留（只刪確認為硬連結者）。 */
 const PRUNE = argv.includes('--prune');
+/* --sync：讓磁碟嚴格對齊本次計畫（換掉來源不同的既有連結、清掉計畫外的殘檔） */
+const SYNC = argv.includes('--sync');
 /* --prune 若因異常比例中止，最後要以非零退出 */
 let pruneAborted = false;
 /* --report <path>：把完整清單寫成 JSON（控制台會截斷「來源裡多出」） */
@@ -302,6 +304,59 @@ for (const file of audioFiles) {
   }
 }
 
+/* ---------- 共用槽位的二次校驗 ----------
+   一個檔填多個槽位時，上面的時長檢驗是「逐槽各自跑」的，看似沒問題；
+   但**同名不同錄音**的兩張專輯若時長相近，會兩邊都通過、造成錯配。
+   實測：林志炫〈Miss Mama〉在《蒙娜麗莎的眼淚》是 4:30、在《單身情歌.超炫精選》是 3:46，
+   來源只有一個 3:46 的檔，兩槽都通過了 5 秒容差 → 4:30 那一格躺著 3:46 的錄音。
+   辦法：同一個檔若被多個槽位用到，只保留**時長最接近**的那一個槽位，
+   其餘撤回（讓它們正確地留在「仍缺」清單裡由人處理）。 */
+const byFile = new Map();
+for (const p of plan) {
+  if (!byFile.has(p.file)) byFile.set(p.file, []);
+  byFile.get(p.file).push(p);
+}
+const sharedDropped = [];
+const keptPlan = [];
+for (const [, group] of byFile) {
+  if (group.length === 1) {
+    keptPlan.push(group[0]);
+    continue;
+  }
+  const hasSec = group.every((g) => g.pick.sec != null);
+  if (!hasSec) {
+    keptPlan.push(...group);
+    continue;
+  }
+  /* 依「檔案的實際時長」與各槽位目錄時長的差距，只保留對得上的槽位。
+     保留門檻與逐槽檢驗一致（5 秒）：精選集收同一份錄音時兩邊差距都近 0，
+     兩個槽位都留；同名不同錄音（4:30 vs 3:46）則只有對的那個留下。
+     先前寫成「只留最貼近的一個」，會把精選集那類正常複用一起砍掉（實測少 8 首）。 */
+  const withDiff = group.map((g) => {
+    const actual = flacSeconds(g.file);
+    const diff = actual != null ? Math.abs(actual - g.pick.sec) : 999;
+    return { g, diff };
+  });
+  withDiff.sort((a, b) => a.diff - b.diff);
+  const best = withDiff[0];
+  for (const item of withDiff) {
+    /* 999 = 量不出時長（mp3／m4a 等非 FLAC，讀不到檔頭）。測不出就不能證偽，
+       一律保留；先前把 999 也當「對不上」砍掉，實測誤砍 8 首正常複用。 */
+    if (item.diff <= 5 || item.diff === 999) {
+      keptPlan.push(item.g);
+    } else {
+      sharedDropped.push({
+        base: path.basename(item.g.file),
+        zh: item.g.pick.zh,
+        album: item.g.pick.albumTitle,
+        why: `同一個檔已供 ${best.g.pick.albumTitle}「${best.g.pick.zh}」使用（時長差 ${best.diff === 999 ? '無法量測' : best.diff.toFixed(1) + 's'}），此槽時長差 ${item.diff === 999 ? '無法量測' : item.diff.toFixed(1) + 's'}`
+      });
+    }
+  }
+}
+plan.length = 0;
+plan.push(...keptPlan);
+
 /* ---------- 時長救援 ----------
    標題對上但時長差太多而拒收的檔，很可能是同一張專輯裡的「另一首」：
    例如來源 `悟空.flac`（2:46）其實是專輯裡的〈悟空 2003 Demo〉（246 秒），
@@ -470,6 +525,12 @@ if (rescued.length) {
     console.log(`  來源「${r.base}」 → ${r.album}「${r.zh}」（${clock(r.sec)}）`)
   );
 }
+if (sharedDropped.length) {
+  console.log(
+    `\n共用槽位撤回 ${sharedDropped.length} 個（同一個檔被多槽用到，時長只對得上其中一個）：`
+  );
+  sharedDropped.forEach((s) => console.log(`  - ${s.album}「${s.zh}」：${s.why}`));
+}
 console.log(`時長校驗 ${durOk}/${durChecked} 相符（容差 3 秒）`);
 if (fuzzy.length) {
   console.log('\n異體字兜底（請人工確認）：');
@@ -490,7 +551,50 @@ console.log(`\n資料裡仍缺 ${missingFinal.length} 首：`);
 missingFinal.slice(0, 40).forEach((m) => console.log(`  ${m.albumTitle} #${m.n} ${m.zh}`));
 if (missingFinal.length > 40) console.log(`  …另有 ${missingFinal.length - 40} 首`);
 
+/* --report <path>：把完整清單寫成 JSON。控制台輸出會把「來源裡多出」截斷在 40 條，
+   要拿全量清單（例如據此回收用不到的來源檔）就得走這條。
+   注意：報告要在**兩個退出點**之前寫，否則 `--report` 不搭配 `--write` 時
+   會走進「報告模式」提前退出、報告根本不會產生（踩過）。 */
+function writeReport() {
+  if (!REPORT) return;
+  const out = {
+    artistId,
+    artistName: artist.name,
+    fromDir,
+    counts: {
+      scannedAudio: audioFiles.length,
+      scannedLyrics: lrcByBase.size,
+      placed: finalPlan.length,
+      unmatched: unmatched.length,
+      rejected: rejected.length,
+      missing: missingFinal.length,
+      durationChecked: durChecked,
+      durationOk: durOk
+    },
+    placed: finalPlan.map((p) => ({
+      albumId: p.pick.albumId,
+      albumTitle: p.pick.albumTitle,
+      n: p.pick.n,
+      zh: p.pick.zh,
+      src: path.basename(p.file),
+      how: p.how
+    })),
+    unmatched,
+    rejected: rejected.map((r) => ({ src: String(r.base), zh: r.zh, why: r.why })),
+    missing: missingFinal.map((m) => ({
+      albumId: m.albumId,
+      albumTitle: m.albumTitle,
+      n: m.n,
+      zh: m.zh,
+      len: clock(m.sec || 0)
+    }))
+  };
+  fs.writeFileSync(path.resolve(REPORT), JSON.stringify(out, null, 2), 'utf8');
+  console.log(`報告已寫出 ${path.resolve(REPORT)}`);
+}
+
 if (!WRITE) {
+  writeReport();
   console.log('\n這是報告模式，未寫入任何檔案。要落盤請加 --write。');
   process.exit(0);
 }
@@ -501,6 +605,56 @@ let lrcLinked = 0;
 let reused = 0;
 let failed = 0;
 const failures = [];
+const replaced = [];
+
+/* --sync：讓磁碟嚴格對齊本次計畫。除了建立計畫內的連結，還做兩件事：
+   1) 目的地存在但不是同一來源（例如維護者補了更好的檔、或早前落錯了版本）→ 換成來源
+   2) 專輯目錄裡「計畫沒用到、但序號落在曲目範圍內」的殘檔 → 刪掉
+   為什麼需要：先前目的地已存在時只會報「未覆蓋」然後失敗，舊的錯誤連結會永遠留著，
+   而 local-audio.mjs 是掃描磁碟的，於是錯的版本照樣被登記上線（實測踩到兩首）。
+   安全上限沿用 --prune 的規則：要刪的數量超過 20 個或保留數的 25% 就整個中止。 */
+const plannedNames = new Set();
+for (const p of finalPlan) {
+  const base = `${pad2(p.pick.n)} ${safeName(p.pick.zh)}`;
+  plannedNames.add(
+    path.join(root, 'assets', 'audio', p.pick.albumId, base + p.ext).replace(/\\/g, '/')
+  );
+  if (p.lrc) {
+    plannedNames.add(
+      path.join(root, 'assets', 'audio', p.pick.albumId, base + '.lrc').replace(/\\/g, '/')
+    );
+  }
+}
+const staleDirs = [
+  ...new Set(finalPlan.map((p) => path.join(root, 'assets', 'audio', p.pick.albumId)))
+];
+const staleCandidates = [];
+if (SYNC) {
+  for (const dir of staleDirs) {
+    const albumId = path.basename(dir);
+    const album = artist.albums.find((a) => a.id === albumId);
+    const maxN = album ? album.tracks.length : 0;
+    for (const name of fs.readdirSync(dir)) {
+      const ext = path.extname(name).toLowerCase();
+      if (ext !== '.lrc' && !AUDIO_EXT.has(ext)) continue;
+      const rel = path.join(dir, name).replace(/\\/g, '/');
+      if (plannedNames.has(rel)) continue;
+      const m = name.match(/^(\d\d) /);
+      if (!m || Number(m[1]) > maxN) continue;
+      staleCandidates.push({ rel, full: path.join(dir, name) });
+    }
+  }
+}
+const staleLimit = Math.max(20, Math.floor(plannedNames.size * 0.25));
+const staleAborted = SYNC && staleCandidates.length > staleLimit;
+if (staleAborted) {
+  console.error(
+    `\n--sync 中止：要清的殘檔 ${staleCandidates.length} 個，超過上限 ${staleLimit}（計畫 ${plannedNames.size} 個的 25%）` +
+      `\n  這個比例代表比對邏輯有誤，故不做任何刪除與落盤。`
+  );
+  process.exit(1);
+}
+
 for (const p of finalPlan) {
   const dir = path.join(root, 'assets', 'audio', p.pick.albumId);
   fs.mkdirSync(dir, { recursive: true });
@@ -510,9 +664,22 @@ for (const p of finalPlan) {
     const a = fs.statSync(p.file);
     const b = fs.statSync(dest);
     if (a.ino === b.ino && a.dev === b.dev) reused++;
-    else {
+    else if (SYNC) {
+      /* 換成來源檔。先確認來源可讀，再刪舊連結、建新連結——
+         刪的時候 nlink 至少還有來源那一份，不會丟內容。 */
+      try {
+        fs.unlinkSync(dest);
+        fs.linkSync(p.file, dest);
+        replaced.push(`${destName}（原 ${b.size} bytes → 新 ${a.size} bytes）`);
+        linked++;
+      } catch (e) {
+        failures.push(`${destName}：--sync 替換失敗 ${e.message}`);
+        failed++;
+      }
+    } else {
       failures.push(
-        `${destName}：目的地已存在且非同一來源（現有 ${b.size} bytes vs 來源 ${a.size} bytes），未覆蓋`
+        `${destName}：目的地已存在且非同一來源（現有 ${b.size} bytes vs 來源 ${a.size} bytes），未覆蓋。` +
+          `要換掉請加 --sync`
       );
       failed++;
     }
@@ -535,6 +702,21 @@ for (const p of finalPlan) {
     } catch (e) {
       failed++;
       failures.push(`${path.basename(ldest)}：歌詞硬連結失敗 ${e.message}`);
+    }
+  }
+}
+
+/* ---------- --sync 的殘檔清理 ----------
+   計畫沒用到、但序號在曲目範圍內的檔（早前落錯版本或已被更好的檔取代）。
+   安全上限在落盤前就算過（staleAborted），這裡只執行。 */
+if (SYNC && staleCandidates.length) {
+  for (const s of staleCandidates) {
+    try {
+      fs.unlinkSync(s.full);
+      replaced.push(`清除殘檔 ${path.relative(root, s.full).replace(/\\/g, '/')}`);
+    } catch (e) {
+      failed++;
+      failures.push(`${path.relative(root, s.full)}：清除失敗 ${e.message}`);
     }
   }
 }
@@ -625,45 +807,11 @@ if (failures.length) {
 console.log(
   `\n已落盤：音檔 ${linked} 個（已同源 ${reused}）、歌詞 ${lrcLinked} 個、失敗 ${failed}`
 );
-/* --report <path>：把完整清單寫成 JSON。控制台輸出會把「來源裡多出」截斷在 40 條，
-   要拿全量清單（例如據此回收用不到的來源檔）就得走這條。 */
-if (REPORT) {
-  const placedList = finalPlan.map((p) => ({
-    albumId: p.pick.albumId,
-    albumTitle: p.pick.albumTitle,
-    n: p.pick.n,
-    zh: p.pick.zh,
-    src: path.basename(p.file),
-    how: p.how
-  }));
-  const out = {
-    artistId,
-    artistName: artist.name,
-    fromDir,
-    counts: {
-      scannedAudio: audioFiles.length,
-      scannedLyrics: lrcByBase.size,
-      placed: finalPlan.length,
-      unmatched: unmatched.length,
-      rejected: rejected.length,
-      missing: missingFinal.length,
-      durationChecked: durChecked,
-      durationOk: durOk
-    },
-    placed: placedList,
-    unmatched,
-    rejected: rejected.map((r) => ({ src: `${r.base}`, zh: r.zh, why: r.why })),
-    missing: missingFinal.map((m) => ({
-      albumId: m.albumId,
-      albumTitle: m.albumTitle,
-      n: m.n,
-      zh: m.zh,
-      len: clock(m.sec || 0)
-    }))
-  };
-  fs.writeFileSync(path.resolve(REPORT), JSON.stringify(out, null, 2), 'utf8');
-  console.log(`報告已寫出 ${path.resolve(REPORT)}`);
+if (replaced.length) {
+  console.log(`\n--sync 更動 ${replaced.length} 處：`);
+  replaced.forEach((x) => console.log('  * ' + x));
 }
 console.log('下一步：node _data/local-audio.mjs --write && npm run build:local');
+writeReport();
 /* --prune 因異常比例中止時也要非零退出：那是「該做的事沒做」，不該靜默通過 */
 process.exit(failed || pruneAborted ? 1 : 0);
