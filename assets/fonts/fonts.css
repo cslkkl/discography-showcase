@@ -1,4 +1,5 @@
 /* Self-hosted webfonts. Subsets fetched once from Google Fonts, then inlined locally. */
+/* Fonts are under SIL OFL 1.1; the licence texts ship alongside in ./licenses/. */
 /* math */
 @font-face {
   font-family: 'Bodoni Moda';
