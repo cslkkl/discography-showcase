@@ -170,11 +170,25 @@
     );
   }
 
+  /* 音源型別決定文案：自有音檔播的是整首，官方目錄只有 30 秒片段。
+     兩邊都不能假裝成另一邊，故動作詞與說明都由此處統一產生。 */
+  function playWords(t) {
+    var local = !!(t && t.local);
+    return {
+      local: local,
+      verb: local ? '播放' : '試聽',
+      idle: local ? '整首播放' : '試聽 30 秒',
+      mode: local ? '本機音檔' : '官方 30 秒試聽',
+      tail: local ? '，本機音檔，整首播放' : '，官方 30 秒片段'
+    };
+  }
+
   /* Play control for one track row. `numClass` keeps the catalogue and the
      album sheet using their own numeral styling. */
   function playBtn(albumId, t, numClass) {
     var off = t.audio ? '' : ' disabled';
     var num = String(t.n).padStart(2, '0');
+    var w = playWords(t);
     return (
       '<button class="ct-play" type="button" data-play="' +
       albumId +
@@ -184,7 +198,12 @@
       ' data-track="' +
       esc(t.zh) +
       '"' +
-      ' aria-label="試聽 ' +
+      ' data-verb="' +
+      w.verb +
+      '"' +
+      ' aria-label="' +
+      w.verb +
+      ' ' +
       esc(t.zh) +
       '"' +
       off +
@@ -422,6 +441,7 @@
       card.setAttribute('data-id', a.id);
       var alt = a.alt ? '<span class="album-alt">' + esc(a.alt) + '</span>' : '';
       var first = firstPlayable(a);
+      var w = playWords(first);
       card.innerHTML =
         '<button class="album-hit" type="button" data-open="' +
         a.id +
@@ -452,22 +472,31 @@
         '</span>' +
         '</span>' +
         '</button>' +
-        /* 浏览与播放分开：点封面看专辑，点这一颗直接试听 */
+        /* 浏览与播放分开：点封面看专辑，点这一颗直接播放 */
         (first
           ? '<button class="album-play" type="button" data-play="' +
             a.id +
             ':' +
             first.n +
             '" data-track="' +
-            esc(a.title + ' 的 ' + first.zh + '，官方 30 秒片段') +
-            '" data-idle="試聽 30 秒" data-playing="暫停播放"' +
-            ' aria-label="試聽 ' +
+            esc(a.title + ' 的 ' + first.zh + w.tail) +
+            '" data-verb="' +
+            w.verb +
+            '" data-idle="' +
+            w.idle +
+            '" data-playing="暫停播放"' +
+            ' aria-label="' +
+            w.verb +
+            ' ' +
             esc(a.title) +
             ' 的 ' +
             esc(first.zh) +
-            '，官方 30 秒片段">' +
+            w.tail +
+            '">' +
             iconPaths() +
-            '<span class="pl-label">試聽 30 秒</span></button>'
+            '<span class="pl-label">' +
+            w.idle +
+            '</span></button>'
           : '');
       f.appendChild(card);
     });
@@ -855,6 +884,7 @@
     var f = frag();
     ALBUMS.forEach(function (a) {
       var first = firstPlayable(a);
+      var w = playWords(first);
       var wrap = el('div', 'wall-cell rv');
       wrap.innerHTML =
         '<button class="wall-tile" type="button" data-open="' +
@@ -888,12 +918,17 @@
             ':' +
             first.n +
             '" data-track="' +
-            esc(a.title + ' 的 ' + first.zh + '，官方 30 秒片段') +
-            '" aria-label="試聽 ' +
+            esc(a.title + ' 的 ' + first.zh + w.tail) +
+            '" data-verb="' +
+            w.verb +
+            '" aria-label="' +
+            w.verb +
+            ' ' +
             esc(a.title) +
             ' 的 ' +
             esc(first.zh) +
-            '，官方 30 秒片段">' +
+            w.tail +
+            '">' +
             iconPaths() +
             '</button>'
           : '');
@@ -1455,7 +1490,9 @@
       '<svg class="ico pl-ico" viewBox="0 0 256 256" aria-hidden="true">' +
       P_PLAY +
       '</svg>' +
-      '<span>試聽整張 · 30 秒</span></button>' +
+      '<span>' +
+      (playWords(firstPlayable(a)).local ? '播放整張' : '試聽整張 · 30 秒') +
+      '</span></button>' +
       '</div>' +
       '</div>' +
       '<div class="sheet-body">' +
@@ -1645,8 +1682,10 @@
       /* 标签只留文字名：属性缓存由 localize() 首次见到时建立，
          这里若直接写繁体，切换语言会把它当原文还原，故写后清缓存并重新本地化 */
       var label = b.getAttribute('data-track') || '';
+      /* 動作詞跟著音源型別：本機整首是「播放」，官方片段是「試聽」 */
+      var verb = b.getAttribute('data-verb') || '試聽';
       dropAttr(b, 'aria-label');
-      b.setAttribute('aria-label', (on ? '暫停 ' : '試聽 ') + label);
+      b.setAttribute('aria-label', (on ? '暫停 ' : verb + ' ') + label);
       localize(b);
       var text = b.querySelector('.pl-label');
       if (text && b.hasAttribute('data-idle')) {
@@ -1675,7 +1714,7 @@
     });
     var meta = $('#plMeta');
     if (meta) {
-      meta.innerHTML = '<b>' + esc(a.title) + '</b> · 第 ' + idx + ' 首 · 官方 30 秒試聽';
+      meta.innerHTML = '<b>' + esc(a.title) + '</b> · 第 ' + idx + ' 首 · ' + playWords(t).mode;
       localize(meta);
     }
     ['#plRange', '#plPrev', '#plNext', '#plToggle'].forEach(function (s) {
@@ -2122,7 +2161,13 @@
         '<button class="am-item am-tool" type="button" role="menuitem" data-tool="random">' +
         '<span class="am-seal" aria-hidden="true">隨</span>' +
         '<span class="am-name">隨機試聽</span>' +
-        '<span class="am-meta">30 秒</span></button>'
+        '<span class="am-meta">' +
+        (JC.tracks.some(function (t) {
+          return t.local;
+        })
+          ? '整首'
+          : '30 秒') +
+        '</span></button>'
     );
     menu.innerHTML = html.join('');
   }
