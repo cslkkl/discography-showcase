@@ -184,6 +184,8 @@ function buildArtist(ed) {
       id: a.key,
       idx: i + 1,
       no: String(i + 1).padStart(2, '0'),
+      /* Apple 目錄的專輯 id：官方深鏈可直達這張專輯，不必讓使用者再搜一次 */
+      collectionId: a.collectionId || null,
       title: clean(meta.title),
       alt: clean(meta.alt || ''),
       en: meta.en,
@@ -450,6 +452,9 @@ built.forEach((b) => {
       taglineEn: ${JSON.stringify(ed.taglineEn)},
       intro: ${JSON.stringify(ed.intro)},
       theme: ${JSON.stringify(ed.theme)},
+      /* 這位歌手的目錄在哪些官方平台找得到：人工判斷，見下 */
+      listen: ${JSON.stringify(ed.listen || ['apple', 'youtube'])},
+      listenNote: ${JSON.stringify(ed.listenNote || '')},
       albums: ALBUMS,
       tracks: ALL_TRACKS,
       toSimplified: toSimplified,

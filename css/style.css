@@ -1516,6 +1516,24 @@ html.ld-booting .ht-line span {
 .sheet-playall:hover { border-color: var(--line-3); background: rgba(255, 255, 255, .05); }
 .sheet-playall .pl-ico { width: .9rem; height: .9rem; }
 
+/* 官方入口：把整張專輯送到官方平台。搜尋連結不保證有貨，只是送到正確結果頁 */
+.sheet-listen {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 14px;
+}
+.sl-label { font-size: .72rem; letter-spacing: .12em; color: var(--paper-3); }
+.sl-link {
+  display: inline-flex; align-items: center; min-height: 32px; padding: 0 .8em;
+  border: 1px solid var(--line-2); border-radius: var(--r-pill);
+  font-size: .74rem; letter-spacing: .06em; color: var(--paper-2);
+  transition: color .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
+}
+.sl-link:hover,
+.sl-link:focus-visible {
+  color: var(--paper); border-color: var(--accent); background: rgba(255, 255, 255, .05);
+}
+.sl-note { flex-basis: 100%; font-size: .72rem; line-height: 1.6; color: var(--paper-3); }
+
 .player {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 1005;
   background: rgba(10, 10, 13, .92);

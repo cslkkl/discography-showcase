@@ -24,6 +24,10 @@ export default {
     heroTitle: 'Taylor Swift'
   },
 
+  /* 官方入口：Apple 走目錄自帶的專輯 id 直達；其餘平台為搜尋連結。
+   * 哪幾個平台確實有貨是人工判斷，確認後補進這個陣列即可。 */
+  listen: ['apple', 'youtube'],
+
   kanjiFix: [],
   phraseFix: [],
   collabFix: [],

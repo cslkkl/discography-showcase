@@ -1420,6 +1420,55 @@
     })[0];
   }
 
+  /* 官方入口：平台清單由 meta.mjs 宣告（哪些平台確實有貨是人工判斷）。
+     Apple 用目錄自帶的專輯 id 直達該張專輯；其餘為搜尋連結，
+     搜尋不保證有貨，只是把使用者送到正確的結果頁。 */
+  var LISTEN_LABEL = {
+    apple: 'Apple Music',
+    qq: 'QQ 音樂',
+    netease: '網易雲音樂',
+    spotify: 'Spotify',
+    youtube: 'YouTube'
+  };
+
+  function listenRow(a) {
+    var ids = JC.listen || [];
+    if (!ids.length) return '';
+    /* 同名专辑（如 Taylor Swift 的首张）会让关键词重复，去掉冗余 */
+    var term = encodeURIComponent(a.title === JC.name ? a.title : a.title + ' ' + JC.name);
+    var urls = {
+      apple: a.collectionId
+        ? 'https://music.apple.com/tw/album/' + a.collectionId
+        : 'https://music.apple.com/tw/search?term=' + term,
+      qq: 'https://y.qq.com/n/ryqq/search?w=' + term,
+      netease: 'https://music.163.com/#/search/m/?s=' + term + '&type=1',
+      spotify: 'https://open.spotify.com/search/' + term,
+      youtube: 'https://www.youtube.com/results?search_query=' + term
+    };
+    var links = ids
+      .filter(function (id) {
+        return urls[id] && LISTEN_LABEL[id];
+      })
+      .map(function (id) {
+        return (
+          '<a class="sl-link" href="' +
+          esc(urls[id]) +
+          '" target="_blank" rel="noopener noreferrer">' +
+          LISTEN_LABEL[id] +
+          '</a>'
+        );
+      })
+      .join('');
+    if (!links) return '';
+    return (
+      '<div class="sheet-listen">' +
+      '<span class="sl-label">整張在官方平台聽</span>' +
+      links +
+      (JC.listenNote ? '<span class="sl-note">' + esc(JC.listenNote) + '</span>' : '') +
+      '</div>'
+    );
+  }
+
   function sheetHTML(a) {
     var facts =
       '<dl class="sheet-facts">' +
@@ -1493,6 +1542,7 @@
       '<span>' +
       (playWords(firstPlayable(a)).local ? '播放整張' : '試聽整張 · 30 秒') +
       '</span></button>' +
+      listenRow(a) +
       '</div>' +
       '</div>' +
       '<div class="sheet-body">' +
