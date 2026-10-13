@@ -224,10 +224,13 @@ for (const file of audioFiles) {
       durOk++;
     } else if (diff > 5) {
       /* 差得太多就不是同一版：現場版、剪輯版、電台版常與正式版同名。
-         寧缺勿濫——拒絕落盤，讓那一首留在「仍缺」清單裡由人處理。 */
+         先記下來，稍後用時長在其他曲目裡找它真正該去的位置（見時長救援）。 */
       rejected.push({
         base,
         zh: pick.zh,
+        file,
+        sec,
+        lrc: lrcByBase.get(base.toLowerCase()) || null,
         why: `檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}（差 ${diff.toFixed(1)}s）`
       });
       continue;
@@ -241,6 +244,52 @@ for (const file of audioFiles) {
   const ext = path.extname(file).toLowerCase();
   const lrc = lrcByBase.get(base.toLowerCase()) || null;
   plan.push({ file, ext, lrc, pick, how });
+}
+
+/* ---------- 時長救援 ----------
+   標題對上但時長差太多而拒收的檔，很可能是同一張專輯裡的「另一首」：
+   例如來源 `悟空.flac`（2:46）其實是專輯裡的〈悟空 2003 Demo〉（246 秒），
+   而標題一模一樣的〈悟空〉是 258 秒。先前這種檔只會被丟進拒收清單，
+   使用者手上的檔就白費了。
+
+   **光看時長會出事**：實測「圣所」（2:46）會被派給時長巧合的〈Down〉（2:45）、
+   「江南 (粤语版)」（4:21）會被派給〈以後要做的事〉（4:21）、
+   「天气先生 (iTunes Session)」會被派給〈聽〉——全是錯的。
+   所以改派必須同時有「名稱證據」：來源檔名與目標曲名（正規化後）互為包含，
+   例如 `悟空` ⊂ `悟空 2003 Demo (Bonus Track)`、`Over Reprise` ≡ `Over (Reprise)`。
+   另外要求時長唯一命中（誤差 2 秒內）且該曲目尚未落盤。兩項都滿足才改派。 */
+function nameSupports(srcKey, tgtKey) {
+  if (!srcKey || !tgtKey) return false;
+  if (srcKey.length < 2) return false;
+  return srcKey.includes(tgtKey) || tgtKey.includes(srcKey);
+}
+const assigned = new Set(plan.map((p) => p.pick.albumId + '-' + p.pick.n));
+const rescued = [];
+for (const r of rejected) {
+  if (!r.sec) continue;
+  const srcKey = norm(r.base);
+  const cands = tracks.filter(
+    (t) =>
+      !assigned.has(t.albumId + '-' + t.n) &&
+      t.sec != null &&
+      Math.abs(t.sec - r.sec) <= 2 &&
+      nameSupports(srcKey, t.key)
+  );
+  if (cands.length !== 1) continue;
+  const pick = cands[0];
+  assigned.add(pick.albumId + '-' + pick.n);
+  plan.push({
+    file: r.file,
+    ext: path.extname(r.file).toLowerCase(),
+    lrc: r.lrc,
+    pick,
+    how: 'duration'
+  });
+  rescued.push({ base: r.base, zh: pick.zh, sec: r.sec, album: pick.albumTitle });
+}
+const rescuedBases = new Set(rescued.map((r) => r.base));
+for (let i = rejected.length - 1; i >= 0; i--) {
+  if (rescuedBases.has(rejected[i].base)) rejected.splice(i, 1);
 }
 
 /* 同一個檔名可能同時存在正式版與伴奏／卡拉OK／現場版，它們的曲名正規化後一樣。
@@ -297,8 +346,15 @@ console.log(`掃到音檔 ${audioFiles.length} 個、歌詞 ${lrcByBase.size} �
 console.log(
   `對上 ${finalPlan.length} 首（曲名 ${finalPlan.filter((p) => p.how === 'title').length}、` +
     `時長消歧 ${finalPlan.filter((p) => p.how === 'length').length}、` +
+    `時長救援 ${finalPlan.filter((p) => p.how === 'duration').length}、` +
     `異體字 ${finalPlan.filter((p) => p.how === 'fuzzy').length}）`
 );
+if (rescued.length) {
+  console.log(`\n時長救援 ${rescued.length} 首（標題對不上但時長唯一吻合，改派給正確曲目）：`);
+  rescued.forEach((r) =>
+    console.log(`  來源「${r.base}」 → ${r.album}「${r.zh}」（${clock(r.sec)}）`)
+  );
+}
 console.log(`時長校驗 ${durOk}/${durChecked} 相符（容差 3 秒）`);
 if (fuzzy.length) {
   console.log('\n異體字兜底（請人工確認）：');
