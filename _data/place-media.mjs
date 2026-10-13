@@ -261,34 +261,40 @@ for (const file of audioFiles) {
       );
     }
   }
-  const pick = cands[0];
-  if (sec && pick.sec && !secAcceptable.has(file)) {
-    durChecked++;
-    const diff = Math.abs(sec - pick.sec);
-    if (diff <= 3) {
-      durOk++;
-    } else if (diff > 5) {
-      /* 差得太多就不是同一版：現場版、剪輯版、電台版常與正式版同名。
-         先記下來，稍後用時長在其他曲目裡找它真正該去的位置（見時長救援）。 */
-      rejected.push({
-        base,
-        zh: pick.zh,
-        file,
-        sec,
-        lrc: lrcByBase.get(base.toLowerCase()) || null,
-        why: `檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}（差 ${diff.toFixed(1)}s）`
-      });
-      continue;
-    } else {
-      /* 3 到 5 秒之間：母帶與目錄時長常有此差距，接受但記錄 */
-      problems.push(
-        `${base}：時長差 ${diff.toFixed(1)}s（檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}），已接受`
-      );
-    }
-  }
+  /* 一個來源檔可以填多個槽位：精選集裡常收同一份錄音（林志炫《單身情歌.超炫精選》
+     與原專輯重複十幾首）。先前「一個檔只填一個槽」會讓精選集整張只有試聽，
+     即使原專輯早就落了盤。逐槽檢查時長，通過的才填。 */
   const ext = path.extname(file).toLowerCase();
   const lrc = lrcByBase.get(base.toLowerCase()) || null;
-  plan.push({ file, ext, lrc, pick, how });
+  let filled = 0;
+  for (const pick of cands) {
+    if (sec && pick.sec && !secAcceptable.has(file)) {
+      durChecked++;
+      const diff = Math.abs(sec - pick.sec);
+      if (diff <= 3) {
+        durOk++;
+      } else if (diff > 5) {
+        /* 差得太多就不是同一版：現場版、剪輯版、電台版常與正式版同名。
+           先記下來，稍後用時長在其他曲目裡找它真正該去的位置（見時長救援）。 */
+        rejected.push({
+          base,
+          zh: pick.zh,
+          file,
+          sec,
+          lrc,
+          why: `檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}（差 ${diff.toFixed(1)}s）`
+        });
+        continue;
+      } else {
+        /* 3 到 5 秒之間：母帶與目錄時長常有此差距，接受但記錄 */
+        problems.push(
+          `${base}：時長差 ${diff.toFixed(1)}s（檔案 ${clock(sec)} vs 資料 ${clock(pick.sec)}），已接受`
+        );
+      }
+    }
+    plan.push({ file, ext, lrc, pick, how: filled === 0 ? how : 'shared' });
+    filled++;
+  }
 }
 
 /* ---------- 時長救援 ----------
