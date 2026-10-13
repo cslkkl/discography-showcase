@@ -13,10 +13,12 @@ Thumbs.db
 # 说明：assets/ 与 screenshots/ 必须入库
 # README 直接引用它们，忽略会导致 GitHub 上拉不到图
 
-# 使用者自有音档：只留在本机，绝不入库
-# 版权录音一旦进版本库就等同于公开分发；登记档由 _data/local-audio.mjs 生成
+# 使用者自有音档与歌词：只留在本机，绝不入库
+# 版权录音与歌词文本一旦进版本库就等同于公开分发
+# 两者都由 _data/local-audio.mjs 扫描 assets/audio/<专辑id>/ 生成
 assets/audio/
 _data/local-audio.json
+_data/local-lyrics.json
 
 # 外部参考副本（clone 进来的其他项目）绝不入库：
 # 它们自带 .git 与 node_modules，一旦 git add . 会把上千个文件塞进本站

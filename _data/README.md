@@ -50,6 +50,10 @@
 `js/data.js` 是要公開的產物，不能指向只有本機有的檔案；
 要把它們折進來自己聽，用 `npm run build:local`（即 `--local`）。
 
+同一個工具也會登記**歌詞**：與音檔同目錄、同序號或同名的 sidecar `.lrc`
+（例如 `assets/audio/jay2000/01 可愛女人.lrc`）會寫進 `_data/local-lyrics.json`，
+`build:local` 時逐曲寫成 `track.lyrics`。歌詞與音檔都不進版本庫。
+
 這份檔案由 `local-audio.mjs` 生成，不要手寫：
 
 ```

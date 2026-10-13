@@ -39,6 +39,7 @@ const onlyAlbum = opt('album');
 const AUDIO_EXT = new Set(['.m4a', '.mp3', '.aac', '.flac', '.opus', '.ogg', '.wav']);
 const AUDIO_DIR = path.join(root, 'assets', 'audio');
 const OUT_FILE = path.join(here, 'local-audio.json');
+const LYRIC_FILE = path.join(here, 'local-lyrics.json');
 
 /* ---------- 讀取站點資料（js/data.js 是唯一事實來源） ---------- */
 function loadDataset() {
@@ -59,6 +60,25 @@ function fail(msg) {
 
 /* ---------- 檔名與曲名的正規化比對 ---------- */
 const stripExt = (name) => name.replace(/\.[^.]+$/, '');
+
+/* 同目錄的 sidecar 歌詞：先找同名 .lrc，再退回同序號的 .lrc。
+   使用者把歌詞和音檔放在一起，就不必再維護第二個目錄。 */
+function sidecarLyrics(dir, audioFile) {
+  let names;
+  try {
+    names = fs.readdirSync(dir);
+  } catch {
+    return null;
+  }
+  const lrcs = names.filter((f) => path.extname(f).toLowerCase() === '.lrc');
+  if (!lrcs.length) return null;
+  const want = stripExt(audioFile).toLowerCase();
+  const exact = lrcs.find((f) => stripExt(f).toLowerCase() === want);
+  if (exact) return exact;
+  const num = leadingNumber(audioFile);
+  if (num === null) return null;
+  return lrcs.find((f) => leadingNumber(f) === num) || null;
+}
 
 /* 全形轉半形、去空白與標點、統一引號與大小寫 */
 function normalize(s) {
@@ -136,6 +156,7 @@ const dirs = fs
   .sort();
 
 const entries = {}; // "<albumId>-<n>" -> 相對路徑
+const lyrics = {}; // "<albumId>-<n>" -> 同目錄 sidecar 歌詞的相對路徑
 const matches = []; // { albumId, n, dir, file }；改名後據此組出路徑
 const plan = []; // 待正規化的檔名
 const problems = [];
@@ -202,6 +223,10 @@ for (const albumId of dirs) {
     matchedCount++;
     const target = renameTarget(file, t.n);
     if (target !== file) plan.push({ dir, from: file, to: target });
+    /* 歌詞是同目錄的 sidecar：<同樣的序號與曲名>.lrc。
+       它與音檔一起放在 assets/audio/ 下，因此同樣不會進版本庫。 */
+    const lrc = sidecarLyrics(dir, file);
+    if (lrc) lyrics[albumId + '-' + t.n] = 'assets/audio/' + albumId + '/' + lrc;
   }
 
   const label = `${albumId}（${albums.get(albumId).title}）`;
@@ -264,8 +289,18 @@ const sorted = {};
 for (const k of Object.keys(entries).sort((a, b) => a.localeCompare(b, 'en')))
   sorted[k] = entries[k];
 fs.writeFileSync(OUT_FILE, JSON.stringify(sorted, null, 2) + '\n', { encoding: 'utf8' });
+
+const sortedLyrics = {};
+for (const k of Object.keys(lyrics).sort((a, b) => a.localeCompare(b, 'en')))
+  sortedLyrics[k] = lyrics[k];
+fs.writeFileSync(LYRIC_FILE, JSON.stringify(sortedLyrics, null, 2) + '\n', { encoding: 'utf8' });
+
 console.log('');
 console.log(`已寫出 _data/local-audio.json（${Object.keys(sorted).length} 首）。`);
+console.log(
+  `已寫出 _data/local-lyrics.json（${Object.keys(sortedLyrics).length} 首；` +
+    `同目錄 sidecar .lrc，沒有就留空）`
+);
 console.log('下一步：npm run build:local（本機檔案優先，官方試聽留作後備）');
 
 function countFiles(dir) {
