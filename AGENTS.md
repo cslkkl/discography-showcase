@@ -64,9 +64,12 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 歌手頁 10 個 `<section>`（三視圖合併後實測五位歌手一致），14 個展示面；
   無合作者標注的歌手（薛之謙）該區自動收起
 - `eslint .` 0 問題；`prettier --check .` 全通過
-- `check-line-endings.py` 574 檔 0 不一致；`check-markdown-links.py` 0 錯誤
+- `check-line-endings.py` 937 檔 0 不一致；`check-markdown-links.py` 0 錯誤
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用（五位歌手各實測）
 - 全站小字下限 12px（實測 <12px 為 0）；歌手頁首屏露出下一段 23–36px
+- 全屏歌詞舞台：175 首周杰倫曲目全數登記到 sidecar `.lrc`（16 張專輯零缺失）；
+  解析器濾掉標題頭行與製作人員行、保留副歌重複歌名；播放中掃光隨時間推進；
+  `build:local` 才寫入歌詞欄位（公開產物逐位元組不含該欄位）
 - 入口頁是單一舞台：中央封面組 + 兩側相鄰與遠端，桌面中央封面 253–297px，
   窄屏為可用寬度的 65%；首屏六要素在 1366×768 與 390×844 都在折線以上
 - 開場動畫首次 900ms，同會話切換歌手直接呈現
@@ -96,7 +99,8 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   驗證改用 DOM 斷言，或在截圖前隱藏其餘 `section` 並回到頂部
 - 全螢幕 `mix-blend-mode` 顆粒會讓每一幀重繪整個視口，改為靜態
 - `.rack-pin` 用 `overflow: hidden` 或 `will-change` 都會破壞 sticky，用 `clip`
-- PowerShell `Set-Content` 預設寫 CRLF，會讓 `.json` 變成純 CRLF；提交前跑 `check:eol`
+- PowerShell `Set-Content` / `Add-Content` 預設寫 CRLF，會讓 `.json` 或 `.gitignore`
+  變成純 CRLF 或混合行尾；提交前跑 `check:eol`（本項目追加一行的時候踩過一次）
 - iTunes 回傳的日文新字體（説 / 啓 / 晩 / 涙）需經該歌手 meta.mjs 的 kanjiFix 轉正
 - 大陸歌手在 TW 店的目錄元数据可能已是繁體（如薛之謙）；若遇到簡體來源，
   繁體模式下曲目名會保持簡體，須在該歌手 meta.mjs 註明

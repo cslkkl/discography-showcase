@@ -2,7 +2,7 @@
 
 - 職責：資料出口與全部檢視邏輯
 - 被誰依賴：入口頁 `index.html` 載入 `data.js` + `landing.js`；
-  歌手頁 `artist.html` 依序載入 `data.js` 再載入 `app.js`
+  歌手頁 `artist.html` 依序載入 `data.js`、`lyrics.js`、`app.js`
 
 ## 檔案
 
@@ -43,6 +43,24 @@
 | 揭示 | `observeReveals` |
 | 其他 | `toast` `magnetize` `bindChrome` `bind` `init` |
 
+### `lyrics.js`（歌手頁全屏歌詞，手寫，IIFE，無依賴）
+
+- 職責：解析逐行 LRC 並驅動全屏歌詞舞台（`#lyricStage`），對外只暴露 `window.JCLyrics`
+- 資料來源：`track.lyrics`（只有 `npm run build:local` 才會寫入；公開產物連鍵都沒有）。
+  歌詞檔是與音檔同目錄的 sidecar `.lrc`，由 `_data/local-audio.mjs` 一併登記
+- 解析（`parseLrc(text, title)`）：只取時間軸行；丟掉 `[ti:]` 等標籤、製作人員行
+  （`詞/曲/編曲/混音…`）與**標題頭行**（`<歌名> - 周杰倫 (Jay Chou)`）。
+  標題比對要**先轉簡體再比**，因為歌詞檔是簡體而站點曲名是繁體
+- 短句降級（`hintFor`）：依行時長分 `micro < 0.7s` / `short < 1.6s` / `normal`，
+  分別對應「不做轉場、掃光瞬時」「快速」「常規」。思路取自 Folia 的 renderHints，
+  閾值按本項目的行長分布重訂
+- 掃光（`sweep`）：逐行 LRC 沒有逐字時間軸，點亮進度由**行時長在字元間插值**
+- 前奏期（索引 < 0）顯示首句但一字不點亮，避免整屏空白
+- 換歌用序號（`loadSeq`）丟棄過期回應：快速連按上下首時先發的請求可能後到
+- 減少動效時不生成逐字節點，整句直接呈現
+- 與 app.js 的分工：app.js 在 `plLoad` 預載歌詞、綁按鈕與 `Esc`、關播放列時收舞台；
+  舞台自身的渲染與時間軸完全在 lyrics.js 內
+
 ### `landing.js`（入口頁，手寫，IIFE，無依賴）
 
 - 職責：渲染立體唱片架（當前歌手的封面組、姓名列、統計與進入入口），
@@ -67,6 +85,9 @@
 
 - `data.js` 或其欄位 → `npm run build`，再跑站點 E2E
 - `app.js` 任何渲染函式 → `npm run lint` + 站點 E2E（結構計數 20 項）
+- `lyrics.js` 或歌詞舞台 → 額外實測：解析器（標題頭行／製作人員行必須消失、
+  副歌重複歌名必須保留）、播放中掃光隨時間推進、換曲自動重載、
+  `Esc` 與關閉鈕、減少動效不逐字、無歌詞時就地說明不開空舞台
 - 播放相關 → 額外實測：播放 / 暫停 / 上下首 / 拖動 / `空格` / 關閉後清空 `src`
 - `localize` 相關 → 額外確認播放中切換繁簡不中斷音訊
 - 入口頁 / 切換器 → 額外實測：入口渲染、點進歌手、無參數與無效 id 回入口、
