@@ -17,3 +17,7 @@ Thumbs.db
 # 版权录音一旦进版本库就等同于公开分发；登记档由 _data/local-audio.mjs 生成
 assets/audio/
 _data/local-audio.json
+
+# 外部参考副本（clone 进来的其他项目）绝不入库：
+# 它们自带 .git 与 node_modules，一旦 git add . 会把上千个文件塞进本站
+folia-major/
