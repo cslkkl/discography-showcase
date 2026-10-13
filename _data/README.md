@@ -70,6 +70,9 @@ node _data/local-audio.mjs --artist <id> [--album <id>]   # 只處理其中一�
   曲名比對同時接受繁體原名與簡體轉換
 - `--rename` 只補正序號，描述文字原樣保留（`3 - 星晴.m4a` → `03 星晴.m4a`）
 - 工具只寫 `local-audio.json`；要生效需再接 `npm run build:local`
+- **時長校驗**：對上的音檔會讀 FLAC 檔頭的 STREAMINFO 算真實時長，
+  與資料的時長比對（容差 3 秒）。序號寫錯而抓錯曲目、截斷檔、假檔都會報出來；
+  非 FLAC 或資料缺時長者不計
 - 音檔與登記檔都不進版本庫，見 [../.gitignore](../.gitignore)；
   遠端沒有音檔時播放會回退到 Apple 試聽
 

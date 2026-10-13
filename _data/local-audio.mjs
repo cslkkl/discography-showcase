@@ -61,6 +61,35 @@ function fail(msg) {
 /* ---------- 檔名與曲名的正規化比對 ---------- */
 const stripExt = (name) => name.replace(/\.[^.]+$/, '');
 
+/* FLAC STREAMINFO 的總取樣數 ÷ 取樣率 = 真實時長（秒）。
+   用途：驗證對上的檔案真的是那首歌——抓錯曲目、截斷檔、假檔都會露出來。
+   只讀檔頭 42 bytes，不讀整個音檔。非 FLAC 回 null（不做判斷）。 */
+function flacSeconds(file) {
+  let fd;
+  try {
+    fd = fs.openSync(file, 'r');
+    const head = Buffer.alloc(8);
+    if (fs.readSync(fd, head, 0, 8, 0) < 8) return null;
+    if (head.toString('latin1', 0, 4) !== 'fLaC') return null;
+    const info = Buffer.alloc(34);
+    if (fs.readSync(fd, info, 0, 34, 8) < 34) return null;
+    const rate = (info[10] << 12) | (info[11] << 4) | (info[12] >> 4);
+    const total = (info[13] & 0x0f) * 4294967296 + info.readUInt32BE(14);
+    if (!rate || !total) return null;
+    return total / rate;
+  } catch {
+    return null;
+  } finally {
+    if (fd !== undefined) {
+      try {
+        fs.closeSync(fd);
+      } catch {
+        /* 關閉失敗不影響已讀到的結果 */
+      }
+    }
+  }
+}
+
 /* 同目錄的 sidecar 歌詞：先找同名 .lrc，再退回同序號的 .lrc。
    使用者把歌詞和音檔放在一起，就不必再維護第二個目錄。 */
 function sidecarLyrics(dir, audioFile) {
@@ -162,6 +191,14 @@ const plan = []; // 待正規化的檔名
 const problems = [];
 let fileCount = 0;
 let matchedCount = 0;
+let durationChecked = 0;
+let durationOk = 0;
+
+/* 秒 → m:ss，供時長校驗的訊息使用 */
+const clock = (sec) => {
+  const s = Math.round(sec);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
 
 for (const albumId of dirs) {
   const tracks = tracksByAlbum.get(albumId);
@@ -227,6 +264,21 @@ for (const albumId of dirs) {
        它與音檔一起放在 assets/audio/ 下，因此同樣不會進版本庫。 */
     const lrc = sidecarLyrics(dir, file);
     if (lrc) lyrics[albumId + '-' + t.n] = 'assets/audio/' + albumId + '/' + lrc;
+    /* 時長校驗：序號對應可能因檔名序號寫錯而抓錯曲目，用檔頭時長兜一層。
+       容差 3 秒——資料端是 Apple 報的整秒時長，與母帶實際長度常有 1–3 秒差。 */
+    const actual = flacSeconds(path.join(dir, file));
+    if (actual !== null && t.sec) {
+      durationChecked++;
+      const diff = actual - t.sec;
+      if (Math.abs(diff) > 3) {
+        problems.push(
+          `${albumId}/ 第 ${t.n} 首「${t.zh}」時長對不上：檔案 ${clock(actual)}，` +
+            `資料 ${t.len}（差 ${diff > 0 ? '+' : ''}${diff.toFixed(1)} 秒）`
+        );
+      } else {
+        durationOk++;
+      }
+    }
   }
 
   const label = `${albumId}（${albums.get(albumId).title}）`;
@@ -240,6 +292,12 @@ for (const albumId of dirs) {
 /* ---------- 報告 ---------- */
 console.log('');
 console.log(`掃描 ${dirs.length} 個專輯目錄、${fileCount} 個音檔，對上 ${matchedCount} 首。`);
+if (durationChecked) {
+  console.log(
+    `時長校驗：${durationOk}/${durationChecked} 首與資料相符` +
+      `（容差 3 秒；非 FLAC 或資料缺時長者不計）`
+  );
+}
 
 if (problems.length) {
   console.log('');
