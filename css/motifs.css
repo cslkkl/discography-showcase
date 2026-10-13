@@ -85,34 +85,6 @@
   pointer-events: none;
 }
 
-/* ── spotlight · 張學友：兩束追光與一池舞台燈 ────────────────────────────
- * 他的封面近半是暖金，像頒獎禮的燈光。兩道斜光從頂角落下，是他站了三十年的舞台。 */
-
-[data-motif='spotlight'] .hero-art::before {
-  content: '';
-  position: absolute;
-  inset: -18%;
-  background:
-    linear-gradient(
-      115deg,
-      transparent 0 28%,
-      color-mix(in srgb, var(--accent) 10%, transparent) 36%,
-      transparent 46%
-    ),
-    linear-gradient(
-      245deg,
-      transparent 0 30%,
-      color-mix(in srgb, var(--accent) 7%, transparent) 38%,
-      transparent 46%
-    ),
-    radial-gradient(
-      42% 34% at 68% 42%,
-      color-mix(in srgb, var(--accent) 12%, transparent),
-      transparent 70%
-    );
-  pointer-events: none;
-}
-
 /* ── aria · 林志炫：一道清亮的弧線 ───────────────────────────────────────
  * 他的高音像一道乾淨的弧。一枚細弧環與一片極淡的冷光，克制到只剩輪廓。 */
 
@@ -131,6 +103,94 @@
       40% 30% at 30% 30%,
       color-mix(in srgb, var(--accent) 6%, transparent),
       transparent 72%
+    );
+  pointer-events: none;
+}
+
+/* ── ripple · 林俊傑：水面漣漪 ───────────────────────────────────────────
+ * 他的抒情曲多半寫水與時間。三圈由內向外的細環疊在封面上，
+ * 像投石之後尚未平復的水面，其餘留白。 */
+
+[data-motif='ripple'] .hero-art::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  background:
+    radial-gradient(
+      40% 34% at 50% 52%,
+      transparent 0 39%,
+      color-mix(in srgb, var(--accent) 13%, transparent) 41%,
+      transparent 43%
+    ),
+    radial-gradient(
+      56% 48% at 50% 52%,
+      transparent 0 55%,
+      color-mix(in srgb, var(--accent) 9%, transparent) 57%,
+      transparent 59%
+    ),
+    radial-gradient(
+      72% 62% at 50% 52%,
+      transparent 0 71%,
+      color-mix(in srgb, var(--accent) 5%, transparent) 73%,
+      transparent 75%
+    );
+  pointer-events: none;
+}
+
+/* ── groove · 方大同：律動的橫紋 ─────────────────────────────────────────
+ * 他的聲響建立在舊靈魂與節奏藍調的律動上。等距的水平細紋是唱片的溝槽，
+ * 一條暖光斜切過去，像唱針落下的那一瞬。 */
+
+[data-motif='groove'] .hero-art::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--accent) 7%, transparent) 0 1px,
+      transparent 1px 9px
+    ),
+    linear-gradient(
+      108deg,
+      transparent 0 38%,
+      color-mix(in srgb, var(--accent) 11%, transparent) 50%,
+      transparent 62%
+    );
+  pointer-events: none;
+}
+
+/* ── prism · 鄧紫棋：稜鏡折射 ───────────────────────────────────────────
+ * 她的聲音以穿透力著稱。三道不同角度的窄光從一側散開，
+ * 像一束白光穿過稜鏡之後被分開，光源處留一枚亮核。 */
+
+[data-motif='prism'] .hero-art::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  background:
+    linear-gradient(
+      24deg,
+      transparent 0 30%,
+      color-mix(in srgb, var(--accent) 14%, transparent) 38%,
+      transparent 44%
+    ),
+    linear-gradient(
+      40deg,
+      transparent 0 42%,
+      color-mix(in srgb, var(--accent) 9%, transparent) 50%,
+      transparent 56%
+    ),
+    linear-gradient(
+      58deg,
+      transparent 0 54%,
+      color-mix(in srgb, var(--accent) 6%, transparent) 62%,
+      transparent 68%
+    ),
+    radial-gradient(
+      34% 28% at 30% 34%,
+      color-mix(in srgb, var(--accent) 15%, transparent),
+      transparent 70%
     );
   pointer-events: none;
 }

@@ -1099,7 +1099,7 @@ html.ld-booting .ht-line span {
 }
 .rings-stage svg.is-drawn .ring-path { stroke-dashoffset: 0; }
 /* 入场错峰的 delay 只服务于入场：入场结束后清零，否则悬停要等
-   「序号 × 55ms」（张学友页第 40 圈要等两秒多）才有反应 */
+   「序号 × 55ms」（圈数最多的页面上要等两秒多）才有反应 */
 .rings-stage svg.is-settled .ring-path { transition-delay: 0ms; }
 .rings-stage .ring-path.is-live { opacity: 1; }
 .rings-stage .ring-path.is-dim { opacity: .26; }
