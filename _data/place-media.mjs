@@ -38,6 +38,8 @@ const WRITE = argv.includes('--write');
 const PRUNE = argv.includes('--prune');
 /* --prune 若因異常比例中止，最後要以非零退出 */
 let pruneAborted = false;
+/* --report <path>：把完整清單寫成 JSON（控制台會截斷「來源裡多出」） */
+const REPORT = opt('report');
 
 if (!artistId || !fromDir) {
   console.error('用法：node _data/place-media.mjs --artist <歌手id> --from <來源目錄> [--write]');
@@ -175,6 +177,7 @@ for (const t of tracks) {
 /* ---------- 對應 ---------- */
 const plan = [];
 const unmatched = [];
+const unmatchedFiles = [];
 const fuzzy = [];
 const problems = [];
 const rejected = [];
@@ -243,6 +246,8 @@ for (const file of audioFiles) {
   }
   if (!cands.length) {
     unmatched.push(base);
+    /* 留著檔名、路徑與時長，供後面的「剩餘配對」使用 */
+    unmatchedFiles.push({ base, file, sec });
     continue;
   }
   if (cands.length > 1) {
@@ -388,6 +393,58 @@ for (const p of sorted) {
 }
 const missing = tracks.filter((t) => !taken.has(t.albumId + '-' + t.n));
 
+/* ---------- 剩餘配對 ----------
+   來源檔名常帶站點沒有的後綴，精確比對與異體字兜底都會漏：
+   林志炫 `单身情歌 - Album Version.flac` 對不上站點的〈單身情歌〉、
+   `爱我 - Album Version.flac` 對不上〈愛我〉、`我也不想这样 林志炫.mp3` 對不上〈我也不想這樣〉。
+   先前這些檔會被當成「來源裡多出」清掉，等於把維護者還得自己找回來的東西丟了。
+
+   兩邊都剩下來時才配：站點曲名（正規化）與來源檔名互為包含，
+   且**時長相符**（誤差 3 秒內；兩邊都要有時長），一槽配一檔、一檔配一槽。
+   帶版本標記的檔（Live／伴奏／KTV／晚會／哼唱…）一律不參與——
+   那些是刻意的不同版本，不該冒充正式版。 */
+const variantMarked =
+  /(live|現場|现场|演唱會|演唱会|伴奏|karaoke|ktv|純音樂|纯音乐|instrumental|remix|混音|reprise|晚會|晚会|春晚|跨年|哼唱|cctv|音乐频道|音樂頻道|kala|翻唱|cover|demo|acoustic|unplugged|不插電|電台版|电台版|single|重生版|钢琴|鋼琴|piano|清唱|合唱版)/i;
+const usedUnmatched = new Set();
+const paired = [];
+for (const slot of missing) {
+  if (slot.key.length < 2) continue;
+  const cands = unmatchedFiles.filter((u) => {
+    if (usedUnmatched.has(u.file)) return false;
+    /* 版本標記必須對稱：站點要 Remix／Live 版時，來源檔名也得帶同類標記，反之亦然。
+       實測踩到：`Where Did U Go`（原版）與〈Where Did U Go 2.0 (Sam Vahdat Remix)〉
+       時長只差 1 秒，會被配成 remix——那是不同的錄音，不能冒充；
+       而 `Over Reprise` 之於〈Over (Reprise)〉兩邊都有標記，屬同一版，要放行。 */
+    if (variantMarked.test(u.base) !== variantMarked.test(slot.zh)) return false;
+    const uk = norm(u.base);
+    if (!(uk.includes(slot.key) || slot.key.includes(uk))) return false;
+    if (u.sec && slot.sec) return Math.abs(u.sec - slot.sec) <= 3;
+    return false;
+  });
+  if (cands.length !== 1) continue;
+  const u = cands[0];
+  usedUnmatched.add(u.file);
+  finalPlan.push({
+    file: u.file,
+    ext: path.extname(u.file).toLowerCase(),
+    lrc: lrcByBase.get(u.base.toLowerCase()) || null,
+    pick: slot,
+    how: 'paired'
+  });
+  paired.push({
+    base: u.base,
+    zh: slot.zh,
+    album: slot.albumTitle,
+    slot: slot.albumId + '-' + slot.n
+  });
+}
+/* 配掉的檔要從「來源裡多出」與「仍缺」兩份清單同步移除 */
+for (let i = unmatched.length - 1; i >= 0; i--) {
+  if (paired.some((p) => p.base === unmatched[i])) unmatched.splice(i, 1);
+}
+const pairedSlots = new Set(paired.map((p) => p.slot));
+const missingFinal = missing.filter((m) => !pairedSlots.has(m.albumId + '-' + m.n));
+
 /* ---------- 報告 ---------- */
 console.log(
   `歌手 ${artistId}（${artist.name}）：${artist.albums.length} 張專輯、${tracks.length} 首`
@@ -398,8 +455,15 @@ console.log(
   `對上 ${finalPlan.length} 首（曲名 ${finalPlan.filter((p) => p.how === 'title').length}、` +
     `時長消歧 ${finalPlan.filter((p) => p.how === 'length').length}、` +
     `時長救援 ${finalPlan.filter((p) => p.how === 'duration').length}、` +
+    `剩餘配對 ${finalPlan.filter((p) => p.how === 'paired').length}、` +
     `異體字 ${finalPlan.filter((p) => p.how === 'fuzzy').length}）`
 );
+if (paired.length) {
+  console.log(
+    `\n剩餘配對 ${paired.length} 首（檔名帶站點沒有的後綴，靠「曲名被包含＋時長相符」配上）：`
+  );
+  paired.forEach((p) => console.log(`  來源「${p.base}」 → ${p.album}「${p.zh}」`));
+}
 if (rescued.length) {
   console.log(`\n時長救援 ${rescued.length} 首（標題對不上但時長唯一吻合，改派給正確曲目）：`);
   rescued.forEach((r) =>
@@ -422,9 +486,9 @@ if (rejected.length) {
 console.log(`\n來源裡多出 ${unmatched.length} 個（不屬這 ${tracks.length} 首）：`);
 unmatched.slice(0, 40).forEach((u) => console.log('  ' + u));
 if (unmatched.length > 40) console.log(`  …另有 ${unmatched.length - 40} 個`);
-console.log(`\n資料裡仍缺 ${missing.length} 首：`);
-missing.slice(0, 40).forEach((m) => console.log(`  ${m.albumTitle} #${m.n} ${m.zh}`));
-if (missing.length > 40) console.log(`  …另有 ${missing.length - 40} 首`);
+console.log(`\n資料裡仍缺 ${missingFinal.length} 首：`);
+missingFinal.slice(0, 40).forEach((m) => console.log(`  ${m.albumTitle} #${m.n} ${m.zh}`));
+if (missingFinal.length > 40) console.log(`  …另有 ${missingFinal.length - 40} 首`);
 
 if (!WRITE) {
   console.log('\n這是報告模式，未寫入任何檔案。要落盤請加 --write。');
@@ -561,6 +625,45 @@ if (failures.length) {
 console.log(
   `\n已落盤：音檔 ${linked} 個（已同源 ${reused}）、歌詞 ${lrcLinked} 個、失敗 ${failed}`
 );
+/* --report <path>：把完整清單寫成 JSON。控制台輸出會把「來源裡多出」截斷在 40 條，
+   要拿全量清單（例如據此回收用不到的來源檔）就得走這條。 */
+if (REPORT) {
+  const placedList = finalPlan.map((p) => ({
+    albumId: p.pick.albumId,
+    albumTitle: p.pick.albumTitle,
+    n: p.pick.n,
+    zh: p.pick.zh,
+    src: path.basename(p.file),
+    how: p.how
+  }));
+  const out = {
+    artistId,
+    artistName: artist.name,
+    fromDir,
+    counts: {
+      scannedAudio: audioFiles.length,
+      scannedLyrics: lrcByBase.size,
+      placed: finalPlan.length,
+      unmatched: unmatched.length,
+      rejected: rejected.length,
+      missing: missingFinal.length,
+      durationChecked: durChecked,
+      durationOk: durOk
+    },
+    placed: placedList,
+    unmatched,
+    rejected: rejected.map((r) => ({ src: `${r.base}`, zh: r.zh, why: r.why })),
+    missing: missingFinal.map((m) => ({
+      albumId: m.albumId,
+      albumTitle: m.albumTitle,
+      n: m.n,
+      zh: m.zh,
+      len: clock(m.sec || 0)
+    }))
+  };
+  fs.writeFileSync(path.resolve(REPORT), JSON.stringify(out, null, 2), 'utf8');
+  console.log(`報告已寫出 ${path.resolve(REPORT)}`);
+}
 console.log('下一步：node _data/local-audio.mjs --write && npm run build:local');
 /* --prune 因異常比例中止時也要非零退出：那是「該做的事沒做」，不該靜默通過 */
 process.exit(failed || pruneAborted ? 1 : 0);
