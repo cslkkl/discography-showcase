@@ -10,11 +10,25 @@
    不給版本時自動按內容雜湊算；值不變時不動檔案。 */
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
+
+/* 蓋章之前先驗語法。先前的缺口：js/ 有語法錯誤時 stamp 照樣換版本號，
+   於是 HTML 會引用一個根本跑不起來的腳本——那正是「整頁卡死」那類事故，
+   而且畫面上看不出是語法問題。用 vm.Script 只解析不執行，無副作用。
+   （app.js / landing.js / lyrics.js 都是非模組的經典腳本。） */
+function assertParses(file, abs) {
+  try {
+    new vm.Script(fs.readFileSync(abs, 'utf8'), { filename: file });
+  } catch (e) {
+    console.error(`· ${file} 語法錯誤，已中止蓋章：${e.message}`);
+    process.exit(1);
+  }
+}
 
 /* 只涵蓋 HTML 會引用的兩個目錄，逐檔吃內容；排序保證可重現。
    排除生成物 data.js：它有公開態與本機態兩種內容，算進來會讓版本戳隨建置狀態
@@ -35,7 +49,9 @@ function contentStamp() {
       continue;
     }
     for (const n of names) {
-      h.update(dir + '/' + n + '\u0000');
+      const rel = dir + '/' + n;
+      if (n.endsWith('.js')) assertParses(rel, path.join(abs, n));
+      h.update(rel + '\u0000');
       h.update(fs.readFileSync(path.join(abs, n)));
       h.update('\u0000');
     }
