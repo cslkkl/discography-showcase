@@ -56,7 +56,6 @@
 | 抽屜 | `openSheet` `closeSheet` `stepSheet` `trapFocus` |
 | 歌曲檔案 | `archiveNo` `songOf` `eraOfYear` `creditRowsHTML` `extraCreditsText` `proseHTML` `CREDIT_ROLES` `trackCollab` `archiveHTML` `saSay` `saPaintNav` `openArchive` `closeArchive` `stepArchive` `openLyricsFor` `bindArchive` `trapArchiveFocus` `setLive` `ambTriple` `trackActions` `trackNameButton` |
 | 播放 | `trackOf` `syncPlayingRows` `plPaint` `plLoad` `plSelect` `plStep` `plClose` `setMediaSession` `initAudio` `syncRangeFill` |
-| 歌曲狀態列 | `msbNodes` `msbPaint` `msbShow` `msbHide` `msbPlaying` `msbFocus`（底部「當前檔案卡」`#msb`：只在「點了一首歌」時出現，見下節） |
 | 歌手外觀 | `applyArtistChrome`（品牌、題名、眉題，以及檔案層 `#haEn`／`#haMeta`／`#haNote` 與年表軸 `#heroAxis` 的渲染都在這裡） `bindArtistSwitch` `applyArtist` |
 | 揭示 | `observeReveals` |
 | 其他 | `toast` `magnetize` `bindChrome`（內含 `bindSleeve`） `bind` `init` |
@@ -139,33 +138,6 @@
 - `openLyricsFor(albumId, n, note)` 是「閱讀歌詞」的出口：先把這首載進播放列
   （歌詞要跟著音訊走，已在播的同一首不動播放狀態），再交給 `JCLyrics.openFor()`
 
-歌曲狀態列（Mini Song Bar，`#msb`）：頁面底部的「當前音樂檔案卡」。它不是播放器，
-一格播放控制都沒有，只交代現在讀的是哪一首與歌詞入口（樣式見
-[../css/README.md](../css/README.md) 的 29 節）：
-
-- 顯示時機是「使用者點了一首歌」，兩條路徑都收斂到 `msbFocus(albumId, n)`：
-  點歌名／代表曲開檔案（`openArchive()` 內）與按下播放（`plLoad()` 內）。
-  事件層不各判一次，所以曲目總表、抽屜、代表曲、年輪讀數、隨機試聽都自動跟上
-- 卡片指著的是「上一次被點開或被播放的那一首」，`msbRef` 保存 `{ album, n }`。
-  同一首再點一次不重播動畫；換歌才走兩段錯峰
-- 收起的三條規則：關閉播放列（`plClose()`，當前曲目清空）一起淡出；
-  就地換歌手時若那一首不是正在播的那一首就收起（`msbPlaying()` 為真時留著，
-  與播放列「不因換歌手而清空」一致）；關檔案**不**收起——它是頁面層的常駐狀態
-- 內容四項（歌名／歌手／專輯／年份）與兩顆入口的名字都走 `setLive()`／`dropAttr()`，
-  否則切換繁簡會還原成上一首的歌名（與 `syncPlayingRows` 同一條理由）
-- 它的兩顆入口都不自己做事：歌名 → `openArchive(msbRef.album, msbRef.n)`，
-  「查看歌詞」→ `openLyricsFor(msbRef.album, msbRef.n)`（沒有本機歌詞檔時就地彈
-  toast 說明，與檔案的閱讀歌詞完全同一條路徑）
-- 動效是類別驅動的兩階段狀態機（與主視覺換片同一套寫法）：
-  `is-swapping`（舊卡 .36s 往上退）→ 換內容 → `is-entering`（新卡 .36s 從下面進來），
-  合計約 720ms；出現／消失是 `.6s` 淡入淡出。**換歌那兩段一定要兩次 rAF**：
-  同一個 frame 內加類又移類不會產生樣式重算，新卡會變成從上一階段的 -8px 浮回 0
-  （實測值，見 [../AGENTS.md](../AGENTS.md) 的活躍坑）
-- 收起用序號 `msbSeq` 守衛收尾計時器（同 `saSeq` 的理由），淡出途中又被叫回來時
-  作廢上一輪；`REDUCED.matches` 時不排隊等那 .36s，內容直接換掉
-- 讓位：`body.has-msb`／`html.has-msb` 兩個類別由 `msbShow()`／`msbHide()` 切換，
-  CSS 端據此加底部內距與 `scroll-padding-bottom`，所以卡片不遮正文、也不遮焦點落點
-
 ### `lyrics.js`（歌手頁全屏歌詞，手寫，IIFE，無依賴）
 
 - 職責：解析逐行 LRC 並驅動全屏歌詞舞台（`#lyricStage`），對外只暴露 `window.JCLyrics`
@@ -173,16 +145,16 @@
   `npm run build:local` 才會寫入；公開產物連這個鍵都沒有）。
   歌詞檔是與音檔同目錄的 sidecar `.lrc`，由 `_data/local-audio.mjs` 一併登記；
   歌詞**文本不進 data.js**——它是第三方版權文本，逐首內嵌也會讓產物多出約 2 MB
-- 取檔順序（`loadText(rel, track, ok)`，歌詞文本的唯一入口）分三級：
-  記憶體已有內聯文本 → 動態插入 `<script src="js/lyrics/<專輯id>.js?v=<與 data.js 同一個版本戳>">`
-  載入本機態 payload → 兩者都取不到才退回原本的 `XMLHttpRequest` 讀 sidecar `.lrc`。
-  這個順序是被 `file://` 逼出來的：該協定下 XHR 與 fetch 讀本機檔案被 CORS 擋掉，
-  只有動態 `<script>` 可行，而 `http://` 下 XHR 本來就能用。
-  專輯 id 由 `track.lyrics` 的路徑正則取出（`assets/audio/<專輯id>/…`），
-  所以 `loadFor` 的呼叫簽名不變。payload 載入成功卻沒有這一首的鍵時，
-  視為「這首沒有歌詞」，不再退回 XHR
-- `window.LYRICS` 是 `<script>` payload 掛上的全域，只在該檔載入成功後才存在，
-  **不是** `JC`（`app.js` 的展示集）的一部分；公開產物沒有 payload，它整個不存在
+- 取檔（`loadFor(albumTitle, track)`，歌詞文本的唯一入口）只有一條路：
+  用 `XMLHttpRequest` 讀 `track.lyrics` 指的 sidecar `.lrc`。
+  `status` 非 0 也非 200 時視為取不到，交給 `settlePending()` 走「這首沒有歌詞」的去路。
+  這一條路在 `file://` 下被 CORS 擋掉，**所以那個協定下歌詞讀不出來**（`http://` 下正常），
+  歌詞舞台在 `file://` 拿不到文本
+- 盤上另有 `js/lyrics/<專輯id>.js`（`window.LYRICS["<專輯id>-<序號>"] = "<LRC 全文>"`，
+  只有本機態、gitignored），但取檔路徑完全不碰它們：`_data/build.mjs` 對該目錄只做
+  「公開建置時整個刪掉」一件事，**沒有任何生成者**，`js/lyrics.js` 也沒有載入者，
+  兩頭都是死的（見 [../AGENTS.md](../AGENTS.md) 的待辦）。`window.LYRICS` 因此
+  不是任何一條取檔路徑的一部分，公開產物更沒有它
 - 一行歌詞的規範形狀：`{ time, text, end }`。`time` 是秒（數字，便於比較與掃光插值），
   `text` 是該行文字，`end` 由解析器從下一行的 `time` 補出（最後一行給 4 秒）。
   `parseLrc()` 產出它，舞台內部直接消費，沒有第二套形狀；這個形狀也宣告在
@@ -292,14 +264,6 @@
   移出回 0；每列 Tab 停點恰為 2（播放鈕＋歌名鈕）
 - 主視覺的縱深 → 額外實測用**真實指標**（`page.mouse.click`）與命中取樣，
   不能只用 DOM 斷言：`document.elementsFromPoint` 會回報被遮住的卡片
-- 歌曲狀態列 / `msbFocus` / `msbShow` / `msbHide` → 額外實測（獨立 1:1 chromium）：
-  載入時不存在；點歌名與按播放都會出現；換歌是「舊卡退到 −8px → 換內容 →
-  新卡由 ＋8px 進來」且總時長 500–800ms；出現是 `.6s` 淡入（量到完全到位）；
-  同一首再點不重播；關播放列會淡出、切換歌手（非正在播那首）會收起；
-  卡片與播放列不重疊（桌面 18px 間隙、390px 貼齊上緣）；捲到頁底仍留淨空；
-  繁簡切換時四項內容與兩顆 `aria-label` 一起轉；減少動效下不做位移與等待。
-  **動效取樣一律在頁內用 rAF 逐幀讀 `getComputedStyle`**：在外面輪詢會被
-  往返時間吃掉，抓不到換歌的最遠點（實測會誤判成 −0.11px）
 - 新增頂層函式 → 同步更新上表
 
 ## 已知坑
@@ -312,10 +276,11 @@
 - 入口頁的 `main` 帶 `.ld-main` 類，抵掉全站 `main { padding-top: var(--nav-h) }`：
   入口沒有固定頂欄，那份讓位會把首屏內容推到折線下方
 
-- 換歌的兩段錯峰**必須用兩次 rAF**：在同一個 frame 內 `classList.add('is-entering')`
+- 進場的兩段錯峰**必須用兩次 rAF**：在同一個 frame 內 `classList.add('is-entering')`
   又 `remove` 不會產生樣式重算（加與移之間瀏覽器根本沒有機會算樣式），
-  維持 `transition: none` 的「起始態」從未成立，新卡於是從上一階段的 −8px 浮回 0
+  維持 `transition: none` 的「起始態」從未成立，內容於是從上一階段的結束值浮回 0
   （實測 −5.86 → 0），而不是從下面進來。rAF 回呼跑在該 frame 的樣式計算之前，
-  所以要一次讓它畫、一次才移除
+  所以要一次讓它畫、一次才移除。逐幀取樣要在**頁內**用 rAF 讀 `getComputedStyle`：
+  在外面輪詢會被往返時間吃掉，抓不到最遠點（實測會誤判成沒問題）
 
 使用約束見 [AGENTS.md](AGENTS.md)。

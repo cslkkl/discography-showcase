@@ -626,16 +626,17 @@ out += `  return {
 fs.mkdirSync(path.join(root, 'js'), { recursive: true });
 fs.writeFileSync(path.join(root, 'js', 'data.js'), out, 'utf8');
 
-/* 本機態的 js/lyrics/ 是 file:// 下的歌詞內聯 payload（見 .agents/notes/ 的
-   file协议歌词读取 決策）：公開產物必須零歌詞，而那個目錄一複製出去就是歌詞全文，
-   所以公開建置直接刪掉整個目錄。
-   反過來說，跑一次 `npm run build` 就會讓本機的 file:// 歌詞失效（與音檔同一條注意事項），
-   要恢復用 `npm run listen`。 */
+/* js/lyrics/ 這一段只負責「確保公開產物不帶歌詞全文」：本機留下來的
+   `js/lyrics/<專輯id>.js`（file:// 下歌詞內聯 payload 的舊設計產物，見
+   .agents/notes/2026-10-15-file协议歌词读取.md，該決策狀態為已否決）
+   一旦複製出去就是歌詞全文，所以公開建置直接刪掉整個目錄。
+   注意：本檔**不再生成**這些 payload，`npm run listen` 也不會生成；
+   盤上還有的都是舊建置遺留的檔案（沒有任何載入者），刪掉不會少任何功能。 */
 const lyricsDir = path.join(root, 'js', 'lyrics');
 if (!withLocal && fs.existsSync(lyricsDir)) {
   const n = fs.readdirSync(lyricsDir).length;
   fs.rmSync(lyricsDir, { recursive: true, force: true });
-  console.log(`  (已刪除 js/lyrics/ 的 ${n} 個內聯歌詞檔：這份產物要能公開)`);
+  console.log(`  (已刪除 js/lyrics/ 的 ${n} 個殘留歌詞檔：這份產物要能公開)`);
 }
 
 const totalTracks = built.reduce((s, b) => s + b.albums.reduce((x, a) => x + a.trackCount, 0), 0);

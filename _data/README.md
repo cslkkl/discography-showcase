@@ -11,11 +11,13 @@
 - `build.mjs`：唯一生成器。遍歷 `artists/*`，讀各自的 `albums-raw.json` + `colors.json` +
   `meta.mjs`（另有選填的 `credits.json`），寫出 `js/data.js`（`window.DISCOGRAPHY`）。
   新增歌手不需要改這個檔案
-- `build.mjs` 的第二份產物（只有本機態）：除 `js/data.js` 外另生成
-  `js/lyrics/<專輯id>.js`，每個檔是一份歌詞 payload，供 `file://` 下以 `<script>` 讀取
-  （該協定下 XHR 與 fetch 都被 CORS 擋掉，只有 `<script>` 可行）。
-  公開建置會把整個 `js/lyrics/` 刪除，公開產物零歌詞；`js/lyrics/` 不進版本庫
-  （第三方版權歌詞文本，與 `assets/audio`、`local-lyrics.json` 同進出）
+- `build.mjs` 對 `js/lyrics/` 只做一件事：公開建置時把整個目錄刪掉，免得公開產物
+  帶上歌詞全文（該目錄是第三方版權歌詞文本，不進版本庫，與 `assets/audio`、
+  `local-lyrics.json` 同進出）。**本機態已經沒有任何東西生成它**，盤上殘留的
+  `js/lyrics/<專輯id>.js`（`window.LYRICS["<專輯id>-<序號>"] = "<LRC 全文>"`）是舊構建的
+  遺留物：`js/lyrics.js` 取歌詞只走 `XMLHttpRequest` 讀 sidecar `.lrc`，沒有載入這些
+  payload 的程式，所以 **`file://` 下歌詞讀不出來**，這批檔案目前是死檔
+  （見 [../AGENTS.md](../AGENTS.md) 的待辦）
 - `extract-credits.mjs`：從歌詞 sidecar 的製作人員行抽出署名，寫出各歌手的
   `artists/<id>/credits.json`。用法與規則見下
 - `fetch-s2t.mjs`：抓 OpenCC 的簡→繁字典，寫出 `_data/STCharacters.js`（抽取署名時

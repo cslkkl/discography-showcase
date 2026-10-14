@@ -305,8 +305,9 @@ Folia 是 React + framer-motion + PixiJS 的完整播放器，本站是零依賴
    （沿用既有 `loadSeq` 序號機制，新增軌道後要重驗）
 6. **減少動效**：`prefers-reduced-motion: reduce` 下無 `--fill` 更新、無包絡、無逐字節點，整句可讀
 7. **無歌詞**：無 `track.lyrics` 的曲目不開空舞台，就地說明
-8. **`file://` 與 `http://` 兩條路徑**：入口 → 歌手 → 播放 → 開歌詞，全鏈路可用
-   （`file://` 下 XHR 對本地 `.lrc` 的 `status` 為 0，既有程式已容忍，改動後要重驗）
+8. **`file://` 與 `http://` 兩條路徑**：入口 → 歌手 → 播放，全鏈路可用
+   （歌詞這一環在 `file://` 下不成立：XHR 讀本地 `.lrc` 被 CORS 擋掉、`status` 為 0，
+   取檔只有這一條路，所以那個協定下歌詞讀不出來；改動後仍要重驗入口與播放這兩段）
 9. **門禁**：`npm run lint`、`prettier --check .`（`js/*.js` 不在 `.prettierignore`，新檔必須乾淨）、
    `npm run check:docs`、`npm run check:eol`
 10. **版本號**：改過 `js/` 或 `css/` 必須 `npm run stamp`（否則舊 JS 配新 HTML 會在
