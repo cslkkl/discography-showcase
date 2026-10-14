@@ -439,8 +439,16 @@ html.ld-booting .ht-line span {
   opacity: 0;
   transform: translate(-50%, -50%) rotate(0deg) scale(.86);
   box-shadow: 0 34px 82px rgba(0, 0, 0, .64), 0 0 0 1px rgba(255, 255, 255, .07);
-  transition: opacity 1s var(--ease), transform 1.15s var(--ease);
-  transition-delay: calc(var(--i, 0) * 95ms + 240ms);
+  /* 入場與懸停各走各的通道：opacity／transform 只服務入場（1s／1.15s ＋ --i 錯峰），
+     懸停避讓走 translate／scale 兩條獨立通道（200ms、零 delay）。
+     兩者若共用同一條屬性，移出時的回位就會被入場的錯峰 delay 拖住。 */
+  transition:
+    opacity 1s var(--ease) calc(var(--i, 0) * 95ms + 240ms),
+    transform 1.15s var(--ease) calc(var(--i, 0) * 95ms + 240ms),
+    translate .2s var(--ease),
+    scale .2s var(--ease),
+    filter .2s var(--ease),
+    box-shadow .2s var(--ease);
 }
 /* 主視覺是專輯輪播：兩側的封面翻到中央，中央那張開啟該張專輯。
    懸停回饋要短，不能沿用入場那條 1.15s 的過渡，否則滑鼠上去要等很久才有反應。 */
@@ -453,23 +461,43 @@ html.ld-booting .ht-line span {
 .fan-card[hidden] { display: none; }
 .is-ready .fan-card {
   opacity: var(--fo, 1);
+  /* 入場的完整姿態留在 transform 這條鏈上（1.15s ＋ --i 錯峰，與原本一致）：
+     格位 --fx/--fy、旋轉 --fr、基準縮放 --fs 都由行內給。 */
   transform:
     translate(-50%, -50%)
-    translate(calc(var(--fx, 0%) + var(--hx, 0%)), calc(var(--fy, 0%) + var(--hy, 0%)))
+    translate(var(--fx, 0%), var(--fy, 0%))
     rotate(var(--fr, 0deg))
-    scale(calc(var(--fs, 1) * var(--hs, 1)));
+    scale(var(--fs, 1));
+  /* 懸停避讓走兩條獨立的個別屬性（不在上面那條鏈裡，所以不吃入場的 1.15s 與錯峰）：
+     --hx/--hy 是額外讓開的位移，--hs 是懸停放大乘數。
+     個別 scale 會連 transform 裡的位移一起放大，所以要補回錨點
+     t = (1 - hs) × (fx - 50%)，讓放大後的中心仍停在原本的格位上；
+     hs = 1 時這個補償是 0，入場完全不受影響。 */
+  translate:
+    calc(var(--hx, 0%) + (1 - var(--hs, 1)) * (var(--fx, 0%) - 50%))
+    calc(var(--hy, 0%) + (1 - var(--hs, 1)) * (var(--fy, 0%) - 50%));
+  scale: var(--hs, 1);
 }
 /* ── 懸停避讓 ─────────────────────────────────────────────────────────────
-   滑鼠停在哪一張，那一張就放大跳出來、其他封面往外讓開，讓這張完整可見；
-   點擊才把該張翻到中央（點擊邏輯在 js/app.js）。
-   行內 style 的自訂屬性（--fx/--fs…）優先序高於樣式表，所以不動它們，
-   只用另外的 --hs（縮放乘數）與 --hx/--hy（額外位移）疊加。
-   **方向由 JS 給**：輪播是環形的，DOM 順序與視覺左右不一致
-   （最後幾張視覺上在左邊），純姊妹選擇器 `~` 會把左邊那兩張也往右推。
-   過渡不沿用入場那條 1.15s，改 200ms 上下（懸停回饋必須即時）。 */
-.fan-card {
-  transition: transform .2s var(--ease), opacity .2s var(--ease), box-shadow .2s var(--ease);
+   滑鼠停在哪一張（或鍵盤聚焦哪一張），那一張就放大跳出來、其餘封面照
+   **視覺方向**往外讓開，讓這張完整可見；點擊才把該張翻到中央（點擊邏輯在 js/app.js）。
+   狀態由 js/app.js 掛 class：.is-hover 是被指到那張、.is-yield 是讓開的其餘各張。
+   方向必須由 JS 給——輪播是環形的，DOM 順序與視覺左右在頭尾會反過來
+   （第一張的左鄰其實是 DOM 最後一張），純姊妹選擇器會把繞過來那兩張推錯邊。
+   避讓走獨立的 translate／scale 通道，才不會吃到入場那條 1.15s ＋ --i 錯峰。 */
+/* 讓開的鄰居：位移量由 js/app.js 依**視覺方向**算好寫進 --hx
+   （輪播是環形的，DOM 順序與視覺左右在頭尾會反過來，
+   純姊妹選擇器或逐格列 [style*=...] 都會判錯方向或根本贏不了行內值）。
+   這裡只負責把它接到一條獨立通道上，並壓暗讓視線集中。 */
+.fan-card.is-yield {
+  translate: var(--hx, 0%) 0;
+  filter: brightness(.62);
 }
+/* 被指到／聚焦那張：放大、微抬、抬到最上層（中央那張的 --z 是 6）。
+   只設 --hs／--hy，實際的 translate／scale 由上面 `.is-ready .fan-card` 那條
+   帶錨點補償的公式算；直接寫 translate／scale 會蓋掉補償，
+   放大後封面會從原本的格位漂開。這兩個屬性是獨立通道，
+   不吃入場的 1.15s ＋ --i 錯峰，所以懸停與回位都是即時的。 */
 .fan-card.is-hover {
   --hs: 1.14;
   --hy: -3%;
@@ -478,8 +506,6 @@ html.ld-booting .ht-line span {
 }
 /* 中央那張本身就是主角：hover 只輕微放大，避免與「點它開專輯」的提示打架 */
 .fan-card.is-live.is-hover { --hs: 1.04; }
-/* 讓開的鄰居壓暗一點，視線集中在被 hover 那張 */
-.fan-card.is-yield { opacity: .66; }
 .fan-card img { width: 100%; height: 100%; object-fit: cover; }
 .fan-card::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
@@ -1695,8 +1721,8 @@ html.ld-booting .ht-line span {
   content: attr(aria-label);
   position: absolute; bottom: calc(100% + 9px); left: 50%;
   transform: translateX(-50%) translateY(3px);
-  padding: 5px 9px; border-radius: 6px;
-  background: var(--ink-2, #16161b); color: var(--paper);
+  padding: 5px 9px; border-radius: var(--r);
+  background: var(--ink-2); color: var(--paper);
   border: 1px solid var(--line-2);
   font-size: .75rem; letter-spacing: .06em; line-height: 1.3;
   white-space: nowrap; pointer-events: none;
@@ -1706,13 +1732,15 @@ html.ld-booting .ht-line span {
 .pl-btn[aria-label]:focus-visible::after {
   opacity: 1; transform: translateX(-50%) translateY(0);
 }
-/* 播放列貼在視窗底部，提示若貼齊左右邊緣會被裁掉：最左與最右兩顆改為往內對齊 */
-.pl-btns > .pl-btn:first-child[aria-label]::after { left: 0; transform: translateX(0) translateY(3px); }
-.pl-btns > .pl-btn:first-child[aria-label]:hover::after,
-.pl-btns > .pl-btn:first-child[aria-label]:focus-visible::after { transform: translateX(0) translateY(0); }
-.pl-btns > .pl-btn:last-child[aria-label]::after { left: auto; right: 0; transform: translateX(0) translateY(3px); }
-.pl-btns > .pl-btn:last-child[aria-label]:hover::after,
-.pl-btns > .pl-btn:last-child[aria-label]:focus-visible::after { transform: translateX(0) translateY(0); }
+/* 播放列貼在視窗底部，提示若貼齊左右邊緣會被裁掉：最左與最右兩顆改為往內對齊。
+   用 :first-of-type／:last-of-type 而不是 :first-child／:last-child：
+   .pl-btns 的第一個子元素是 .pl-loop 那個狀態標籤（span），不是按鈕。 */
+.pl-btns > .pl-btn:first-of-type[aria-label]::after { left: 0; transform: translateX(0) translateY(3px); }
+.pl-btns > .pl-btn:first-of-type[aria-label]:hover::after,
+.pl-btns > .pl-btn:first-of-type[aria-label]:focus-visible::after { transform: translateX(0) translateY(0); }
+.pl-btns > .pl-btn:last-of-type[aria-label]::after { left: auto; right: 0; transform: translateX(0) translateY(3px); }
+.pl-btns > .pl-btn:last-of-type[aria-label]:hover::after,
+.pl-btns > .pl-btn:last-of-type[aria-label]:focus-visible::after { transform: translateX(0) translateY(0); }
 .pl-btn[disabled] { opacity: .35; cursor: not-allowed; }
 .pl-btn[disabled]::before { display: none; }
 
