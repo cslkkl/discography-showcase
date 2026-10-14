@@ -48,7 +48,7 @@
 
 | 內容 | 唯一來源或規則 |
 |---|---|
-| 歌手清單及順序 | `window.DISCOGRAPHY.order`，不得另寫五位歌手陣列 |
+| 歌手清單及順序 | `window.DISCOGRAPHY.order`，不得另寫歌手陣列 |
 | 姓名與英文名 | `artists[id].name`、`.en`；兩者相同時省略重複英文行 |
 | 封面組 | `artists[id].covers` 前三張，沿原順序；第一張在最前方 |
 | 年代、專輯與曲目數 | `.stats.from`、`.stats.to`、`.stats.albums`、`.stats.tracks` |

@@ -5,10 +5,10 @@
 ## 当前进度
 
 - 站点功能完整：入口选歌手 + 歌手页十四个展示面 + 试听播放 + 繁简切换
-- 歌手陆续上线：jay-chou（16 专辑/175 曲）、taylor-swift（12/174）、terry-lin（10/126）、
-  xue-zhiqian（13/131），
-  共 1039 曲全部可试听
-- 主题三层落地：五套母题（spotlight/ink/midnight/aria/neon），
+- 歌手陆续上线：david-tao（9 专辑/131 曲）、jay-chou（16/175）、taylor-swift（12/174）、terry-lin（10/126）、
+  xue-zhiqian（13/131）、jj-lin（14/169）、khalil-fong（10/128）、gem（6/70），
+  共 1104 曲全部可试听
+- 主题三层落地：八套母题（halftone/prism/ink/ripple/groove/midnight/aria/neon），
   专辑层抽屉强调色从封面派生
 - 抓取工具化：`_data/fetch-artist.mjs`（list/fetch 两模式）成为新增歌手第一步
 - 仓库 `cslkkl/discography-showcase`，公开，CI 绿，本地与远端一致
@@ -19,8 +19,8 @@
 - [ ] 文档语言统一：当前繁简混用（`css/AGENTS.md` 繁体，`js/AGENTS.md` 简体）。
       方向待维护者拍板（建议统一简体：维护者阅读语言，运行时默认显示也是简体）
 - [ ] `assets/fonts/` 210 个子集是否按需化（体积 10.9 MB）
-- [ ] 母题只做了氛围层（晕染/光带/星点/弧线）；按歌手逐个细修
-- [ ] `js/data.js` 651 KB；继续扩充歌手时考虑按歌手拆档
+- [ ] 母题只做了氛围层（墨晕/光带/星点/弧线/涟漪/沟槽/棱镜/网点）；按歌手逐个细修
+- [ ] `js/data.js` 792 KB；继续扩充歌手时考虑按歌手拆档
 
 ## 已知问题
 

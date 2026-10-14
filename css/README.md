@@ -37,8 +37,12 @@
 | 末 | `prefers-reduced-motion` 降級 |
 
 另有 `motifs.css`：每位歌手的專屬裝飾（母題），鉤子是根元素 `data-motif`，
-由歌手 `meta.mjs` 的 `theme.motif` 聲明。一位歌手一組規則，只做氛圍與細節，
+由歌手 `meta.mjs` 的 `theme.motif` 聲明。目前八組：
+`ink`（周杰倫）、`halftone`（陶喆）、`midnight`（Taylor Swift）、`aria`（林志炫）、
+`ripple`（林俊傑）、`groove`（方大同）、`prism`（鄧紫棋）、`neon`（薛之謙）。
+一位歌手一組規則，只做氛圍與細節，
 不改版式、不動正文對比度，裝飾色一律取 `var(--accent)`（令牌換色時母題自動跟隨）。
+`halftone` 另用 `mask-image` 讓網點由中心帶往邊緣淡出，只取 `var(--accent)` 與 `var(--ink-0)` 混色。
 歌手頁的抽屜另接受專輯層主題：面板上的 `--accent` / `--accent-on` 由 app.js
 按該張封面派生（構建期算好對比），打開抽屜即進入這張唱片自己的色彩世界。
 

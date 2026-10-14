@@ -160,6 +160,38 @@
   pointer-events: none;
 }
 
+/* ── halftone · 陶喆：印刷網點與瞳仁 ────────────────────────────────────
+ * 《I'm O.K.》封面整片普普網點是他的視覺簽名，《黑色柳丁》封面的眼睛
+ * 則把一枚深色瞳仁放在正中央。兩件事合成一組：一層會往邊緣淡出的網點，
+ * 加上一枚壓在偏右上的暗核。網點只在這一帶現形，不蓋滿封面。 */
+
+[data-motif='halftone'] .hero-art::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  background:
+    radial-gradient(
+        circle,
+        color-mix(in srgb, var(--accent) 26%, transparent) 0 1.1px,
+        transparent 1.7px
+      )
+      0 0 / 11px 11px,
+    radial-gradient(
+      7% 7% at 63% 37%,
+      color-mix(in srgb, var(--accent) 30%, var(--ink-0)),
+      transparent 72%
+    ),
+    radial-gradient(
+      34% 27% at 63% 37%,
+      color-mix(in srgb, var(--accent) 14%, transparent),
+      transparent 72%
+    );
+  /* 網點由中帶向四周淡出，否則整片均勻網點會和封面細節打架 */
+  -webkit-mask-image: radial-gradient(58% 50% at 58% 44%, #000 0 24%, transparent 76%);
+  mask-image: radial-gradient(58% 50% at 58% 44%, #000 0 24%, transparent 76%);
+  pointer-events: none;
+}
+
 /* ── prism · 鄧紫棋：稜鏡折射 ───────────────────────────────────────────
  * 她的聲音以穿透力著稱。三道不同角度的窄光從一側散開，
  * 像一束白光穿過稜鏡之後被分開，光源處留一枚亮核。 */
