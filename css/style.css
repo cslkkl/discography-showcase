@@ -1812,16 +1812,6 @@ html { scroll-padding-bottom: 96px; }
 .ld-brandsub { font-size: .75rem; letter-spacing: .16em; color: var(--paper-3); white-space: nowrap; }
 .ld-lang { margin: 0; flex: none; }
 
-.ld-headrow {
-  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
-  margin-top: clamp(16px, 2.8vh, 32px);
-}
-.ld-title { margin: 0; }
-.ld-title .ht-line span {
-  font-family: var(--f-serif);
-  font-size: clamp(1.7rem, 3vw, 2.5rem);
-  color: var(--paper);
-}
 .ld-stage {
   position: relative; overflow: clip; perspective: 1400px;
   height: calc(var(--ld-cover) * 1.14);
@@ -2161,7 +2151,6 @@ html.has-lyrics .player { z-index: 95; }
   /* landing: 封面組縮到可用寬度的 55% 至 65%，姓名列容許兩三行，箭頭不覆蓋姓名 */
   .ld-hero { --ld-cover: clamp(168px, 58vw, 238px); }
   .ld-brandsub { display: none; }
-  .ld-title .ht-line span { font-size: clamp(1.6rem, 6.6vw, 2.1rem); }
   .ld-tabs { gap: 2px 12px; }
   .ld-hint { font-size: .75rem; }
   .artist-switch { position: static; }
