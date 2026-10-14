@@ -10,15 +10,21 @@ dist/
 
 # 生成物：源头是 _data/build.mjs，改它无意义
 js/data.js
+# 本机态的歌词内联 payload（生成物，且不进版本库）
+js/lyrics/
 
 # 第三方字典与抓取/生成的事实数据
 _data/TSCharacters.js
 _data/TSPhrases.js
+# OpenCC 簡→繁字典：由 _data/fetch-s2t.mjs 抓成單行序列化格式，與上面兩份同類
+_data/STCharacters.js
 _data/gf.css
 _data/albums-raw.json
 _data/colors.json
 _data/artists/*/colors.json
 _data/artists/*/albums-raw.json
+# 逐曲署名：由 _data/extract-credits.mjs 從歌詞 sidecar 抽出，機器產生
+_data/artists/*/credits.json
 # place-media.mjs --report 的落盤報告：機器產生的 JSON，不經人手，
 # 而且它沒有結尾換行（writeFileSync 直接寫 JSON.stringify），
 # Prettier 會想補一個換行——那會讓每次跑完 fall 落盤都被判格式不合

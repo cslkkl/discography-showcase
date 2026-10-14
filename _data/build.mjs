@@ -19,6 +19,12 @@ const root = path.resolve(here, '..');
    而 JSON.parse 不接受開頭的 U+FEFF。抓取腳本補試聽時會回寫這些 json，
    這裡容錯一次，任何工具寫出的 BOM 都不會再讓整份 data.js 生不出來。 */
 const read = (p) => fs.readFileSync(path.join(here, p), 'utf8').replace(/^\uFEFF/, '');
+/* 選填的輸入檔：不存在時回退值（新歌手還沒有署名檔、或本機沒有歌詞時的正常狀態） */
+const readJson = (p, fallback) => {
+  const abs = path.join(here, p);
+  if (!fs.existsSync(abs)) return fallback;
+  return JSON.parse(read(p));
+};
 
 /* ---------- traditional -> simplified tables (OpenCC TSPhrases + TSCharacters) ----------
  * OpenCC resolves phrase level rules before falling back to single characters;
@@ -150,10 +156,63 @@ const autoFan = (albums) => {
 function buildArtist(ed) {
   const raw = JSON.parse(read(path.join('artists', ed.id, 'albums-raw.json')));
   const colors = JSON.parse(read(path.join('artists', ed.id, 'colors.json')));
+  /* 署名（事實）：由 _data/extract-credits.mjs 從歌詞 sidecar 的製作人員行抽出，
+     入庫於 artists/<id>/credits.json。檔不存在就整批留空——新歌手還沒有歌詞時
+     就是這個狀態，不是錯誤。 */
+  const credits = readJson(path.join('artists', ed.id, 'credits.json'), {});
+  /* 逐曲文案（編輯層）：meta.mjs 的 songs，鍵是 `<專輯id>-<序號>`。
+     只允許填已存在的曲目，打錯鍵會直接報錯而不是靜默失效。 */
+  const songsEd = ed.songs || {};
 
   const fix = (s) => ed.kanjiFix.reduce((acc, [from, to]) => acc.split(from).join(to), s);
   const fixPhrase = (s) => ed.phraseFix.reduce((acc, [from, to]) => acc.split(from).join(to), s);
   const clean = (s) => fixPhrase(fix(s));
+
+  /* ---------- 一首歌的檔案紀錄（Song Archive） ----------
+     舊欄位（n / disc / zh / sec / len / sig / audio / preview / local / lyrics）原樣保留，
+     這裡是新增的、每首歌自帶的檔案屬性：id 與整位歌手共用一個鍵空間
+     （`<專輯id>-<序號>`，與 local-audio.json、meta.mjs 的 songs 同一把鍵）。
+
+     三層職責不變：事實（標題、年份、時長、封面）來自 albums-raw.json；
+     署名（詞曲編曲製作）來自 facts 層的 credits.json；逐曲文案來自 meta.mjs 的 songs。
+     編輯層填了就蓋過事實層。
+
+     未收錄的欄位不寫進去（沿用 track.lyrics 的做法）：
+     公開產物因此仍然逐位元組不含歌詞欄位，消費者一律以「有值才顯示」處理。 */
+  function songRecord(a, meta, rec, key, cred, edSong) {
+    const song = {
+      id: key,
+      /* 整位歌手目錄裡的檔案編號，由 buildArtist 在全部專輯建好後統一填 */
+      no: 0,
+      title: rec.zh,
+      artist: ed.name,
+      album: clean(meta.title),
+      albumId: a.key,
+      year: new Date(a.releaseDate).getFullYear(),
+      duration: rec.len,
+      durationSec: rec.sec,
+      cover: 'assets/covers/' + a.key + '.jpg',
+      /* 空字串 = 未收錄。四個署名欄位一律存在，形狀固定；其餘選填 */
+      lyricist: cred.lyricist || '',
+      composer: cred.composer || '',
+      arranger: cred.arranger || '',
+      producer: cred.producer || ''
+    };
+    if (edSong) {
+      for (const f of ['lyricist', 'composer', 'arranger', 'producer', 'description', 'story']) {
+        if (edSong[f]) song[f] = clean(edSong[f]);
+      }
+      if (edSong.tags && edSong.tags.length) song.tags = edSong.tags.map(clean);
+    }
+    /* 其他署名（混音／母帶／吉他…）：編輯層寫了就整批蓋過事實層 */
+    const extra = edSong && edSong.credits && edSong.credits.length ? edSong.credits : cred.credits;
+    if (extra && extra.length) song.credits = extra;
+    /* 歌詞：只有本機態才有 sidecar 路徑。逐行時間由 js/lyrics.js 解析成
+       `[{ time, text }]`（見 js/README.md）；歌詞文本不進 data.js——
+       它是第三方版權文本，逐首內嵌也會讓產物多出約 2 MB。 */
+    if (rec.lyrics) song.lyrics = { source: rec.lyrics, format: 'lrc' };
+    return song;
+  }
 
   const albums = raw.map((a, i) => {
     const meta = ed.albums[a.key];
@@ -185,6 +244,7 @@ function buildArtist(ed) {
       };
       /* 沒有歌詞就不寫這個欄位：公開產物因此與加入歌詞前逐位元組相同 */
       if (lyric) rec.lyrics = lyric;
+      rec.song = songRecord(a, meta, rec, key, credits[key] || {}, songsEd[key]);
       return rec;
     });
     const totalMs = a.tracks.reduce((s, t) => s + (t.time || 0), 0);
@@ -214,6 +274,40 @@ function buildArtist(ed) {
       tracks
     };
   });
+
+  /* 檔案編號：整位歌手的目錄當成一冊卷宗，第幾筆就是這首歌的檔案號
+     （app.js 的 archiveNo() 過去自己數，現在直接讀 song.no，兩者同一個口徑） */
+  let songNo = 0;
+  albums.forEach((a) =>
+    a.tracks.forEach((t) => {
+      t.song.no = ++songNo;
+    })
+  );
+
+  /* 逐曲文案的鍵校驗：打錯鍵必須當場報錯，不能靜默失效 */
+  for (const k of Object.keys(songsEd)) {
+    if (!albums.some((a) => a.tracks.some((t) => t.song.id === k))) {
+      throw new Error(`meta.mjs 的 songs 有對不上的鍵：${ed.id}/${k}`);
+    }
+  }
+
+  /* 時間軸：某一年發行了哪些作品（song id）與哪幾張專輯。
+     由曲目直接推導，供未來的年份軸與「某年的作品」查詢使用。 */
+  const timeline = [];
+  {
+    const byYear = new Map();
+    albums.forEach((a) =>
+      a.tracks.forEach((t) => {
+        if (!byYear.has(a.year))
+          byYear.set(a.year, { year: a.year, count: 0, albums: [], songs: [] });
+        const row = byYear.get(a.year);
+        row.count++;
+        if (!row.albums.includes(a.id)) row.albums.push(a.id);
+        row.songs.push(t.song.id);
+      })
+    );
+    timeline.push(...[...byYear.values()].sort((x, y) => x.year - y.year));
+  }
 
   const eras = ed.eras
     .map((e, i) => {
@@ -385,6 +479,7 @@ function buildArtist(ed) {
     ed,
     albums,
     eras,
+    timeline,
     collaborators,
     longest,
     shortest,
@@ -401,6 +496,38 @@ function buildArtist(ed) {
 const built = ids.map((id) => buildArtist(editorial[id]));
 
 /* ---------- emit ---------- */
+/* ---------- 歌曲檔案資料模型（契約宣告） ----------
+ *  every track 自帶一份 song 紀錄（見 buildArtist 的 songRecord）。這裡把
+ *  欄位名稱與版本號一併寫進產物，讓未來的遷移可以按版本判斷、不必靠猜形狀。
+ *  - required：一律存在（署名可以是空字串，代表未收錄）
+ *  - optional：未收錄就不寫這個欄位（沿用 track.lyrics 的既有做法）
+ *  - lyricsLine：執行時 js/lyrics.js 解析 sidecar LRC 得到的一行歌詞的形狀 */
+const SONG_SCHEMA = {
+  version: 2,
+  required: [
+    'id',
+    'no',
+    'title',
+    'artist',
+    'album',
+    'albumId',
+    'year',
+    'duration',
+    'durationSec',
+    'cover',
+    'lyricist',
+    'composer',
+    'arranger',
+    'producer'
+  ],
+  optional: ['credits', 'description', 'story', 'tags', 'lyrics'],
+  /* 一行的形狀：time 是秒（數字），text 是該行文字；end 由解析器補（下一行起點） */
+  lyricsLine: ['time', 'text', 'end'],
+  /* 歌詞文本不內嵌：第三方版權文本，且逐首內嵌會讓產物多出約 2 MB。
+     公開產物連 song.lyrics 都沒有；本機態它只是一個 sidecar 描述子。 */
+  lyricsInline: false
+};
+
 const banner = `/*  js/data.js - generated by _data/build.mjs
  *  Multi-artist: window.DISCOGRAPHY.order lists the artist ids, and
  *  window.DISCOGRAPHY.artists[id] holds one showcase each.
@@ -468,6 +595,7 @@ built.forEach((b) => {
       tracks: ALL_TRACKS,
       toSimplified: toSimplified,
       eras: ${JSON.stringify(b.eras)},
+      timeline: ${JSON.stringify(b.timeline)},
       collaborators: ${JSON.stringify(b.collaborators)},
       longest: ${JSON.stringify(b.longest)},
       shortest: ${JSON.stringify(b.shortest)},
@@ -489,6 +617,7 @@ built.forEach((b) => {
 out += `  return {
     toSimplified: toSimplified,
     order: ${JSON.stringify(ids)},
+    schema: ${JSON.stringify(SONG_SCHEMA)},
     artists: ARTISTS
   };
 })();
@@ -496,6 +625,18 @@ out += `  return {
 
 fs.mkdirSync(path.join(root, 'js'), { recursive: true });
 fs.writeFileSync(path.join(root, 'js', 'data.js'), out, 'utf8');
+
+/* 本機態的 js/lyrics/ 是 file:// 下的歌詞內聯 payload（見 .agents/notes/ 的
+   file协议歌词读取 決策）：公開產物必須零歌詞，而那個目錄一複製出去就是歌詞全文，
+   所以公開建置直接刪掉整個目錄。
+   反過來說，跑一次 `npm run build` 就會讓本機的 file:// 歌詞失效（與音檔同一條注意事項），
+   要恢復用 `npm run listen`。 */
+const lyricsDir = path.join(root, 'js', 'lyrics');
+if (!withLocal && fs.existsSync(lyricsDir)) {
+  const n = fs.readdirSync(lyricsDir).length;
+  fs.rmSync(lyricsDir, { recursive: true, force: true });
+  console.log(`  (已刪除 js/lyrics/ 的 ${n} 個內聯歌詞檔：這份產物要能公開)`);
+}
 
 const totalTracks = built.reduce((s, b) => s + b.albums.reduce((x, a) => x + a.trackCount, 0), 0);
 console.log(

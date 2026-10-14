@@ -11,6 +11,8 @@ export default [
       'screenshots/**',
       'dist/**',
       'js/data.js',
+      /* 本機態的歌詞內聯 payload：生成物，且不進版本庫 */
+      'js/lyrics/**',
       '_data/TS*.js'
     ]
   },

@@ -1,0 +1,904 @@
+{
+  "jj2003-1": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "Case Woo",
+    "producer": "林俊傑、許環良"
+  },
+  "jj2003-10": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "屠穎",
+    "producer": "林俊傑、許環良"
+  },
+  "jj2003-11": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "許環良、黃元成"
+  },
+  "jj2003-2": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "林俊傑、吳劍泓"
+  },
+  "jj2003-3": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "梁定江、黃元成、吳劍泓"
+  },
+  "jj2003-4": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "梁定江、Case Woo",
+    "producer": "梁定江"
+  },
+  "jj2003-5": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑"
+  },
+  "jj2003-8": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2003-9": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "梁定江、Case Woo"
+  },
+  "jj2004-1": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑",
+    "arranger": "林俊傑、Jacob Lin",
+    "producer": "林俊傑"
+  },
+  "jj2004-10": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆"
+  },
+  "jj2004-2": {
+    "lyricist": "方文山",
+    "composer": "林俊傑"
+  },
+  "jj2004-3": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳、陳建瑋",
+    "producer": "梁定江"
+  },
+  "jj2004-5": {
+    "lyricist": "李瑞洵",
+    "composer": "林俊傑"
+  },
+  "jj2004-6": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2004-7": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2004-9": {
+    "lyricist": "簡勝、林秋離",
+    "composer": "林俊傑",
+    "arranger": "梁定江、Casw Woo",
+    "producer": "梁定江、Casw Woo"
+  },
+  "jj2005-1": {
+    "lyricist": "簡勝、林秋離",
+    "composer": "林俊傑",
+    "arranger": "Kenn C、David Koon",
+    "producer": "吳劍泓"
+  },
+  "jj2005-10": {
+    "lyricist": "李瑞洵",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳、陳建瑋、許環良、David Koon",
+    "producer": "許環良、馮時澤"
+  },
+  "jj2005-11": {
+    "lyricist": "李瑞洵",
+    "composer": "林俊傑"
+  },
+  "jj2005-2": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑",
+    "arranger": "Kenn C、林俊傑、林子欽",
+    "producer": "林俊傑"
+  },
+  "jj2005-3": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑",
+    "arranger": "Jamie Wilson",
+    "producer": "林俊傑"
+  },
+  "jj2005-4": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳、陳建瑋、林俊傑",
+    "producer": "許環良、馮時澤、David Koon"
+  },
+  "jj2005-5": {
+    "lyricist": "李瑞洵",
+    "composer": "林俊傑",
+    "arranger": "林俊傑、林子欽"
+  },
+  "jj2005-6": {
+    "lyricist": "張思爾、向月娥",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "吳劍泓"
+  },
+  "jj2005-7": {
+    "lyricist": "宋建彰",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "吳劍泓"
+  },
+  "jj2005-8": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2006-1": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑、馮時澤、吳劍泓"
+  },
+  "jj2006-10": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑"
+  },
+  "jj2006-12": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "Kenn C"
+  },
+  "jj2006-2": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "吳劍泓"
+  },
+  "jj2006-3": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "許環良"
+  },
+  "jj2006-4": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2006-5": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "梁定江"
+  },
+  "jj2006-6": {
+    "lyricist": "張思爾、林秋離",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "吳劍泓"
+  },
+  "jj2006-7": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑"
+  },
+  "jj2006-8": {
+    "lyricist": "陳鎮川",
+    "composer": "林俊傑",
+    "arranger": "林俊傑"
+  },
+  "jj2007-1": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2007-10": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "梁定江、許環良"
+  },
+  "jj2007-2": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳、陳建瑋",
+    "producer": "林俊傑、許環良"
+  },
+  "jj2007-3": {
+    "lyricist": "林秋離、林子欽(RAP)",
+    "composer": "林俊傑",
+    "arranger": "林俊傑、Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2007-4": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2007-5": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2007-6": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "梁定江、吳劍泓"
+  },
+  "jj2007-7": {
+    "lyricist": "陳嘉文",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "林俊傑、吳劍泓"
+  },
+  "jj2007-8": {
+    "lyricist": "林秋離 林宇中",
+    "composer": "林俊傑"
+  },
+  "jj2007-9": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "林俊傑、Kenn C",
+    "producer": "林俊傑、馮時澤"
+  },
+  "jj2008-1": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑"
+  },
+  "jj2008-11": {
+    "lyricist": "林俊傑",
+    "arranger": "陳建瑋、蔡政勳"
+  },
+  "jj2008-2": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "林俊傑、Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2008-3": {
+    "lyricist": "陳少琪",
+    "composer": "林俊傑"
+  },
+  "jj2008-4": {
+    "lyricist": "五月天阿信",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2008-5": {
+    "lyricist": "方文山",
+    "composer": "林俊傑",
+    "arranger": "謝占雋"
+  },
+  "jj2008-6": {
+    "lyricist": "農夫FAMA",
+    "composer": "林俊傑",
+    "arranger": "DJ Tommy",
+    "producer": "林俊傑、DJ Tommyy"
+  },
+  "jj2008-7": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "陳建瑋、蔡政勳",
+    "producer": "林俊傑"
+  },
+  "jj2008-8": {
+    "lyricist": "Dr.Moon、Mr.Mars",
+    "composer": "林俊傑"
+  },
+  "jj2008-9": {
+    "lyricist": "Jeff、Luke、DonP、Suffa、Mr Mars",
+    "composer": "林俊傑",
+    "arranger": "Chris Wiebe",
+    "producer": "許環良、Machi"
+  },
+  "jj2009-1": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2009-10": {
+    "lyricist": "廖瑩如、許環良",
+    "composer": "林俊傑",
+    "arranger": "饒善強",
+    "producer": "許環良"
+  },
+  "jj2009-11": {
+    "lyricist": "張美香、許環良",
+    "composer": "林俊傑"
+  },
+  "jj2009-12": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑"
+  },
+  "jj2009-13": {
+    "lyricist": "林怡鳳、許環良、林蔚利",
+    "composer": "林俊傑",
+    "arranger": "陳炯順",
+    "producer": "吳劍泓、陳炯順"
+  },
+  "jj2009-2": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "吳劍泓"
+  },
+  "jj2009-3": {
+    "lyricist": "林俊傑、MC HotDog",
+    "composer": "林俊傑",
+    "arranger": "陳建瑋",
+    "producer": "林俊傑"
+  },
+  "jj2009-4": {
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2009-5": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑"
+  },
+  "jj2009-6": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "吳劍泓"
+  },
+  "jj2009-8": {
+    "lyricist": "林宇中",
+    "composer": "林俊傑"
+  },
+  "jj2009-9": {
+    "lyricist": "王雅君",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2010-1": {
+    "lyricist": "孫燕姿",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "吳劍泓、林俊傑"
+  },
+  "jj2010-10": {
+    "lyricist": "吳劍泓",
+    "composer": "林俊傑",
+    "arranger": "陳炯順",
+    "producer": "陳炯順"
+  },
+  "jj2010-11": {
+    "lyricist": "易家揚",
+    "composer": "林俊傑",
+    "arranger": "吳劍泓、吳慶隆",
+    "producer": "吳劍泓"
+  },
+  "jj2010-12": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑"
+  },
+  "jj2010-2": {
+    "lyricist": "瑞業",
+    "composer": "林俊傑"
+  },
+  "jj2010-3": {
+    "lyricist": "張家瑋",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2010-4": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "吳劍泓"
+  },
+  "jj2010-5": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑",
+    "arranger": "陳炯順",
+    "producer": "陳炯順"
+  },
+  "jj2010-6": {
+    "lyricist": "王雅君、林俊傑、王雅君 陳淑秋",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2010-7": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳、陳建瑋",
+    "producer": "吳劍泓"
+  },
+  "jj2010-8": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑",
+    "arranger": "陳炯順",
+    "producer": "吳劍泓、陳炯順"
+  },
+  "jj2010-9": {
+    "lyricist": "何啟弘",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "許環良"
+  },
+  "jj2012-10": {
+    "lyricist": "林夕",
+    "composer": "林俊傑"
+  },
+  "jj2012-11": {
+    "lyricist": "吳青峰",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "林俊傑、吳慶隆"
+  },
+  "jj2012-12": {
+    "lyricist": "林天愛",
+    "composer": "林俊傑"
+  },
+  "jj2012-2": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑"
+  },
+  "jj2012-3": {
+    "lyricist": "方文山",
+    "composer": "林俊傑"
+  },
+  "jj2012-4": {
+    "lyricist": "王雅君",
+    "composer": "林俊傑"
+  },
+  "jj2012-5": {
+    "lyricist": "葛大為",
+    "composer": "林俊傑"
+  },
+  "jj2012-6": {
+    "lyricist": "吳易緯",
+    "composer": "林俊傑"
+  },
+  "jj2012-9": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2013-1": {
+    "lyricist": "王雅君",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2013-10": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "林俊傑"
+  },
+  "jj2013-12": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "林俊傑"
+  },
+  "jj2013-2": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "Terence Teo",
+    "producer": "林俊傑"
+  },
+  "jj2013-3": {
+    "lyricist": "阿信",
+    "composer": "林俊傑"
+  },
+  "jj2013-4": {
+    "lyricist": "易家揚",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "林俊傑"
+  },
+  "jj2013-5": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑",
+    "arranger": "陳炯順",
+    "producer": "許環良",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "Jamie Wilson"
+      },
+      {
+        "role": "OP",
+        "name": "Touch Music Publishing Pte Ltd.、Compass、JFJ Productions Corp."
+      },
+      {
+        "role": "SP",
+        "name": "大潮音樂經紀有限公司、Universal Music Publishing Ltd Taiwan."
+      }
+    ]
+  },
+  "jj2013-6": {
+    "lyricist": "林俊傑、Mike Chang",
+    "composer": "Johann Sebastian Bach",
+    "arranger": "林俊傑、王力宏",
+    "producer": "林俊傑"
+  },
+  "jj2013-7": {
+    "lyricist": "林俊傑、MIKE 張懷顥",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "林俊傑",
+    "credits": [
+      {
+        "role": "和聲",
+        "name": "林俊傑"
+      },
+      {
+        "role": "OP",
+        "name": "JFJ Productions Corp."
+      },
+      {
+        "role": "SP",
+        "name": "Universal Music Publishing Ltd Taiwan."
+      }
+    ]
+  },
+  "jj2013-8": {
+    "lyricist": "吳青峰",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2013-9": {
+    "lyricist": "李念和",
+    "composer": "林俊傑",
+    "arranger": "Martin Tang",
+    "producer": "林俊傑"
+  },
+  "jj2014-10": {
+    "lyricist": "方文山",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "林俊傑"
+  },
+  "jj2014-11": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆",
+    "producer": "林俊傑"
+  },
+  "jj2014-2": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2014-3": {
+    "lyricist": "王雅君",
+    "composer": "林俊傑",
+    "arranger": "Terence Teo",
+    "producer": "林俊傑"
+  },
+  "jj2014-4": {
+    "lyricist": "姚若龍",
+    "composer": "林俊傑",
+    "arranger": "Martin Tang",
+    "producer": "林俊傑"
+  },
+  "jj2014-5": {
+    "lyricist": "五月天阿信",
+    "composer": "林俊傑",
+    "arranger": "Kenn C",
+    "producer": "林俊傑"
+  },
+  "jj2014-6": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "Terence Teo",
+    "producer": "林俊傑"
+  },
+  "jj2014-7": {
+    "lyricist": "林夕",
+    "composer": "林俊傑",
+    "arranger": "蔡政勳",
+    "producer": "許環良",
+    "credits": [
+      {
+        "role": "和聲",
+        "name": "林俊傑"
+      },
+      {
+        "role": "吉他",
+        "name": "Jamie Wilson"
+      },
+      {
+        "role": "貝斯",
+        "name": "Kelly Wan"
+      },
+      {
+        "role": "鼓",
+        "name": "Brendan Buckley"
+      }
+    ]
+  },
+  "jj2014-9": {
+    "lyricist": "吳青峰",
+    "composer": "林俊傑",
+    "arranger": "Martin Tang",
+    "producer": "林俊傑"
+  },
+  "jj2015-10": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑"
+  },
+  "jj2015-12": {
+    "lyricist": "范維仁",
+    "composer": "林俊傑"
+  },
+  "jj2015-14": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑"
+  },
+  "jj2015-15": {
+    "lyricist": "吳青峰",
+    "composer": "林俊傑"
+  },
+  "jj2015-17": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑"
+  },
+  "jj2015-18": {
+    "lyricist": "林夕",
+    "composer": "林俊傑"
+  },
+  "jj2015-2": {
+    "lyricist": "林秋離",
+    "composer": "林俊傑"
+  },
+  "jj2015-4": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "arranger": "吳慶隆"
+  },
+  "jj2015-6": {
+    "lyricist": "張思爾",
+    "composer": "林俊傑"
+  },
+  "jj2015-7": {
+    "lyricist": "方文山",
+    "composer": "林俊傑",
+    "arranger": "林俊傑",
+    "producer": "林俊傑"
+  },
+  "jj2015-9": {
+    "lyricist": "林俊傑、林怡鳳",
+    "composer": "林俊傑"
+  },
+  "jj2017-1": {
+    "credits": [
+      {
+        "role": "OP",
+        "name": "Amusic Rights Management Pte Ltd"
+      },
+      {
+        "role": "SP",
+        "name": "巨小奇大音樂文化（北京）有限公司"
+      }
+    ]
+  },
+  "jj2017-11": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑"
+  },
+  "jj2017-2": {
+    "lyricist": "小寒",
+    "composer": "林俊傑"
+  },
+  "jj2017-5": {
+    "lyricist": "方文山",
+    "composer": "林俊傑"
+  },
+  "jj2017-7": {
+    "lyricist": "易家揚",
+    "composer": "林俊傑"
+  },
+  "jj2017-8": {
+    "lyricist": "周信廷",
+    "composer": "林俊傑",
+    "arranger": "Kenn C"
+  },
+  "jj2023-1": {
+    "lyricist": "小寒",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "黃冠龍 ALEX.D"
+      },
+      {
+        "role": "弦樂",
+        "name": "李琪弦樂團"
+      },
+      {
+        "role": "工程",
+        "name": "Billy Koh、Richard Furch、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-10": {
+    "lyricist": "蔡宥綺",
+    "composer": "蔡宥綺",
+    "producer": "林俊傑 JJ LIN、許環良 Billy Koh",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "Martin Tang"
+      },
+      {
+        "role": "弦樂",
+        "name": "李琪弦樂團"
+      },
+      {
+        "role": "工程",
+        "name": "許環良 Billy Koh、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-11": {
+    "lyricist": "林俊傑",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "黃冠龍 ALEX.D"
+      },
+      {
+        "role": "弦樂",
+        "name": "李琪弦樂團"
+      },
+      {
+        "role": "工程",
+        "name": "林俊傑 JJ LIN、Richard Furch、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-12": {
+    "lyricist": "方文山",
+    "composer": "林俊傑 JJ LIN",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "黃冠龍 ALEX.D"
+      },
+      {
+        "role": "工程",
+        "name": "Richard Furch"
+      }
+    ]
+  },
+  "jj2023-2": {
+    "lyricist": "易家揚",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "黃冠龍 ALEX.D"
+      },
+      {
+        "role": "工程",
+        "name": "林俊傑 JJ LIN、Richard Furch、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-3": {
+    "lyricist": "易家揚",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "弦樂",
+        "name": "李琪弦樂團"
+      },
+      {
+        "role": "吉他",
+        "name": "Grecco Buratto、寧子達 Michael Ning"
+      },
+      {
+        "role": "工程",
+        "name": "周信廷 SHiN CHOU、林正忠 Jerry Lin、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-4": {
+    "lyricist": "方文山",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "弦樂",
+        "name": "李琪弦樂團"
+      },
+      {
+        "role": "吉他",
+        "name": "Kaspar Jalily"
+      },
+      {
+        "role": "工程",
+        "name": "林俊傑 JJ LIN、Richard Furch、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-5": {
+    "lyricist": "林怡鳳",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "Martin Tang"
+      },
+      {
+        "role": "工程",
+        "name": "周信廷 SHiN CHOU、Richard Furch、Mike Bozzi"
+      }
+    ]
+  },
+  "jj2023-6": {
+    "lyricist": "林怡鳳、林秋離",
+    "composer": "林俊傑",
+    "producer": "林俊傑",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "黃冠龍 ALEX.D"
+      },
+      {
+        "role": "工程",
+        "name": "Richard Furch"
+      }
+    ]
+  },
+  "jj2023-7": {
+    "lyricist": "小寒",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "弦樂",
+        "name": "張暐姍 WeiShan Chang、張暐伃 WeiYu Chang、Ellie Welker、Judy Kang"
+      },
+      {
+        "role": "工程",
+        "name": "周信廷 SHiN CHOU、林正忠 Jerry Lin、Mike Bozz"
+      }
+    ]
+  },
+  "jj2023-8": {
+    "lyricist": "周信廷、楊彤",
+    "composer": "林俊傑",
+    "producer": "林俊傑 JJ LIN",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "黃冠龍 ALEX.D"
+      },
+      {
+        "role": "工程",
+        "name": "林俊傑 JJ LIN、Richard Furch、Mike Bozzi"
+      }
+    ]
+  }
+}

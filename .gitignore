@@ -22,6 +22,9 @@ dist/
 assets/audio/
 _data/local-audio.json
 _data/local-lyrics.json
+# file:// 下读歌词用的内联 payload（本机态由 build 生成，公开建置会删掉整个目录）：
+# 内容仍是第三方版权歌词全文，与 assets/audio 同进同出
+js/lyrics/
 
 # place-media.mjs 落盘时用 --report 写出的报告：内含本机绝对路径
 # （例如 C:\Users\<你>\Desktop\音源\<歌手>），同属只留本机的 sidecar

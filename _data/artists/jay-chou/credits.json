@@ -1,0 +1,940 @@
+{
+  "aiyo2014-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-11": {
+    "lyricist": "羅宇軒、黃婕熙",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "aiyo2014-12": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "aiyo2014-2": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "aiyo2014-3": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-7": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "aiyo2014-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "aiyo2014-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "bedtime2016-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "bedtime2016-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "bedtime2016-2": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "bedtime2016-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "bedtime2016-4": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫、Hathaway",
+    "arranger": "黃雨勳"
+  },
+  "bedtime2016-5": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "bedtime2016-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "bedtime2016-7": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "bedtime2016-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "bedtime2016-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "busy2007-1": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "busy2007-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫"
+  },
+  "busy2007-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "busy2007-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "busy2007-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "busy2007-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "busy2007-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "busy2007-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "busy2007-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "busy2007-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "capricorn2008-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "capricorn2008-10": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "capricorn2008-11": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "capricorn2008-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫",
+    "credits": [
+      {
+        "role": "OP",
+        "name": "JVR Music Int'l Ltd"
+      }
+    ]
+  },
+  "capricorn2008-3": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "capricorn2008-4": {
+    "lyricist": "古小力、黃淩嘉",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "李庭匡"
+      },
+      {
+        "role": "OP",
+        "name": "JVR Music Int'l Ltd."
+      }
+    ]
+  },
+  "capricorn2008-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "capricorn2008-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "capricorn2008-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "capricorn2008-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "蔡科俊Again"
+  },
+  "capricorn2008-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "chopin2005-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "chopin2005-10": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫"
+  },
+  "chopin2005-11": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "chopin2005-12": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "蔡科俊"
+  },
+  "chopin2005-2": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "chopin2005-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "chopin2005-4": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "chopin2005-5": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "chopin2005-6": {
+    "lyricist": "彈頭（宋健彰）",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫"
+  },
+  "chopin2005-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "chopin2005-8": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫"
+  },
+  "chopin2005-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "eight2002-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "eight2002-10": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "eight2002-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "eight2002-3": {
+    "lyricist": "許世昌",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "eight2002-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "eight2002-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "eight2002-6": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "eight2002-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "eight2002-8": {
+    "lyricist": "劉畊宏",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "eight2002-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "era2010-1": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "era2010-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "era2010-11": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "era2010-2": {
+    "lyricist": "古小力、黃淩嘉",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "era2010-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "era2010-4": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "蔡科俊"
+  },
+  "era2010-5": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "蔡庭貴"
+  },
+  "era2010-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "era2010-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "era2010-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "era2010-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "蔡科俊"
+  },
+  "exclaim2011-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "exclaim2011-10": {
+    "lyricist": "唐從聖",
+    "composer": "周杰倫"
+  },
+  "exclaim2011-11": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "exclaim2011-2": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "exclaim2011-3": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "exclaim2011-4": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "exclaim2011-5": {
+    "lyricist": "羅宇軒、李汪哲",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "exclaim2011-6": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "exclaim2011-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "exclaim2011-8": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "exclaim2011-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "fantasy2001-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "fantasy2001-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "fantasy2001-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "fantasy2001-3": {
+    "lyricist": "徐若瑄",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "fantasy2001-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "fantasy2001-5": {
+    "lyricist": "徐若瑄",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "fantasy2001-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "fantasy2001-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "fantasy2001-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "fantasy2001-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫"
+  },
+  "greatest2022-10": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "greatest2022-11": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "greatest2022-12": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "greatest2022-2": {
+    "lyricist": "黃俊郎 A-Lang、謝迪 Di Xie",
+    "composer": "周杰倫 Jay Chou"
+  },
+  "greatest2022-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "greatest2022-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "greatest2022-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "greatest2022-6": {
+    "lyricist": "周杰倫、宋健彰",
+    "composer": "周杰倫",
+    "arranger": "Hans陳思翰"
+  },
+  "greatest2022-7": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫"
+  },
+  "greatest2022-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "greatest2022-9": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "jasmine2004-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "jasmine2004-10": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "jasmine2004-2": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "jasmine2004-3": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "jasmine2004-4": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "jasmine2004-5": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "jasmine2004-6": {
+    "lyricist": "宋健彰",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "jasmine2004-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫",
+    "credits": [
+      {
+        "role": "和聲",
+        "name": "周杰倫"
+      },
+      {
+        "role": "吉他",
+        "name": "黃中岳"
+      },
+      {
+        "role": "鼓",
+        "name": "陳柏州"
+      },
+      {
+        "role": "OP",
+        "name": "ALFA MUSIC PUBLISHING CO. LTD"
+      }
+    ]
+  },
+  "jasmine2004-8": {
+    "lyricist": "劉畊宏",
+    "composer": "周杰倫",
+    "arranger": "蔡科俊"
+  },
+  "jasmine2004-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "jay2000-1": {
+    "lyricist": "徐若瑄",
+    "composer": "周杰倫",
+    "arranger": "周杰倫",
+    "producer": "周杰倫"
+  },
+  "jay2000-10": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "jay2000-2": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "jay2000-3": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "jay2000-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫",
+    "producer": "周杰倫"
+  },
+  "jay2000-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "jay2000-6": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "jay2000-7": {
+    "lyricist": "徐若瑄",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯",
+    "producer": "周杰倫"
+  },
+  "jay2000-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "jay2000-9": {
+    "lyricist": "徐若瑄",
+    "composer": "周杰倫",
+    "arranger": "鍾興民",
+    "producer": "周杰倫"
+  },
+  "opus2012-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫",
+    "producer": "周杰倫"
+  },
+  "opus2012-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "opus2012-11": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳",
+    "producer": "周杰倫"
+  },
+  "opus2012-12": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "opus2012-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "opus2012-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "opus2012-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "opus2012-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "opus2012-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "opus2012-7": {
+    "lyricist": "黃淩嘉",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "opus2012-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "黃雨勳"
+  },
+  "opus2012-9": {
+    "lyricist": "林義傑",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫、羅宇軒、李汪哲"
+  },
+  "still2006-1": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "鍾興民、林邁可"
+  },
+  "still2006-10": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "still2006-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可、洪敬堯"
+  },
+  "still2006-3": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "still2006-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可",
+    "producer": "周杰倫"
+  },
+  "still2006-5": {
+    "lyricist": "宋健彰",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "still2006-6": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "still2006-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "still2006-8": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "蔡科俊",
+    "producer": "周杰倫"
+  },
+  "still2006-9": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "sun2026-1": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫"
+  },
+  "sun2026-11": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-12": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-2": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-3": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫"
+  },
+  "sun2026-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-5": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫"
+  },
+  "sun2026-6": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-7": {
+    "lyricist": "劉畊宏",
+    "composer": "周杰倫"
+  },
+  "sun2026-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫"
+  },
+  "sun2026-9": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫"
+  },
+  "yeh2003-1": {
+    "lyricist": "黃俊郎",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "yeh2003-10": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "周杰倫",
+    "producer": "周杰倫"
+  },
+  "yeh2003-11": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "yeh2003-2": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "yeh2003-3": {
+    "lyricist": "周杰倫",
+    "composer": "周杰倫",
+    "arranger": "周杰倫",
+    "producer": "周杰倫",
+    "credits": [
+      {
+        "role": "吉他",
+        "name": "蔡科俊Again"
+      },
+      {
+        "role": "貝斯",
+        "name": "陳任佑"
+      },
+      {
+        "role": "鼓",
+        "name": "陳柏州"
+      }
+    ]
+  },
+  "yeh2003-4": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "洪敬堯"
+  },
+  "yeh2003-5": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "yeh2003-6": {
+    "lyricist": "曾郁婷",
+    "composer": "周杰倫",
+    "arranger": "林邁可"
+  },
+  "yeh2003-7": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  },
+  "yeh2003-8": {
+    "lyricist": "方文山",
+    "composer": "周杰倫",
+    "arranger": "周杰倫"
+  },
+  "yeh2003-9": {
+    "lyricist": "徐若瑄",
+    "composer": "周杰倫",
+    "arranger": "鍾興民"
+  }
+}
