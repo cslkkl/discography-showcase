@@ -93,15 +93,11 @@
   var stage = $('#ldStage');
   var groupsHost = $('#ldGroups');
   var tabsHost = $('#ldTabs');
-  var posEl = $('#ldPos');
-  var totalEl = $('#ldTotal');
   var enEl = $('#ldEn');
   var nameEl = $('#ldName');
   var statsEl = $('#ldStats');
   var ctaEl = $('#ldCta');
   var liveEl = $('#ldLive');
-  var prevBtn = $('#ldPrev');
-  var nextBtn = $('#ldNext');
   var langBtn = $('#ldLang');
 
   var groups = [];
@@ -116,10 +112,6 @@
   nameEl.appendChild(nameNode);
   statsEl.appendChild(statsNode);
   ctaEl.appendChild(ctaNode);
-
-  function pad(n) {
-    return (n < 10 ? '0' : '') + n;
-  }
 
   function statsText(a) {
     return (
@@ -240,9 +232,6 @@
       t.btn.classList.toggle('is-on', on);
     });
 
-    posEl.textContent = pad(curIndex + 1);
-    totalEl.textContent = pad(N);
-
     setText(enNode, a.en || '');
     enEl.hidden = !a.en || a.en === a.name;
     setText(nameNode, a.name);
@@ -271,18 +260,10 @@
     select(curIndex + d, true);
   }
 
-  /* ---------- 操作 ---------- */
-  prevBtn.addEventListener('click', function () {
-    step(-1);
-  });
-  nextBtn.addEventListener('click', function () {
-    step(1);
-  });
-  if (N < 2) {
-    prevBtn.disabled = true;
-    nextBtn.disabled = true;
-  }
-
+  /* ---------- 操作 ----------
+     切換只有三條路：點封面選中該歌手、點舞台空白處進退一位、拖曳或滑動。
+     先前另有左右箭頭與「01 / 07」計數，維護者要求去掉，改為只靠點封面；
+     step() 仍保留給拖曳與鍵盤使用。 */
   var dragEndAt = 0;
   groups.forEach(function (g, i) {
     g.btn.addEventListener('click', function () {
