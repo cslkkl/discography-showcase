@@ -16,7 +16,11 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 
-/* 只涵蓋 HTML 會引用的兩個目錄，逐檔吃內容；排序保證可重現 */
+/* 只涵蓋 HTML 會引用的兩個目錄，逐檔吃內容；排序保證可重現。
+   排除生成物 data.js：它有公開態與本機態兩種內容，算進來會讓版本戳隨建置狀態
+   漂移——同一份原始碼在 `npm run build` 與 `npm run listen` 之後會算出兩個版本，
+   而提交的是公開態那個，本機聽歌時就永遠對不上。 */
+const SKIP = new Set(['data.js']);
 function contentStamp() {
   const h = crypto.createHash('sha256');
   for (const dir of ['js', 'css']) {
@@ -25,7 +29,7 @@ function contentStamp() {
     try {
       names = fs
         .readdirSync(abs)
-        .filter((n) => /\.(js|css)$/.test(n))
+        .filter((n) => /\.(js|css)$/.test(n) && !SKIP.has(n))
         .sort();
     } catch {
       continue;
