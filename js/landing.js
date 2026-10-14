@@ -224,6 +224,12 @@
       g.li.setAttribute('data-off', String(off));
       g.li.hidden = far;
       g.btn.setAttribute('aria-pressed', String(i === curIndex));
+      /* 中央封面是「進入」，其餘是「選中」：無障礙名稱要跟著當前角色走 */
+      setAttr(
+        g.btn,
+        'aria-label',
+        i === curIndex ? D.artists[D.order[i]].name + '，進入專輯' : D.artists[D.order[i]].name
+      );
     });
 
     tabs.forEach(function (t, i) {
@@ -263,12 +269,19 @@
   /* ---------- 操作 ----------
      切換只有三條路：點封面選中該歌手、點舞台空白處進退一位、拖曳或滑動。
      先前另有左右箭頭與「01 / 07」計數，維護者要求去掉，改為只靠點封面；
-     step() 仍保留給拖曳與鍵盤使用。 */
+     step() 仍保留給拖曳與鍵盤使用。
+
+     中央那張（已選中的歌手）再點一次＝直接進他的專輯頁，與「進入專輯」同一去處：
+     兩側封面負責切換，中央封面負責進入，少一次「先選中再按按鈕」。 */
   var dragEndAt = 0;
   groups.forEach(function (g, i) {
     g.btn.addEventListener('click', function () {
       /* 一次手勢不該又誤選其他封面 */
       if (performance.now() - dragEndAt < 350) return;
+      if (i === curIndex) {
+        location.href = 'artist.html?a=' + encodeURIComponent(D.order[i]);
+        return;
+      }
       select(i, true);
     });
   });

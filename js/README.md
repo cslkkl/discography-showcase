@@ -70,8 +70,8 @@
   統計取 `stats`，強調色取 `theme.accent` / `accentOn`，不另寫歌手陣列
 - 舞台位置由最小環形位移決定（`offsetOf`），`|off| <= 2` 留在舞台上，
   其餘收進 `hidden` 不佔焦點；切換只改 `data-off` 與 `aria-pressed`，不重建 DOM
-- 操作：姓名直選、點封面組選中、點舞台空白處進退一位、拖曳與滑動、
-  控制區方向鍵與 Home／End；選擇記在 sessionStorage
+- 操作：姓名直選、點兩側封面選中、點中央封面進入該歌手、點舞台空白處進退一位、
+  拖曳與滑動、控制區方向鍵與 Home／End；選擇記在 sessionStorage
   `discography-selected-artist`，失效即回退首位
 - 0 位歌手顯示空狀態並收起唱片架
 - 內含一份精簡的繁簡轉換，複用 `DISCOGRAPHY.toSimplified`；刻意不引入 app.js，

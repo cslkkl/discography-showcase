@@ -27,6 +27,8 @@ npm run serve          # http://127.0.0.1:8099
 npm run build          # 遍历 _data/artists/* 重生成 js/data.js（略過自有音檔，产物可公开）
 npm run build:local    # 同上，但折入 assets/audio 里的自有音档，供本机整首播放
 npm run listen         # 登记自有音档后直接按本机态构建；听歌用这条
+npm run pack           # 打包可公开发的 dist/（不含本机音档与歌词）
+npm run stamp          # 给 HTML 的 js/css 引用刷版本号，防混版卡死
 npm run lint           # ESLint
 npm run format         # Prettier 寫入
 npm run check          # lint + format:check + check:docs + check:eol
@@ -69,7 +71,8 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   對比度 4.80:1 至 9.44:1；同歌手每張專輯抽屜色從封面派生且互不重複
 - 入口頁是一台唱片架：七位歌手可逐一選中，姓名、統計、強調色與 `href` 同步；
   無參數或無效 `?a=` 回入口，已刪歌手的殘留選擇回退首位。
-  切換只靠點封面、點舞台空白處（左退右進）與拖曳，不設左右箭頭與序號計數
+  切換只靠點兩側封面、點舞台空白處（左退右進）與拖曳，不設左右箭頭與序號計數；
+  點中央那張已選中的封面等同「進入專輯」，直接進該歌手頁
 - 歌手頁 10 個 `<section>`（三視圖合併後實測七位歌手一致），14 個展示面；
   無合作者標注的歌手（薛之謙）該區自動收起
 - `eslint .` 0 問題；`prettier --check .` 全通過
@@ -95,6 +98,10 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 
 ## 活躍坑
 
+- **HTML 更新而 JS 還是快取的舊版**：舊腳本找不到已被刪掉的元素，會在
+  `addEventListener` 拋錯、初始化中斷，整座唱片架停在「七張封面全疊在中央、
+  歌名與統計空白、進入鈕只剩一個色塊」（實測就是這個樣子，維護者回報過）。
+  HTML 的 `js/`、`css/` 引用一律帶 `?v=<版本>`，改過 `js/` 或 `css/` 就 `npm run stamp`
 - 入口頁拖曳若在 `pointerdown` 就 `setPointerCapture`，指標被舞台捕獲後瀏覽器會把 `click`
   派發給舞台、而不是底下的封面鈕，於是**點封面完全不切換歌手**（方向鍵與拖曳卻正常，
   因為它們不經過那顆按鈕）。捕獲要延後到位移超過 8px、確認是拖曳時才做；且只要超過
