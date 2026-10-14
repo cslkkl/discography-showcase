@@ -183,6 +183,19 @@
     };
   }
 
+  /* 隨機入口的用詞自適應：本機態有自有音檔，隨機播的是「隨機播放」；
+     公開態只有 30 秒片段，則是「隨機試聽」。字串由 playWords() 產生，
+     打包成公開態時文字自然跟著變，不必另外維護一份判斷。 */
+  function randomWords() {
+    var t = null,
+      i;
+    for (i = 0; i < JC.tracks.length; i++) {
+      if (JC.tracks[i].local) return playWords(JC.tracks[i]);
+      if (!t && JC.tracks[i].audio) t = JC.tracks[i];
+    }
+    return playWords(t);
+  }
+
   /* Play control for one track row. `numClass` keeps the catalogue and the
      album sheet using their own numeral styling. */
   function playBtn(albumId, t, numClass) {
@@ -311,6 +324,9 @@
       var a = ALBUMS[i];
       card.hidden = !on;
       card.tabIndex = on ? 0 : -1;
+      /* 換位時清掉上一次的懸停避讓：class 會被下面那行整體覆寫，
+         但行內的 --hx 不會，留著會讓卡片停在讓開後的位置 */
+      card.style.removeProperty('--hx');
       if (!on) {
         /* 台上的圖才需要下載：十六張專輯全掛 src 會一次抓完 */
         card.querySelector('img').removeAttribute('src');
@@ -344,6 +360,27 @@
     fanPaint();
   }
 
+  /* 懸停避讓：指到的那張跳出來，其餘往外讓開，讓這張完整可見。
+     方向必須按**視覺**位移算，不能用 CSS 姊妹選擇器：輪播是環形的，
+     DOM 順序與視覺左右不一致（最後幾張視覺上在左邊），
+     用 `~` 會把左邊那兩張也往右推。距離越遠讓開越多。 */
+  function fanHover(i) {
+    var hovered = i >= 0 ? fanOffset(i) : null;
+    fanCards.forEach(function (card, j) {
+      if (i < 0 || j === i || card.hidden) {
+        card.classList.remove('is-hover', 'is-yield');
+        card.style.removeProperty('--hx');
+        if (i >= 0 && j === i) card.classList.add('is-hover');
+        return;
+      }
+      card.classList.remove('is-hover');
+      card.classList.add('is-yield');
+      var d = fanOffset(j) - hovered;
+      var push = 10 + Math.min(Math.abs(d), 2) * 5;
+      card.style.setProperty('--hx', (d > 0 ? push : -push) + '%');
+    });
+  }
+
   function renderFan() {
     var host = $('#heroArt');
     if (!host) return;
@@ -363,6 +400,19 @@
         var off = fanOffset(i);
         if (off === 0) openSheet(a.id);
         else fanGo(off);
+      });
+      /* 滑鼠停在封面或鍵盤聚焦：那張跳出來，其餘照視覺方向讓開 */
+      card.addEventListener('pointerenter', function () {
+        fanHover(i);
+      });
+      card.addEventListener('pointerleave', function () {
+        fanHover(-1);
+      });
+      card.addEventListener('focus', function () {
+        fanHover(i);
+      });
+      card.addEventListener('blur', function () {
+        fanHover(-1);
       });
       fan.appendChild(card);
       fanCards.push(card);
@@ -536,17 +586,17 @@
   }
 
   /* ── album rack ─────────────────────────────────────────────────────── */
-  var rackStage, rackTrack, rackBar, rackNow, rackHint;
-  var hijack = false,
-    rackMax = 0,
-    cards = [];
+  var rackTrack, rackBar, rackNow, rackHint, rackViewport, rackPrev, rackNext;
+  var cards = [];
 
   function renderRack() {
-    rackStage = $('#rackStage');
     rackTrack = $('#rackTrack');
     rackBar = $('#rackBar');
     rackNow = $('#rackNow');
     rackHint = $('#rackHint');
+    rackViewport = $('#rackViewport');
+    rackPrev = $('#rackPrev');
+    rackNext = $('#rackNext');
     if (!rackTrack) return;
     var f = frag();
     ALBUMS.forEach(function (a) {
@@ -620,38 +670,28 @@
   }
 
   function measureRack() {
-    hijack = window.matchMedia(
-      '(min-width: 861px) and (prefers-reduced-motion: no-preference)'
-    ).matches;
-    if (!hijack) {
-      rackStage.style.height = '';
-      rackTrack.style.transform = '';
-      cards.forEach(function (c) {
-        c.classList.add('is-live');
-      });
-      if (rackHint) rackHint.style.display = 'none';
-      paintRackFromScroll();
-      return;
-    }
+    if (!rackTrack) return;
+    /* 展櫃不再劫持縱向捲動。先前桌面版把整段做成「釘住 + 捲動換橫向位移」，
+       十張專輯要一萬多像素的捲動預算才走得完，維護者反映「一定要把所有專輯
+       翻完才能看下面的內容」。現在改成原生橫向捲動：頁面照常往下走，
+       專輯要看再自己拖；手機版本來就是這個做法，桌面現在與它一致。 */
     if (rackHint) rackHint.style.display = '';
-    rackMax = Math.max(0, rackTrack.scrollWidth - window.innerWidth);
-    rackStage.style.height = Math.round(window.innerHeight + rackMax * 0.82) + 'px';
-    updateRack();
+    paintRackFromScroll();
   }
 
   function rackOffset() {
-    if (!hijack) return -rackTrack.scrollLeft;
-    var top = rackStage.getBoundingClientRect().top;
-    var dist = rackStage.offsetHeight - window.innerHeight;
-    var p = dist > 0 ? clamp(-top / dist, 0, 1) : 0;
-    rackBar.style.width = p * 100 + '%';
-    return -p * rackMax;
+    if (!rackViewport) return 0;
+    /* 可捲的是 .rack-viewport（overflow-x: auto），不是內層的 .rack-track：
+       對 track 讀寫 scrollLeft 恆為 0，箭頭與 HUD 都會裝死 */
+    return -rackViewport.scrollLeft;
   }
 
   function paintRackFromScroll() {
+    if (!rackTrack || !rackViewport) return;
+    var max = rackViewport.scrollWidth - rackViewport.clientWidth;
+    if (rackBar) rackBar.style.width = (max > 0 ? (rackViewport.scrollLeft / max) * 100 : 0) + '%';
     var x = rackOffset();
-    if (hijack) rackTrack.style.transform = 'translate3d(' + x.toFixed(1) + 'px,0,0)';
-    var center = window.innerWidth / 2,
+    var center = rackViewport.clientWidth / 2,
       best = 0,
       bestD = Infinity;
     for (var i = 0; i < cards.length; i++) {
@@ -665,9 +705,23 @@
     }
     for (var j = 0; j < cards.length; j++) cards[j].classList.toggle('is-live', j === best);
     if (rackNow) rackNow.textContent = ALBUMS[best] ? ALBUMS[best].no : '01';
+    if (rackPrev) rackPrev.disabled = rackViewport.scrollLeft <= 2;
+    if (rackNext) rackNext.disabled = rackViewport.scrollLeft >= max - 2;
   }
 
-  var updateRack = paintRackFromScroll;
+  /* 一次捲一張卡：把該卡的左緣對到視窗左緣，鍵盤與箭頭都用這條 */
+  function rackStepBy(dir) {
+    if (!rackTrack || !rackViewport || !cards.length) return;
+    var step = cards[0].offsetWidth + 24;
+    var max = rackViewport.scrollWidth - rackViewport.clientWidth;
+    rackScrollTo(clamp(rackViewport.scrollLeft + dir * step, 0, max), true);
+  }
+
+  function rackScrollTo(left, smooth) {
+    if (!rackViewport) return;
+    if (smooth) rackViewport.scrollTo({ left: left, behavior: 'smooth' });
+    else rackViewport.scrollLeft = left;
+  }
 
   /* 第一首可试听的曲目：卡片上的「试听 30 秒」按钮用它 */
   function firstPlayable(a) {
@@ -1378,6 +1432,9 @@
   var index = [];
 
   function buildIndex() {
+    /* 就地換歌手會再跑一次：index 是模組級陣列，必須先清空，
+       否則會把上一位歌手的曲目一併留在索引裡（實測 126→301→427 一路疊上去） */
+    index = [];
     ALBUMS.forEach(function (a) {
       var albumHay = [a.title, a.alt, a.en, String(a.year), a.no, a.publisher]
         .join(' ')
@@ -2347,6 +2404,13 @@
         '<span class="am-meta">回到入口</span></a>'
     );
     /* 窄屏专用工具项：顶栏放不下时，简繁与随机入口落在选单里 */
+    var rw = randomWords();
+    var rbtn = $('#randomBtn');
+    if (rbtn) {
+      dropAttr(rbtn, 'aria-label');
+      rbtn.setAttribute('aria-label', '隨機' + rw.verb + '一首曲目');
+    }
+    fill('#randomLabel', '隨機' + rw.verb);
     html.push(
       '<button class="am-item am-tool" type="button" role="menuitem" data-tool="lang">' +
         '<span class="am-seal" aria-hidden="true">文</span>' +
@@ -2356,13 +2420,11 @@
         '</span></button>' +
         '<button class="am-item am-tool" type="button" role="menuitem" data-tool="random">' +
         '<span class="am-seal" aria-hidden="true">隨</span>' +
-        '<span class="am-name">隨機試聽</span>' +
+        '<span class="am-name">隨機' +
+        rw.verb +
+        '</span>' +
         '<span class="am-meta">' +
-        (JC.tracks.some(function (t) {
-          return t.local;
-        })
-          ? '整首'
-          : '30 秒') +
+        (rw.local ? '整首' : '30 秒') +
         '</span></button>'
     );
     menu.innerHTML = html.join('');
@@ -2408,9 +2470,24 @@
       }
     });
     menu.addEventListener('click', function (e) {
-      // navigating to another artist rebuilds the page; nothing to keep open
       var item = e.target.closest ? e.target.closest('.am-item') : null;
-      if (item) setOpen(false);
+      if (!item) return;
+      var href = item.getAttribute('href') || '';
+      /* 歌手項目改為就地切換：不整頁重載，正在播的歌因此不中斷。
+         「所有歌手」是回入口頁，維持原本的導航。 */
+      var m = /artist\.html\?a=([^&]+)/.exec(href);
+      if (m) {
+        e.preventDefault();
+        setOpen(false);
+        applyArtist(decodeURIComponent(m[1]));
+        return;
+      }
+      setOpen(false);
+    });
+    /* 上一頁／下一頁也要跟著換歌手（不重載） */
+    window.addEventListener('popstate', function (e) {
+      var id = (e.state && e.state.a) || new URLSearchParams(location.search).get('a');
+      if (id && DISCOGRAPHY.artists[id] && id !== JC.id) applyArtist(id, { silent: true });
     });
   }
 
@@ -2500,7 +2577,7 @@
       renderCat('');
     }
     revealTrack(t.album, t.n);
-    toast('隨機試聽：' + t.zh + '（' + t.albumTitle + '）');
+    toast('隨機' + playWords(t).verb + '：' + t.zh + '（' + t.albumTitle + '）');
   }
 
   /* ── chapters: 窄屏的章节跳转（桌面導覽在 <=860px 隱藏） ─────────────── */
@@ -2701,14 +2778,120 @@
       searchInput.focus();
     });
 
-    // rack: native scroll mode (mobile / reduced motion)
-    rackTrack.addEventListener(
-      'scroll',
-      function () {
-        if (!hijack) paintRackFromScroll();
-      },
-      { passive: true }
-    );
+    // rack: native horizontal scroll — page scroll is never hijacked
+    /* 整段包在守衛內：HTML 更新而 JS 還是被快取的舊版時（見 AGENTS 的活躍坑），
+       少一顆節點不該讓後面的初始化全部中斷 */
+    if (rackViewport && rackTrack) {
+      var rackRaf = 0;
+      rackViewport.addEventListener(
+        'scroll',
+        function () {
+          if (rackRaf) return;
+          rackRaf = requestAnimationFrame(function () {
+            rackRaf = 0;
+            paintRackFromScroll();
+          });
+        },
+        { passive: true }
+      );
+      if (rackPrev)
+        rackPrev.addEventListener('click', function () {
+          rackStepBy(-1);
+        });
+      if (rackNext)
+        rackNext.addEventListener('click', function () {
+          rackStepBy(1);
+        });
+      rackViewport.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          rackStepBy(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          rackStepBy(1);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          rackScrollTo(0, true);
+        } else if (e.key === 'End') {
+          e.preventDefault();
+          rackScrollTo(rackViewport.scrollWidth - rackViewport.clientWidth, true);
+        }
+      });
+
+      /* 滑鼠拖曳：桌機使用者沒有觸控，這是除了箭頭以外最直覺的橫向瀏覽。
+         位移門檻 6px 之後才進入拖曳，避免單純點封面也被當成拖動。
+         指標在視窗外放開時不會有 click，所以不能用「拖過的布林旗標」吞點擊；
+         改成比對按下點與放開點的實際位移（見下方 click 守衛）。 */
+      var rackDragging = false,
+        rackDragX = 0,
+        rackDragLeft = 0,
+        rackDragMax = 0,
+        rackDragMoved = false,
+        rackDragRaf = 0,
+        rackDragTo = 0;
+      function applyRackDrag() {
+        rackDragRaf = 0;
+        /* 拖曳中夾在同一個 max 內：這裡只寫不讀版面，符合熱路徑約定 */
+        rackViewport.scrollLeft = clamp(rackDragLeft - rackDragTo, 0, rackDragMax);
+      }
+      rackViewport.addEventListener('pointerdown', function (e) {
+        /* 不論滑鼠或觸控都先清掉上一次的拖曳殘留，否則那個旗標會吞掉下一次點擊 */
+        rackDragMoved = false;
+        if (e.pointerType === 'touch' || e.button !== 0) return;
+        rackDragging = true;
+        rackDragX = e.clientX;
+        rackDragLeft = rackViewport.scrollLeft;
+        rackDragMax = rackViewport.scrollWidth - rackViewport.clientWidth;
+      });
+      rackViewport.addEventListener(
+        'pointermove',
+        function (e) {
+          if (!rackDragging) return;
+          var d = e.clientX - rackDragX;
+          if (!rackDragMoved && Math.abs(d) < 6) return;
+          if (!rackDragMoved) {
+            rackDragMoved = true;
+            rackViewport.classList.add('is-dragging');
+            try {
+              rackViewport.setPointerCapture(e.pointerId);
+            } catch {
+              /* 不支援指標捕獲時仍可拖曳 */
+            }
+          }
+          e.preventDefault();
+          rackDragTo = d;
+          if (!rackDragRaf) rackDragRaf = requestAnimationFrame(applyRackDrag);
+        },
+        { passive: false }
+      );
+      function rackDragEnd(e) {
+        if (!rackDragging) return;
+        rackDragging = false;
+        rackViewport.classList.remove('is-dragging');
+        if (rackDragMoved) {
+          try {
+            rackViewport.releasePointerCapture(e.pointerId);
+          } catch {
+            /* 已釋放或未捕獲 */
+          }
+        }
+      }
+      rackViewport.addEventListener('pointerup', rackDragEnd);
+      rackViewport.addEventListener('pointercancel', rackDragEnd);
+      /* 拖曳結束後緊接的那次 click 不該被當成「點封面開抽屜」：
+         只有在「真的移動超過門檻」且是滑鼠產生（detail > 0）時才攔下 */
+      rackViewport.addEventListener(
+        'click',
+        function (e) {
+          if (!rackDragMoved || e.detail === 0) return;
+          if (Math.abs(e.clientX - rackDragX) < 6) return;
+          e.preventDefault();
+          e.stopPropagation();
+          rackDragMoved = false;
+        },
+        true
+      );
+    }
 
     /* Pointer-tracked sheen on the sleeves, and a 6px magnetic pull on the
        primary CTA. Both write custom properties inside a rAF so no layout is
@@ -2772,27 +2955,7 @@
       lang = 's';
     }
 
-    renderFan();
-    renderFigures();
-    renderMarquee();
-    renderRings();
-    renderRack();
-    renderChrono();
-    renderEras();
-    renderWall();
-    renderGrowth();
-    renderGaps();
-    renderBars();
-    renderFacts();
-    renderRanks();
-    renderCollab();
-    /* 这位歌手的曲目不用 feat./with 标注时没有合作者可列：整段收起 */
-    if (!JC.collaborators.length) {
-      var collab = $('#collab');
-      if (collab) collab.hidden = true;
-    }
-    renderPicks();
-    renderCatBase();
+    renderAll();
     initAudio();
 
     // sheet nodes must exist before bind()
@@ -2803,7 +2966,6 @@
 
     bind();
     bindChrome();
-    renderChapters();
     bindCatViews();
     bindArtistSwitch();
     applyArtistChrome();
@@ -2819,6 +2981,91 @@
       marqueeRoom = 0; // webfonts change the band width
       marqueePan();
     });
+  }
+
+  /* 一位歌手的全部展示面。init() 與就地換歌手（applyArtist）共用同一條路徑，
+     避免兩份渲染清單走樣。呼叫前必須先清掉 appendChild 型宿主（見 resetHosts）。 */
+  function renderAll() {
+    renderFan();
+    renderFigures();
+    renderMarquee();
+    renderRings();
+    renderRack();
+    renderChrono();
+    renderEras();
+    renderWall();
+    renderGrowth();
+    renderGaps();
+    renderBars();
+    renderFacts();
+    renderRanks();
+    renderCollab();
+    /* 这位歌手的曲目不用 feat./with 标注时没有合作者可列：整段收起；
+       換到有合作者的歌手時要重新展開，否則會停在上一位的收起狀態 */
+    var collab = $('#collab');
+    if (collab) collab.hidden = !JC.collaborators.length;
+    renderPicks();
+    renderCatBase();
+    renderChapters();
+  }
+
+  /* 這些宿主是 appendChild 型（不清空就重跑會愈疊愈多）。實測第一次換歌手後
+     曲目表 126→301、卷宗 10→26、年表 10→26、年代 3→7、精選 35→73，都是同一原因。
+     其餘渲染器用 innerHTML= 自己覆蓋，不必也不該先清。 */
+  var APPEND_HOSTS = [
+    'heroArt',
+    'figuresRow',
+    'marqueeTrack',
+    'dataFacts',
+    'gapPeak',
+    'chapters',
+    'catList',
+    'rackTrack',
+    'chronoList',
+    'erasList',
+    'wallGrid',
+    'picksList',
+    'ringsLegend'
+  ];
+  function resetHosts() {
+    APPEND_HOSTS.forEach(function (id) {
+      var n = document.getElementById(id);
+      if (n) n.textContent = '';
+    });
+    fanCards = [];
+    cards = [];
+    ringNodes = [];
+    legendNodes = [];
+    ringsLive = -1; /* 讓 setRingLive(0) 不被去重守衛擋掉 */
+    marqueeRoom = 0;
+  }
+
+  /* 就地換歌手：只換資料與畫面，**不動 <audio>**，所以換歌手時正在播的歌不會中斷。
+     先前是 location.href 整頁重載，播放當然停。 */
+  function applyArtist(id, opts) {
+    var next = DISCOGRAPHY && DISCOGRAPHY.artists[id];
+    if (!next || next === JC) return false;
+    opts = opts || {};
+    JC = next;
+    ALBUMS = JC.albums;
+    resetHosts();
+    renderAll();
+    applyArtistChrome();
+    setLang(lang);
+    observeReveals(document);
+    measureRack();
+    marqueePan();
+    /* 曲目表重建後，正在播的那一列要重新標成播放中；播放列的資訊保留
+       （那是正在播的歌，不因切歌手而清空） */
+    syncPlayingRows();
+    if (!opts.silent) {
+      try {
+        history.pushState({ a: id }, '', 'artist.html?a=' + encodeURIComponent(id));
+      } catch {
+        /* file:// 下部分瀏覽器會拒絕 pushState：忽略，畫面已切換 */
+      }
+    }
+    return true;
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

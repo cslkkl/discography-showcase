@@ -455,10 +455,31 @@ html.ld-booting .ht-line span {
   opacity: var(--fo, 1);
   transform:
     translate(-50%, -50%)
-    translate(var(--fx, 0%), var(--fy, 0%))
+    translate(calc(var(--fx, 0%) + var(--hx, 0%)), calc(var(--fy, 0%) + var(--hy, 0%)))
     rotate(var(--fr, 0deg))
-    scale(var(--fs, 1));
+    scale(calc(var(--fs, 1) * var(--hs, 1)));
 }
+/* ── 懸停避讓 ─────────────────────────────────────────────────────────────
+   滑鼠停在哪一張，那一張就放大跳出來、其他封面往外讓開，讓這張完整可見；
+   點擊才把該張翻到中央（點擊邏輯在 js/app.js）。
+   行內 style 的自訂屬性（--fx/--fs…）優先序高於樣式表，所以不動它們，
+   只用另外的 --hs（縮放乘數）與 --hx/--hy（額外位移）疊加。
+   **方向由 JS 給**：輪播是環形的，DOM 順序與視覺左右不一致
+   （最後幾張視覺上在左邊），純姊妹選擇器 `~` 會把左邊那兩張也往右推。
+   過渡不沿用入場那條 1.15s，改 200ms 上下（懸停回饋必須即時）。 */
+.fan-card {
+  transition: transform .2s var(--ease), opacity .2s var(--ease), box-shadow .2s var(--ease);
+}
+.fan-card.is-hover {
+  --hs: 1.14;
+  --hy: -3%;
+  z-index: 9;
+  box-shadow: 0 40px 92px rgba(0, 0, 0, .72), 0 0 0 2px var(--accent);
+}
+/* 中央那張本身就是主角：hover 只輕微放大，避免與「點它開專輯」的提示打架 */
+.fan-card.is-live.is-hover { --hs: 1.04; }
+/* 讓開的鄰居壓暗一點，視線集中在被 hover 那張 */
+.fan-card.is-yield { opacity: .66; }
 .fan-card img { width: 100%; height: 100%; object-fit: cover; }
 .fan-card::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
@@ -538,6 +559,10 @@ html.ld-booting .ht-line span {
 .sec-sub b { color: var(--paper-2); font-weight: 500; }
 
 /* ── 10. album rack ────────────────────────────────────────────────────── */
+/* 展櫃是「原生橫向捲動」的看片台，不是釘住換位移的滾動劫持。
+   先前桌面版把整段做成 sticky + 捲動換橫向位移，十張專輯要一萬多像素的捲動
+   預算才走得完，維護者反映「一定要把所有專輯翻完才能看下面」。
+   現在頁面照常往下走，專輯要橫向看再自己拖／按箭頭；手機版本來就是這做法。 */
 .rack { padding-top: var(--sect); }
 .rack-stage { position: relative; }
 
@@ -567,30 +592,44 @@ html.ld-booting .ht-line span {
 .cat-view .chrono-list,
 .cat-view .wall-grid { margin-top: 0; }
 .rack-pin {
-  position: sticky; top: 0;
-  height: 100svh;
-  display: flex; flex-direction: column; justify-content: center;
+  display: flex; flex-direction: column;
   gap: clamp(16px, 2.6vh, 34px);
-  /* `clip` rather than `hidden`: it clips the travelling track without turning
-     this node into a scroll container, which is what keeps `position: sticky`
-     compositing reliably. */
-  overflow: clip;
+  padding-bottom: clamp(10px, 1.6vh, 20px);
 }
+/* 橫向捲動的視窗：本體只滾 X，縱向留給頁面 */
+.rack-viewport {
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  /* 卡片貼齊要對齊的是「軌道左內距之後」，否則首卡的貼齊位置會落在內距上，
+     一進頁面就先被捲掉 72px，HUD 的兩端判定也跟著失真 */
+  scroll-padding-inline: var(--gutter);
+  /* 橫向到底不要串到上一頁手勢；縱向維持頁面自己捲，故不鎖 touch-action */
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+}
+.rack-viewport::-webkit-scrollbar { height: 0; }
+.rack-viewport.is-dragging { cursor: grabbing; }
+.rack-viewport.is-dragging .album-card { pointer-events: none; }
+.rack-viewport:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .rack-track {
   display: flex; align-items: flex-end;
   gap: clamp(18px, 2.6vw, 46px);
   padding: 0 var(--gutter);
+  width: max-content;
 }
 
 .album-card {
   flex: 0 0 auto;
   width: clamp(196px, 24vw, 322px);
-  opacity: .38;
-  filter: grayscale(.5) brightness(.72);
-  transform: scale(.95);
-  transition: opacity .7s var(--ease), filter .7s var(--ease), transform .7s var(--ease);
+  scroll-snap-align: start;
+  /* 橫向捲動後每張卡都在視野內進出，淡化改由「是否當前」以外的中性態呈現：
+     未選中的卡不再壓暗到幾乎看不見（那在捲動式展櫃裡是為了聚焦中央） */
+  opacity: .82;
+  transition: opacity .5s var(--ease), transform .5s var(--ease);
 }
-.album-card.is-live { opacity: 1; filter: none; transform: scale(1); }
+.album-card.is-live { opacity: 1; }
 
 .album-hit { display: block; width: 100%; text-align: left; }
 /* 展柜卡片上的试听入口：与「点封面看专辑」并列，不互相吞掉点击 */
@@ -656,7 +695,7 @@ html.ld-booting .ht-line span {
               rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 58%);
   transition: opacity .5s var(--ease);
 }
-.album-card.is-live .album-hit:hover .album-plate::after { opacity: 1; }
+.album-hit:hover .album-plate::after { opacity: 1; }
 
 .album-body { margin-top: 15px; }
 .album-name {
@@ -695,6 +734,19 @@ html.ld-booting .ht-line span {
   0%, 62%, 100% { transform: translateX(0); opacity: .55; }
   78% { transform: translateX(5px); opacity: 1; }
 }
+/* 橫向瀏覽的箭頭：桌機沒有觸控，這是拖曳以外最直接的翻法 */
+.rack-step {
+  width: 44px; height: 44px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid var(--line-2); color: var(--paper);
+  transition: border-color .18s var(--ease), color .18s var(--ease);
+}
+.rack-step .ico { width: 1.05rem; height: 1.05rem; }
+.rack-step.is-prev .ico { transform: scaleX(-1); }
+.rack-step:hover:not(:disabled), .rack-step:focus-visible {
+  border-color: var(--accent); color: var(--accent);
+}
+.rack-step:disabled { opacity: .3; cursor: default; }
 
 /* ── 11. chronology ────────────────────────────────────────────────────── */
 .chrono { padding: var(--sect) 0 0; }
@@ -1634,6 +1686,33 @@ html.ld-booting .ht-line span {
 .player.is-playing .pl-btn--main .pl-ico--pause { display: block; }
 /* only the secondary toggles (loop) take the accent when pressed */
 .pl-btn:not(.pl-btn--main)[aria-pressed="true"] { color: var(--accent); }
+
+/* ── 播放器圖示的懸停說明 ────────────────────────────────────────────────
+   這排圖示只有 aria-label，滑鼠移上去沒有任何說明（維護者反映「好歹說明一下」）。
+   用純 CSS 的提示，文字直接取 aria-label，所以翻譯與狀態變化都自動跟上，
+   不需要另一份文案。.player 是 fixed 且沒有 overflow 裁切，提示不會被切掉。 */
+.pl-btn[aria-label]::after {
+  content: attr(aria-label);
+  position: absolute; bottom: calc(100% + 9px); left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  padding: 5px 9px; border-radius: 6px;
+  background: var(--ink-2, #16161b); color: var(--paper);
+  border: 1px solid var(--line-2);
+  font-size: .75rem; letter-spacing: .06em; line-height: 1.3;
+  white-space: nowrap; pointer-events: none;
+  opacity: 0; transition: opacity .16s var(--ease), transform .16s var(--ease);
+}
+.pl-btn[aria-label]:hover::after,
+.pl-btn[aria-label]:focus-visible::after {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+/* 播放列貼在視窗底部，提示若貼齊左右邊緣會被裁掉：最左與最右兩顆改為往內對齊 */
+.pl-btns > .pl-btn:first-child[aria-label]::after { left: 0; transform: translateX(0) translateY(3px); }
+.pl-btns > .pl-btn:first-child[aria-label]:hover::after,
+.pl-btns > .pl-btn:first-child[aria-label]:focus-visible::after { transform: translateX(0) translateY(0); }
+.pl-btns > .pl-btn:last-child[aria-label]::after { left: auto; right: 0; transform: translateX(0) translateY(3px); }
+.pl-btns > .pl-btn:last-child[aria-label]:hover::after,
+.pl-btns > .pl-btn:last-child[aria-label]:focus-visible::after { transform: translateX(0) translateY(0); }
 .pl-btn[disabled] { opacity: .35; cursor: not-allowed; }
 .pl-btn[disabled]::before { display: none; }
 
@@ -1987,19 +2066,12 @@ html.has-lyrics .player { z-index: 95; }
   .rank-row { grid-template-columns: 1.9rem minmax(0, 1fr) 3.2rem; }
   .rk-album { display: none; }
 
-  /* rack becomes a native horizontal scroller: no hijack on touch */
-  .rack-stage { height: auto !important; }
-  .rack-pin { position: static; height: auto; overflow: visible; gap: 20px; }
-  .rack-track {
-    transform: none !important;
-    overflow-x: auto; overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    padding-bottom: 10px;
-    -webkit-overflow-scrolling: touch;
-  }
-  .album-card { scroll-snap-align: center; width: min(74vw, 300px); opacity: 1; filter: none; transform: none; }
+  /* 展櫃在窄屏：卡片縮到約 74vw，一次看一張；捲動視窗本身已是原生橫向捲動，
+     這裡只調卡片寬度與貼齊方式，不再需要覆寫定位 */
+  .rack-pin { gap: 20px; }
+  .album-card { scroll-snap-align: center; width: min(74vw, 300px); opacity: 1; }
   .rack-hint { display: none; }
-  .rack-rail i { position: sticky; }
+  .rack-step { display: none; }
 
   /* player: drop the artwork, stack the seek row under the title */
   .pl-inner {
@@ -2075,10 +2147,7 @@ html.has-lyrics .player { z-index: 95; }
   .rv { opacity: 1; transform: none; }
   .ht-line span { opacity: 1; transform: none; }
   .fan-card { opacity: 1; }
-  .rack-stage { height: auto !important; }
-  .rack-pin { position: static; height: auto; }
-  .rack-track { transform: none !important; overflow-x: auto; }
-  .album-card { opacity: 1; filter: none; transform: none; }
+  .album-card { opacity: 1; }
   .fan { transform: none !important; }
   /* 唱片架：位置切換立即完成，取消側轉與光暈過渡 */
   .ld-stage { perspective: none; }
