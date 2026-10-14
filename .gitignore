@@ -26,3 +26,5 @@ _data/local-lyrics.json
 # 外部参考副本（clone 进来的其他项目）绝不入库：
 # 它们自带 .git 与 node_modules，一旦 git add . 会把上千个文件塞进本站
 folia-major/
+# Playwright MCP 的臨時產物
+.playwright-mcp/
