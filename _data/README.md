@@ -9,7 +9,17 @@
 ### 生成器與伺服器
 
 - `build.mjs`：唯一生成器。遍歷 `artists/*`，讀各自的 `albums-raw.json` + `colors.json` +
-  `meta.mjs`，寫出 `js/data.js`（`window.DISCOGRAPHY`）。新增歌手不需要改這個檔案
+  `meta.mjs`（另有選填的 `credits.json`），寫出 `js/data.js`（`window.DISCOGRAPHY`）。
+  新增歌手不需要改這個檔案
+- `build.mjs` 的第二份產物（只有本機態）：除 `js/data.js` 外另生成
+  `js/lyrics/<專輯id>.js`，每個檔是一份歌詞 payload，供 `file://` 下以 `<script>` 讀取
+  （該協定下 XHR 與 fetch 都被 CORS 擋掉，只有 `<script>` 可行）。
+  公開建置會把整個 `js/lyrics/` 刪除，公開產物零歌詞；`js/lyrics/` 不進版本庫
+  （第三方版權歌詞文本，與 `assets/audio`、`local-lyrics.json` 同進出）
+- `extract-credits.mjs`：從歌詞 sidecar 的製作人員行抽出署名，寫出各歌手的
+  `artists/<id>/credits.json`。用法與規則見下
+- `fetch-s2t.mjs`：抓 OpenCC 的簡→繁字典，寫出 `_data/STCharacters.js`（抽取署名時
+  要把簡體來源轉成繁體，見下）。`--from <檔案>` 可用本機已有的字典檔，離線也能重建
 - `serve.mjs`：零依賴靜態伺服器，供本機預覽與自動化驗證；埠號由參數指定。
   支援 HTTP Range 與串流：本機音檔單曲可達 200 MB，整檔讀入會爆記憶體，
   且沒有 `accept-ranges` 時瀏覽器把音源視為不可尋址、進度條拖不動
@@ -38,9 +48,37 @@
 |---|---|---|
 | `albums-raw.json` | 事實 | 發行日、曲目、時長、封面鍵、試聽網址 |
 | `colors.json` | 事實 | 各封面平均色，供年輪上色 |
-| `meta.mjs` | 編輯層 | 歌手身份、每張專輯的標題與介紹、代表曲、年代分期、清洗規則 |
+| `credits.json` | 事實 | 逐曲署名（詞／曲／編曲／製作人與其他），由 `extract-credits.mjs` 生成 |
+| `meta.mjs` | 編輯層 | 歌手身份、每張專輯的標題與介紹、代表曲、年代分期、逐曲文案、清洗規則 |
 
 完整的新增步驟見 [artists/README.md](artists/README.md)。
+
+### 逐曲署名（`credits.json`）
+
+歌曲檔案要顯示作詞／作曲／編曲／製作人，但 Apple 目錄不提供署名，唯一的事實來源是
+sidecar `.lrc` 開頭那幾行的製作人員行（`词：徐若瑄`）。歌詞文本本身不進版本庫
+（第三方版權），署名是事實、可以入庫，所以由工具抽出來單獨保存：
+
+```
+node _data/local-audio.mjs --write        # 先登記 sidecar（或直接 npm run listen）
+node _data/extract-credits.mjs            # 只報告：掃描幾首、各角色覆蓋率
+node _data/extract-credits.mjs --write    # 寫出 artists/<id>/credits.json
+node _data/extract-credits.mjs --names    # 另列署名對照表（繁體化稽核用）
+```
+
+- 鍵與其他登記檔一致：`<專輯id>-<序號>`；只寫這首歌真的有的欄位
+- 一個時間戳底下常擠著兩三個角色（`词：方文山 作曲：林俊杰`），所以解析是
+  「找出所有角色標記、兩兩之間的文字歸前一個角色」，只認開頭那個標記會把半截算進去
+- 並列多名以 `/`、`、`、`,`、`&`、`+` 與**連兩個以上空白**切開；單一空白保留
+  （`Taylor Swift` 靠它），括號內的逗號也保留（母帶署名常帶 `(New York, NY)`）
+- 繁體化：來源是簡體，站點資料一律以繁體保存。只有單一候選的簡體字才自動轉，
+  多候選者保留原字（范／于／余／胡／朴在姓名裡就是本字），少數指名單位的署名寫在
+  工具內的 `NAME_FIX`（如 `周杰伦 → 周杰倫`、`钟兴民 → 鍾興民`）；OpenCC 會產出
+  台灣標準異體（峯／爲／啓），再由 `VARIANT_FIX` 歸一到本站慣用字形
+- 純事實、重跑冪等：同一批輸入重跑，7 份 `credits.json` 逐位元組相同
+- **沒有 sidecar 也能建置**：`credits.json` 是入庫的事實檔，`build.mjs` 讀它；
+  `local-lyrics.json` 不在時本工具只是不做事（印一行說明就結束）
+- 逐曲文案（`description`／`story`）不從這裡來，那要人手寫，住 `meta.mjs` 的 `songs`
 
 ### 抓取腳本（PowerShell，均接受 `-Artist` 參數）
 
@@ -54,6 +92,10 @@
 
 - `TSCharacters.js` / `TSPhrases.js`：OpenCC 的繁簡轉換表，被 `build.mjs` 讀入並內嵌。
   這是轉換引擎，與歌手無關，全站共用一份
+- `STCharacters.js`：同一份字典的**反方向**（簡→繁），由 `fetch-s2t.mjs` 抓成單行
+  序列化格式。它只在建構期抽取署名時用得到（來源 LRC 是簡體、站點資料是繁體），
+  所以不進 `js/data.js`，只留在 `_data/` 這一層。每個鍵的值可能有多個候選，
+  抽取工具靠候選數判斷「這個字有沒有歧義」
 
 ### 可選輸入：自有音檔
 
@@ -74,7 +116,9 @@
 
 同一個工具也會登記**歌詞**：與音檔同目錄、同序號或同名的 sidecar `.lrc`
 （例如 `assets/audio/jay2000/01 可愛女人.lrc`）會寫進 `_data/local-lyrics.json`，
-`build:local` 時逐曲寫成 `track.lyrics`。歌詞與音檔都不進版本庫。
+`build:local` 時逐曲寫成 `track.song.lyrics`（一個 `{ source, format }` 描述子；
+歌詞文本仍然不進 data.js）。歌詞與音檔都不進版本庫。
+`extract-credits.mjs` 也讀同一份登記檔，把製作人員行抽成入庫的署名。
 
 這份檔案由 `local-audio.mjs` 生成，不要手寫：
 
@@ -105,10 +149,17 @@ node _data/local-audio.mjs --artist <id> [--album <id>]   # 只處理其中一�
 ```
 fetch-previews.ps1 -Artist <id> ─┐
 extract-colors.ps1  -Artist <id> ─┼─→ artists/<id>/albums-raw.json + colors.json ─┐
+extract-credits.mjs（讀 sidecar）──┼─→ artists/<id>/credits.json ──────────────────┤
                                   │                                                ├─→ build.mjs ─→ js/data.js
 TSPhrases.js / TSCharacters.js ───┼────────────────────────────────────────────────┤
+STCharacters.js（簡→繁，只有抽取署名時用）─┘                                        │
 artists/<id>/meta.mjs（繁體編輯層）┘────────────────────────────────────────────────┘
 ```
+
+`js/data.js` 每首歌自帶一份 `song` 紀錄（見 [js/README.md](../js/README.md) 與
+[docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)）：事實來自 `albums-raw.json` 與
+`credits.json`，逐曲文案來自 `meta.mjs` 的 `songs`（鍵 `<專輯id>-<序號>`，
+打錯鍵 `build.mjs` 會直接報錯）。
 
 ## 變更影響路由
 
@@ -116,6 +167,10 @@ artists/<id>/meta.mjs（繁體編輯層）┘───────────�
 
 - `build.mjs` → `npm run build`，比對 `js/data.js` 差異是否符合預期，再跑站點 E2E
 - 任一 `meta.mjs` → `npm run build` + `npm run check:eol`
+  （新增或修改 `songs` 的逐曲文案時，鍵必須是既有的 `<專輯id>-<序號>`，否則建置會報錯）
+- `extract-credits.mjs` → 重跑兩次確認 `credits.json` 逐位元組相同（冪等），
+  再 `npm run build`；動到繁體化規則時另看 `--names` 的對照表
+- `fetch-s2t.mjs` → 重跑覆蓋 `STCharacters.js`，再重跑 `extract-credits.mjs --write`
 - 抓取腳本 → 帶 `-Artist` 重跑，確認對應歌手的兩個 json 未被意外改寫
 - `serve.mjs` → 重啟預覽伺服器並確認埠號與路徑對應
 
@@ -125,5 +180,13 @@ artists/<id>/meta.mjs（繁體編輯層）┘───────────�
 - iTunes 回傳日文新字體（説 / 啓 / 晩 / 涙），由歌手自己的 `meta.mjs` 補清洗規則
 - 抓 `gf.css` 後必須把字體路徑由 `../assets/fonts/` 改為 `./`，否則會 404
 - 專輯 id 同時是封面檔名，跨歌手必須唯一（慣例：歌手前綴 + 年份）
+- **署名不能靠編**：`credits.json` 只裝 sidecar 裡真的寫了的製作人員行。某首歌沒有
+  歌詞檔（公開倉庫就是這個狀態）就沒有署名，`song` 的四個署名欄位留空字串，
+  介面顯示「未收錄」——這是正確結果，不要為了填滿而推測
+- Node 的 `fetch` 不走系統代理，本機抓 OpenCC 字典可能 `ECONNRESET`；
+  改走 `fetch-s2t.mjs --from <本機檔案>`，或先用 PowerShell 下載（見檔案開頭用法）
+- 從 LRC 抽出的署名前後有雜訊：一個時間戳可能擠著多個角色、英文角色標籤（`Recorded
+  by`）、值裡帶錄音室與城市。解析要按角色標記切段、括號內不斷句，並且只收有值的行，
+  否則會混進 `词：方文山 作曲：林俊杰` 這種半截值
 
 使用約束見 [AGENTS.md](AGENTS.md)。

@@ -5,9 +5,14 @@
 _data/ 特有约束：
 
 - 本目录是可重建的输入层与工具层，不是站点的运行期资源；`index.html` 与 `artist.html` 不引用它
-- 事实与文案分离：事实进 `artists/<id>/albums-raw.json`，文案进 `artists/<id>/meta.mjs`；
-  `build.mjs` 不写任何事实
+- 事实与文案分离：事实进 `artists/<id>/albums-raw.json` + `colors.json` + `credits.json`，
+  文案进 `artists/<id>/meta.mjs`；`build.mjs` 不写任何事实
 - 新增歌手 = 新增 `artists/<id>/` 资料夹 + `npm run build`，不改 `build.mjs`
+- `credits.json` 是**可重建的事实**（`extract-credits.mjs` 从歌词 sidecar 的製作人員行抽出），
+  但它入库、不是 gitignored 的 sidecar：歌词文本与音档才是 sidecar。署名可以入库，
+  词曲作者是事实；**没有来源就留空**，不得凭印象补
+- 抽取/抓取类脚本必须幂等（同输入重跑逐位元组相同）；失败要报错而非静默跳过。
+  `node _data/extract-credits.mjs --write` 连跑两次的结果必须一致
 - `meta.mjs` 导出的 `id` 必须与资料夹同名，构建时会校验
 - 曲目序號 `n` 是站點內的鍵（音檔路徑、本機登記檔、播放定位都用「專輯id + n」），
   由 `build.mjs` 統一重編為**專輯內連續唯一**；**不得直接沿用目錄的 trackNumber**——

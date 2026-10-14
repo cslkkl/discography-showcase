@@ -24,6 +24,10 @@
 - **全屏歌詞**：自有音檔配上同目錄 `.lrc` 即可開全屏歌詞舞台，逐行呈現、逐字掃光，
   支援 `Esc` 退出與減少動效降級
 - **全屏專輯抽屜**：封面、發行資訊、編輯文字、完整曲目，支援前後翻專輯
+- **歌曲檔案**：點歌名開一份以「一首歌」為單位的檔案——專輯／年份／時長、唱片視覺、
+  創作資訊（曲序、發行、出版、長度、音源、歌詞有無、合作）與**署名**
+  （作詞／作曲／編曲／製作人，另有混音、母帶、吉他等其他署名），再往下是時代背景；
+  署名取自歌詞檔開頭那幾行的製作人員行（實測 1104 首裡 816 首有），沒有就留空
 - **無障礙**：全鍵盤可達、焦點環可見、抽屜焦點鎖定、減少動效降級、觸控目標 ≥ 44px
 - **離線可用**：封面、字體、腳本全部本地託管，斷網仍完整呈現
 
@@ -122,10 +126,11 @@ npm run build:local                        # 本機檔案優先，官方試聽�
 _data/artists/<歌手id>/
 ├── albums-raw.json   事實：發行日、曲目、時長、封面鍵、試聽網址
 ├── colors.json       事實：各封面平均色（由腳本生成）
-└── meta.mjs          唯一手寫層：身份、每張專輯的介紹、代表曲、年代分期、主題
+├── credits.json      事實：逐曲署名（有歌詞檔時由腳本抽取，可缺）
+└── meta.mjs          唯一手寫層：身份、每張專輯的介紹、代表曲、年代分期、主題、逐曲文案
 ```
 
-抓取與生成都有現成腳本，完整六步見
+抓取與生成都有現成腳本，完整步驟見
 [_data/artists/README.md](_data/artists/README.md)：
 
 ```powershell
@@ -133,6 +138,10 @@ node _data/fetch-artist.mjs --list  --itunes-id <歌手id> --country tw
 node _data/fetch-artist.mjs --fetch --itunes-id <歌手id> --artist <歌手id> --keys "<collectionId=鍵, ...>"
 powershell -File _data/make-responsive-covers.ps1
 powershell -File _data/extract-colors.ps1 -Artist <歌手id>
+# 有自有音檔與歌詞時，落盤後再抽署名：
+node _data/place-media.mjs --artist <歌手id> --from <來源目錄> --write
+node _data/local-audio.mjs --write
+node _data/extract-credits.mjs --artist <歌手id> --write
 # 然後手寫 meta.mjs，最後：
 npm run build
 ```

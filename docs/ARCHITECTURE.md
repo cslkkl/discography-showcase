@@ -105,6 +105,65 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 縱深由**每張卡自己的** `perspective(1400px)` 提供，不是祖先的 `perspective`
   （理由見「防錯清單」的透視命中條）
 
+### 歌曲檔案（Song Archive）
+
+點一首歌原本只有兩個結果：播放，或展開它所屬的專輯清單。歌本身沒有位置，
+想看清一首歌的處境（它在這張專輯裡的序位、時長與本輯的關係、音源型別、歌詞有無）
+只能自己在清單裡對照。這一層把「歌」升成與「專輯」「歌手」並列的入口。
+
+- 一首歌一份檔案：曲目總表的歌名鈕、抽屜曲目列的歌名鈕與代表曲（`.pick`）都指向
+  同一個出口 `openArchive(albumId, n)`，三條入口沒有各自的分支
+- 三層模態是疊出來的，不是互斥替換：抽屜（專輯）990、歌曲檔案（歌）1000、
+  歌詞舞台 1002、播放列 1005、提示條 1010。檔案開著時底層抽屜標 `aria-hidden="true"`，
+  免得兩個 `aria-modal` 同時被讀屏念到；`Esc` 的歸屬也隨之要排序（見防錯清單）
+- 「上一首／下一首」只在這張專輯內走，到端各自 `disabled`
+- 換歌手時檔案就地收起：檔案是「某一位歌手的某一首歌」，
+  留著會讓內容與播放列分屬兩位歌手
+
+**資料模型**：這一層最初只用既有欄位就撐了起來——曲目層的
+`n`／`disc`／`zh`／`sec`／`len`／`sig`／`audio`／`preview`／`local`／`lyrics`
+加上專輯層的 `title`／`year`／`date`／`publisher`／`blurb`／`theme`／`sourceAvg`。
+其後同一天加入了每首歌自帶的 `song` 紀錄（`id` `no` `title` `artist` `album`
+`albumId` `year` `duration` `durationSec` `cover`，四個署名欄位 `lyricist`
+`composer` `arranger` `producer` 恆存在、空字串表示未收錄，選填
+`credits`／`description`／`story`／`tags`／`lyrics`）：署名由
+`_data/extract-credits.mjs` 從歌詞 sidecar 的製作人員行抽出入庫於
+`artists/<id>/credits.json`，逐曲文案來自 `meta.mjs` 的 `songs`。未收錄的欄位
+不寫進產物（沿用 `track.lyrics` 的做法），所以公開產物仍然逐位元組不含歌詞欄位。
+
+`app.js` 讀這份紀錄一律經過 `songOf(a, t)`：`t.song` 存在就直接用，
+不存在就由曲目與專輯就地補出同樣的形狀。HTML 更新而 JS 還是快取的舊版
+（或資料與腳本來自不同世代）時，畫面與從前一致，不會因為多讀一個不存在的
+欄位而整塊空白——這是這一層唯一的相容性承諾。
+
+**不編造文案**：署名一律來自歌詞 sidecar 的製作人員行（有就寫、沒有就留空），
+逐曲文案只由編輯層 `meta.mjs` 手寫；其餘創作資訊由既有欄位推導（曲序、時長與
+本輯平均的差、音源型別、歌詞有無、代表曲、合作者從歌名裡的 `(feat. …)` /
+`(with …)` 抽、專輯發行與出版、專輯說明）。沒有一項是為了這層新算的統計量。
+
+### 歌曲狀態列（Mini Song Bar）
+
+捲到頁面中段時，「現在讀的是哪一首」只存在於剛才點過的那一列與（若有播放的）
+播放列裡；列一離開視窗就沒有參照。這一層把「當前這一首」升成貼在頁面底部的常駐狀態。
+
+- 它是**狀態**，不是播放器：只有歌名／歌手／專輯／年份與一個歌詞入口，
+  沒有任何播放控制（播放歸播放列）。它的目的不是操作，是讓使用者知道自己拿著哪一張卡
+- 顯示時機是「使用者點了一首歌」，兩條路徑收斂到同一個出口 `msbFocus(albumId, n)`：
+  點歌名／代表曲開檔案（`openArchive` 內）與按下播放（`plLoad` 內）。事件層不各判一次，
+  所以曲目總表、抽屜、代表曲、年輪讀數、隨機試聽都自動跟上
+- 卡片記的是「上一次被點開或被播放的那一首」（`msbRef`）。收起只有三條：
+  關掉播放列（當前曲目清空）、就地換歌手而那一首不是正在播的、以及這頁沒有這個節點。
+  關掉歌曲檔案**不**收起——它屬於頁面層，不是模態的一部分
+- 層級：`z-index: 985`，高於顆粒（900）與版面內容，低於抽屜（990）以上的每一層模態；
+  它是刻意不進模態堆疊的，模態開著時被蓋掉，不與模態搶版面。播放列（1005）在它之上，
+  有播放列時它整張往上讓開
+- 動效是類別驅動的兩階段狀態機（與主視覺換片同一套寫法）：出現是 `.6s` 淡入，
+  換歌是 `is-swapping`（舊卡 .36s 往上退）→ 換內容 → `is-entering`（新卡 .36s 從下面進來），
+  合計約 720ms。需求給的區間是 500–800ms，所以兩段 easing 用 `--ease-2`：
+  站點慣用的 `--ease` 在 30% 就走完 95%（實測淡入 181ms 就到位），那是「快速彈出」
+- 讓位靠 `body.has-msb`／`html.has-msb` 兩個類別（底部內距與 `scroll-padding-bottom`），
+  數字對齊卡片的實測高度（桌面 62px、390px 59px）與播放列實測高度（`--pl-h`）
+
 ## 防錯清單
 
 改動時逐條確認。
@@ -143,6 +202,23 @@ _data/artists/<id>/meta.mjs ─────────┘                      
   指左側往左推，移出後回到捲動決定的位置；幅度取內容可位移量的 34%（上限 150px），
   窄清單不會被一次推到底
 - `service` 生成的網址在 `file://` 下也須可用，不得依賴伺服器
+- 模態疊模態要先解決 `Esc` 的歸屬：歌曲檔案與歌詞舞台都用 capture 階段的
+  `document` keydown 加 `stopPropagation`，且**檔案的處理器必須先註冊**
+  （`bindArchive()` 在 `initAudio()` 之前），舞台開著時檔案整支讓路。
+  順序反了會兩層同時反應或同時不動
+- 收尾計時器的守衛不能用「現在還開著嗎」判斷：檔案要等收尾才設 `hidden`，
+  守衛用 `saOpen()` 會恆為真，收尾永遠提早 return、檔案再也收不掉。用序號 `saSeq`
+- 淡出途中重開必須補回可見類：過場還在跑時重開，少了 `is-open` 會讓內容換好
+  卻停在透明態（最難察覺的一種壞法）
+- 固定層（播放列）會蓋住模態底部的就地說明，模態要有相應的底部留白
+  （`body.has-player` 下的 `.sa-inner`）
+
+- 同一個 frame 內加類又移類不會產生樣式重算：換歌的進場態要**兩次 rAF**
+  （一次讓它畫、一次才移除），否則 `transition: none` 的起始態從未成立，
+  新內容會從上一階段的結束值浮回來（實測 −5.86px → 0，而不是從下面進來）
+- 固定層的讓位要用**實測高度**，不要沿用先前為它算的數字：24 節為播放列留 78px／92px，
+  而實測是 74px／99px；狀態列的 `--msb-b` 與底部內距都改讀 `--pl-h`，
+  照舊數字寫會讓卡片被播放列蓋住一半（連「查看歌詞」的真實點擊都會被攔截）
 
 ## 主題分層
 
@@ -246,12 +322,24 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 
 ## 契約
 
-- `window.DISCOGRAPHY` 的欄位即檢視層契約：`toSimplified` / `order` / `artists`
+- `window.DISCOGRAPHY` 的欄位即檢視層契約：`toSimplified` / `order` / `schema` / `artists`
+- `schema` 是歌曲檔案資料模型的契約宣告（`version` / `required` / `optional` /
+  `lyricsLine` / `lyricsInline`）。它是產物自己帶的說明書：要判斷欄位形狀時讀它，
+  不必靠猜；日後若要遷移，版本號在這裡
 - 每個歌手展示集的欄位：身份（`id` `name` `en` `seal` `tagline` `taglineEn` `intro`）、
   主題（`theme: { accent, accentOn, motif, heroTitle }`）、
-  事實衍生（`albums` `tracks` `eras` `collaborators` `longest` `shortest` `growth` `gaps`
-  `signature` `distribution` `stats`）、外觀（`heroFan` `covers` `tint`）、`toSimplified`
-- 曲目欄位：`n` / `disc` / `zh` / `sec` / `len` / `sig` / `audio` / `preview` / `local`
+  事實衍生（`albums` `tracks` `eras` `timeline` `collaborators` `longest` `shortest`
+  `growth` `gaps` `signature` `distribution` `stats`）、外觀（`heroFan` `covers` `tint`）、
+  `toSimplified`
+- `timeline` 是「某一年發行了哪些作品」的索引：
+  `[{ year, count, albums: [專輯id], songs: [song.id] }]`，依年份遞增。
+  它回答的是「某年的作品」這種查詢，不必讓消費端自己掃 `albums`
+- 曲目欄位：`n` / `disc` / `zh` / `sec` / `len` / `sig` / `audio` / `preview` / `local`，
+  加上每首歌自帶的 `song` 紀錄（見「設計決策 → 歌曲檔案」）；`song` 是選填，
+  舊資料沒有它時 `app.js` 的 `songOf()` 會就地補出同樣的形狀。
+  `lyrics` 仍是 `build:local` 專屬，公開產物逐位元組不含
+- 歌詞行的形狀：`{ time, text, end }`（秒 / 該行文字 / 該行結束時間），
+  由 `js/lyrics.js` 的 `parseLrc()` 產出，也是 `schema.lyricsLine` 宣告的內容
 - 專輯欄位：`id` / `idx` / `no` / `title` / `alt` / `en` / `year` / `dateISO` / `date` /
   `publisher` / `trackCount` / `runtime` / `runtimeSec` / `cover` / `blurb` / `tint` /
   `sourceAvg` / `theme` / `tracks`
