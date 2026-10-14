@@ -279,44 +279,117 @@
   }
 
   /* ── hero fan ───────────────────────────────────────────────────────── */
-  function renderFan() {
-    var host = $('#heroArt');
-    if (!host) return;
-    var covers = JC.covers;
-    var spec = [
-      { r: -13, x: -56, y: 8, s: 0.72, z: 1, o: 0.44 },
-      { r: -6.5, x: -29, y: 3, s: 0.85, z: 2, o: 0.78 },
-      { r: 0, x: 0, y: 0, s: 1, z: 6, o: 1 },
-      { r: 6.5, x: 29, y: 3, s: 0.85, z: 2, o: 0.78 },
-      { r: 13, x: 56, y: 8, s: 0.72, z: 1, o: 0.44 }
-    ];
-    var fan = el('div', 'fan');
-    covers.forEach(function (c, i) {
-      var sp = spec[i];
-      if (!sp) return;
-      var card = el('div', 'fan-card');
+  /* 主視覺是一台可以左右翻的專輯輪播：中央那張是「當前專輯」，
+     點兩側的封面把它翻到中間，點中央那張則打開該張專輯的抽屜。
+     先前這裡只放 `JC.covers` 精選的五張、且 aria-hidden，純裝飾、不可操作；
+     維護者要求「旁邊的專輯也該能左右翻」，於是改成走完 ALBUMS 的環形輪播。
+
+     位置表按「相對當前專輯的位移」給，與入口頁唱片架的資料模型一致：
+     |off| <= 2 留在台上，其餘不掛圖、不收焦點。 */
+  var FAN_SPEC = {
+    '-2': { r: -13, x: -56, y: 8, s: 0.72, z: 1, o: 0.44 },
+    '-1': { r: -6.5, x: -29, y: 3, s: 0.85, z: 2, o: 0.78 },
+    0: { r: 0, x: 0, y: 0, s: 1, z: 6, o: 1 },
+    1: { r: 6.5, x: 29, y: 3, s: 0.85, z: 2, o: 0.78 },
+    2: { r: 13, x: 56, y: 8, s: 0.72, z: 1, o: 0.44 }
+  };
+  var fanIdx = 0;
+  var fanCards = [];
+
+  function fanOffset(i) {
+    var n = ALBUMS.length;
+    var off = (((i - fanIdx) % n) + n) % n;
+    if (off * 2 > n) off -= n;
+    return off;
+  }
+
+  function fanPaint() {
+    fanCards.forEach(function (card, i) {
+      var off = fanOffset(i);
+      var sp = FAN_SPEC[String(off)];
+      var on = !!sp;
+      var a = ALBUMS[i];
+      card.hidden = !on;
+      card.tabIndex = on ? 0 : -1;
+      if (!on) {
+        /* 台上的圖才需要下載：十六張專輯全掛 src 會一次抓完 */
+        card.querySelector('img').removeAttribute('src');
+        card.querySelector('img').removeAttribute('srcset');
+        return;
+      }
+      var img = card.querySelector('img');
+      if (!img.getAttribute('src')) {
+        img.src = a.cover;
+        img.srcset = srcset(a);
+      }
       card.style.setProperty('--fx', sp.x + '%');
       card.style.setProperty('--fy', sp.y + '%');
       card.style.setProperty('--fr', sp.r + 'deg');
       card.style.setProperty('--fs', sp.s);
       card.style.setProperty('--fo', sp.o);
       card.style.setProperty('--z', sp.z);
+      var center = off === 0;
+      card.className = 'fan-card' + (center ? ' is-live' : '');
+      dropAttr(card, 'aria-label');
+      card.setAttribute('aria-label', center ? a.title + '，開啟專輯' : a.title + '，' + a.year);
+      /* 中央那張要進專輯，其餘是把它翻過來 */
+      card.setAttribute('aria-current', center ? 'true' : 'false');
+    });
+  }
+
+  function fanGo(delta) {
+    var n = ALBUMS.length;
+    if (!n) return;
+    fanIdx = (((fanIdx + delta) % n) + n) % n;
+    fanPaint();
+  }
+
+  function renderFan() {
+    var host = $('#heroArt');
+    if (!host) return;
+    var fan = el('div', 'fan');
+    fan.setAttribute('role', 'group');
+    fan.setAttribute('aria-label', '專輯封面，左右翻閱，點中央開啟');
+    ALBUMS.forEach(function (a, i) {
+      var card = el('button', 'fan-card');
+      card.type = 'button';
       card.style.setProperty('--i', i);
       var img = el('img');
-      img.src = c.cover;
-      var a = ALBUMS.filter(function (x) {
-        return x.id === c.id;
-      })[0];
-      if (!a) return;
-      img.srcset = srcset(a);
-      img.sizes = '(max-width: 1100px) 46vw, 30vw';
-      img.alt = a.title + ' 專輯封面';
+      img.alt = '';
       img.decoding = 'async';
-      if (i === 2) img.setAttribute('fetchpriority', 'high');
+      img.loading = i === 0 ? 'eager' : 'lazy';
       card.appendChild(img);
+      card.addEventListener('click', function () {
+        var off = fanOffset(i);
+        if (off === 0) openSheet(a.id);
+        else fanGo(off);
+      });
       fan.appendChild(card);
+      fanCards.push(card);
     });
     host.appendChild(fan);
+    host.removeAttribute('aria-hidden');
+    fanIdx = 0;
+    fanPaint();
+
+    /* 鍵盤：方向鍵翻，Home／End 到首尾；事件只掛在這一組上，不在整份文件攔截 */
+    fan.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        fanGo(-1);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        fanGo(1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        fanIdx = 0;
+        fanPaint();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        fanIdx = ALBUMS.length - 1;
+        fanPaint();
+      }
+    });
 
     // pointer parallax, driven straight off a custom property in a rAF loop
     var host2 = host;

@@ -431,8 +431,10 @@ html.ld-booting .ht-line span {
 .fan-card {
   position: absolute; top: 50%; left: 50%;
   width: 54%; aspect-ratio: 1 / 1;
+  padding: 0; border: 0; background: none;
   border-radius: var(--r);
   overflow: hidden;
+  cursor: pointer;
   z-index: var(--z, 1);
   opacity: 0;
   transform: translate(-50%, -50%) rotate(0deg) scale(.86);
@@ -440,6 +442,15 @@ html.ld-booting .ht-line span {
   transition: opacity 1s var(--ease), transform 1.15s var(--ease);
   transition-delay: calc(var(--i, 0) * 95ms + 240ms);
 }
+/* 主視覺是專輯輪播：兩側的封面翻到中央，中央那張開啟該張專輯。
+   懸停回饋要短，不能沿用入場那條 1.15s 的過渡，否則滑鼠上去要等很久才有反應。 */
+.fan-card:hover,
+.fan-card:focus-visible {
+  transition-delay: 0ms;
+  box-shadow: 0 34px 82px rgba(0, 0, 0, .64), 0 0 0 2px var(--accent);
+}
+.fan-card:focus-visible { outline: none; }
+.fan-card[hidden] { display: none; }
 .is-ready .fan-card {
   opacity: var(--fo, 1);
   transform:

@@ -13,7 +13,9 @@
 - 每個展示集含原「歌手全集」的 `albums` / `tracks` / `eras` / `collaborators` /
   `longest` / `shortest` / `growth` / `gaps` / `signature` / `distribution` / `stats` /
   `toSimplified`，另加身份欄位 `id` / `name` / `en` / `seal` / `tagline` /
-  `taglineEn` / `intro` / `heroFan` / `covers` / `tint`
+  `taglineEn` / `intro` / `heroFan` / `covers` / `tint`。
+  `heroFan`／`covers` 是早期「精選五張封面」的裝飾用資料，主視覺改成走完 `albums`
+  的輪播後已無人取用，保留是為了不破壞資料契約；新渲染不要再依賴它們
 - 內嵌 OpenCC 的 `TSPhrases` 與 `TSCharacters` 供 `toSimplified()` 使用
 - 改這裡的欄位等於改檢視層契約，須同步 [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
 
@@ -35,7 +37,8 @@
 | 繁簡 | `walkText` `walkEl` `localize` `setLang` |
 | 建構工具 | `el` `esc` `srcset` `frag` `iconPaths` `playBtn` |
 | 開場 | `runBoot` `finishBoot` |
-| 各展示面 | `renderFan` `renderFigures` `renderMarquee` `renderRings` `renderRack` `renderChrono` `renderEras` `renderWall` `renderGrowth` `renderGaps` `renderBars` `renderFacts` `renderRanks` `renderCollab` `renderPicks` |
+| 主視覺輪播 | `renderFan` `fanPaint` `fanGo` `fanOffset`（走完 `albums`，點兩側翻、點中央開抽屜、方向鍵／Home／End） |
+| 各展示面 | `renderFigures` `renderMarquee` `renderRings` `renderRack` `renderChrono` `renderEras` `renderWall` `renderGrowth` `renderGaps` `renderBars` `renderFacts` `renderRanks` `renderCollab` `renderPicks` |
 | 曲目總表 | `buildIndex` `renderCat` `renderCatBase` |
 | 抽屜 | `openSheet` `closeSheet` `stepSheet` `trapFocus` |
 | 播放 | `trackOf` `syncPlayingRows` `plPaint` `plLoad` `plSelect` `plStep` `plClose` `setMediaSession` `initAudio` `syncRangeFill` |
