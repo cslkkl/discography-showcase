@@ -23,6 +23,10 @@ assets/audio/
 _data/local-audio.json
 _data/local-lyrics.json
 
+# place-media.mjs 落盘时用 --report 写出的报告：内含本机绝对路径
+# （例如 C:\Users\<你>\Desktop\音源\<歌手>），同属只留本机的 sidecar
+_data/_*-report.json
+
 # 外部参考副本（clone 进来的其他项目）绝不入库：
 # 它们自带 .git 与 node_modules，一旦 git add . 会把上千个文件塞进本站
 folia-major/

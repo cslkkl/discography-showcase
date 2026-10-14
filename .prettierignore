@@ -19,6 +19,10 @@ _data/albums-raw.json
 _data/colors.json
 _data/artists/*/colors.json
 _data/artists/*/albums-raw.json
+# place-media.mjs --report 的落盤報告：機器產生的 JSON，不經人手，
+# 而且它沒有結尾換行（writeFileSync 直接寫 JSON.stringify），
+# Prettier 會想補一個換行——那會讓每次跑完 fall 落盤都被判格式不合
+_data/_*-report.json
 
 # ── 刻意保留手写排版的文档层 ────────────────────────────────────────────
 # css/style.css 与 index.html 采用紧凑分组写法（一行放多个相关属性），

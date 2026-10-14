@@ -8,6 +8,7 @@
  *    1. 從 js/data.js 讀該歌手的專輯與曲目（權威來源，不另建清單）
  *    2. 掃描來源目錄（遞迴）的音檔與 sidecar .lrc
  *    3. 依「檔名序號 → 曲名」對應曲目；檔名沒有序號時用曲名比對
+ *       同名多曲按括號版本限定詞分層（檔名寫了 (鋼琴版) 就不填〈沙灘 (Acappella Version)〉）
  *    4. 用 FLAC 檔頭時長交叉驗證，把重名與多專輯的歧義解掉
  *    5. 硬連結到 assets/audio/<專輯id>/<兩位序號> <曲名>.<副檔名>
  *       （同卷硬連結，不佔額外空間；刪任一邊資料都還在）
@@ -79,6 +80,25 @@ function norm(s) {
     /* 轉換表不可用時退回原樣 */
   }
   return t;
+}
+/* 括號裡的版本限定詞：(鋼琴版) / (Acappella Version) / (feat. 盧廣仲) / (Demo Version)。
+   同名不同版不得互相冒充：來源檔名寫了「鋼琴版」，就不該去填〈沙灘 (Acappella Version)〉。
+   那三個槽位的目錄時長彼此相差不到 2.3 秒，鋼琴版檔實測 231.4 秒與它們也只差 0 到 1.7 秒，
+   全在 3 秒容差內，時長校驗分不出來；實測源目錄就是這樣把 Acappella 與 Guitar 兩版
+   都填成了鋼琴版（同名不同版共用同一個檔的錯，正是這支工具最該防的事）。
+   回傳正規化後的限定詞集合，供「同層比較」使用。 */
+function qualifiers(s) {
+  const out = new Set();
+  for (const m of String(s).matchAll(/[（(]([^）)]*)[）)]/g)) {
+    const q = norm(m[1]);
+    if (q) out.add(q);
+  }
+  return out;
+}
+function sameQualifiers(a, b) {
+  if (a.size !== b.size) return false;
+  for (const q of a) if (!b.has(q)) return false;
+  return true;
 }
 function distance(a, b) {
   const m = a.length;
@@ -237,6 +257,20 @@ for (const file of audioFiles) {
     cands = [aliasEntry.track];
     how = 'alias';
     if (aliasEntry.acceptDurationDiff) secAcceptable.add(file);
+  }
+  /* 同名多曲按「版本限定詞」分層，但**只在來源檔名自己帶了限定詞時**才分層：
+     來源寫了 (鋼琴版) 就只准填〈沙灘 (鋼琴版)〉，不得冒充 Acappella／Guitar
+     （三版的目錄時長彼此相差不到 2.3 秒，而鋼琴版檔實測 231.4 秒與那三個槽位
+     只差 0 到 1.7 秒，全在 3 秒容差內，時長校驗分辨不出；正規化又把小括號整段拿掉，
+     四個版本共用同一個鍵，不先分層就是誰先掃到誰贏）。
+     來源沒帶限定詞時維持全部候選、行為與從前相同：專輯目錄裡同一份錄音常有兩個條目
+     （Taylor Swift 的〈Mine〉與〈Mine (US Version)〉、薛之謙的〈方圓幾里〉與〈方圓幾里 (吉他版)〉），
+     硬做精確分層會把本來填得上的槽位判成缺（實測踩過，兩邊都掉一首整曲）。
+     一層都沒精確命中時同樣維持全部候選，交給時長校驗與共用槽位二次校驗。 */
+  const q = qualifiers(base);
+  if (!aliasEntry && cands.length > 1 && q.size) {
+    const exact = cands.filter((c) => sameQualifiers(q, qualifiers(c.zh)));
+    if (exact.length) cands = exact;
   }
   if (!cands.length) {
     const near = tracks.filter((t) => t.key.length >= 4 && distance(t.key, key) <= 1);
@@ -425,7 +459,17 @@ function variantScore(name) {
 const EXT_RANK = { '.flac': 0, '.wav': 1, '.m4a': 2, '.aac': 3, '.mp3': 4, '.ogg': 5, '.opus': 6 };
 const taken = new Map();
 const finalPlan = [];
+/* 同一個槽位有多個檔競爭時，**括號限定詞與該槽完全一致的那個檔優先**。
+   例：tao2003#22〈普通朋友 (with Bruce Watson)〉同時被 `普通朋友.mp3`（無限定詞，
+   而 MP3 量不到時長、逐槽時長校驗攔不住）與 `普通朋友 (with Bruce Watson).mp3` 命中。
+   不比限定詞就會由檔名較短的前者搶走，真正的那一版反倒沒被用上。
+   排在版本分數與副檔名之前：它是「這一版對不對」的問題，不是「這版好不好」的問題。 */
+const qualifierMatch = (p) =>
+  sameQualifiers(qualifiers(path.basename(p.file)), qualifiers(p.pick.zh)) ? 0 : 1;
 const sorted = plan.slice().sort((a, b) => {
+  const qa = qualifierMatch(a);
+  const qb = qualifierMatch(b);
+  if (qa !== qb) return qa - qb;
   const va = variantScore(path.basename(a.file));
   const vb = variantScore(path.basename(b.file));
   if (va !== vb) return va - vb;

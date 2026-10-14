@@ -21,6 +21,11 @@
     它設有安全上限：候選超過 20 個或超過保留數的四分之一就中止並以非零退出
   - 同一首若先落了卡拉OK版／伴奏版會被版本分數擋下；時長差超過 5 秒的檔拒絕落盤，
     3 到 5 秒之間視為母帶差異，接受但記錄
+  - 同名多曲先按括號版本限定詞分層：〈沙灘 (鋼琴版)〉不會去填〈沙灘 (Acappella Version)〉
+    或〈沙灘 (Guitar Version)〉。`norm()` 把小括號整段拿掉，同名不同版本來共用一個鍵，
+    而這幾個版本的時長只差 0.6 至 2.3 秒（容差 3 秒），光靠時長擋不住。
+    分層只在**來源檔名自己帶了限定詞**時生效，來源沒帶限定詞時維持原行為，
+    所以「同一份錄音在目錄裡的兩個條目」（如〈Mine〉與〈Mine (US Version)〉）不會被誤判成缺
   - 標題對不上時可用 `meta.mjs` 的 `audioAlias` 人工對應：
     `{ Mascara: '煙燻妝' }`，或 `{ 圣所: { zh: '聖所', acceptDurationDiff: true } }`。
     這是人的判斷，所以住在編輯層；只有 `place-media.mjs` 讀它，`js/data.js` 不含此欄位
@@ -63,6 +68,9 @@
 **注意**：跑一次 `npm run build` 就會讓全部曲目退回官方 30 秒試聽（本機音檔被略過），
 已發生過一次「昨天還能整首播、今天只剩 30 秒」的誤會。自己聽歌請用 `npm run listen`，
 它等於 `local-audio.mjs --write` 加 `build.mjs --local`。
+`npm run pack` 有同樣的副作用：它打包前會先跑一次不帶 `--local` 的 `build.mjs`，
+所以打包完 `js/data.js` 也變回公開態（實測本機態 721,213 bytes 被打成公開態 811,302 bytes），
+要恢復本機整首播放得再跑一次 `npm run listen`。
 
 同一個工具也會登記**歌詞**：與音檔同目錄、同序號或同名的 sidecar `.lrc`
 （例如 `assets/audio/jay2000/01 可愛女人.lrc`）會寫進 `_data/local-lyrics.json`，
