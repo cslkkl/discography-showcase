@@ -14,8 +14,9 @@
   `longest` / `shortest` / `growth` / `gaps` / `signature` / `distribution` / `stats` /
   `toSimplified`，另加身份欄位 `id` / `name` / `en` / `seal` / `tagline` /
   `taglineEn` / `intro` / `heroFan` / `covers` / `tint`。
-  `heroFan`／`covers` 是早期「精選五張封面」的裝飾用資料，主視覺改成走完 `albums`
-  的輪播後已無人取用，保留是為了不破壞資料契約；新渲染不要再依賴它們
+  `covers` 仍在使用中：入口頁 `landing.js` 取每位歌手 `covers` 前三張組成封面組；
+  `heroFan` 只在歌手頁主視覺還是「精選五張」時用過，改成走完 `albums` 的輪播後
+  已無取用者（保留是為了不改資料契約，新渲染不要再依賴它）
 - 內嵌 OpenCC 的 `TSPhrases` 與 `TSCharacters` 供 `toSimplified()` 使用
 - 改這裡的欄位等於改檢視層契約，須同步 [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md)
 
@@ -27,7 +28,8 @@
 - 頁面上所有會寫出歌手名字的槽位（標題、描述、印章、品牌副題、主視覺眉題與首行、
   MediaSession 的 artist）一律由 `applyArtistChrome()` 從資料填充
 - 歌手切換器：`bindArtistSwitch()` 由 `DISCOGRAPHY.order` 生成選單，當前歌手打勾，
-  選單尾附「所有歌手」回入口；點外關閉、`Esc` 關閉
+  選單尾附「所有歌手」回入口；點外關閉、`Esc` 關閉。
+  點歌手項目是**就地換資料**（`applyArtist`），不整頁導航，所以正在播的歌不中斷
 
 主要函式分組：
 
@@ -37,14 +39,24 @@
 | 繁簡 | `walkText` `walkEl` `localize` `setLang` |
 | 建構工具 | `el` `esc` `srcset` `frag` `iconPaths` `playBtn` |
 | 開場 | `runBoot` `finishBoot` |
-| 主視覺輪播 | `renderFan` `fanPaint` `fanGo` `fanOffset`（走完 `albums`，點兩側翻、點中央開抽屜、方向鍵／Home／End） |
-| 各展示面 | `renderFigures` `renderMarquee` `renderRings` `renderRack` `renderChrono` `renderEras` `renderWall` `renderGrowth` `renderGaps` `renderBars` `renderFacts` `renderRanks` `renderCollab` `renderPicks` |
+| 主視覺輪播 | `renderFan` `fanPaint` `fanGo` `fanOffset` `fanHover`（走完 `albums`，點兩側翻、點中央開抽屜、方向鍵／Home／End；懸停或聚焦時該張跳出來、其餘照視覺方向讓開） |
+| 各展示面 | `renderAll` `resetHosts` `renderFigures` `renderMarquee` `renderRings` `renderRack` `renderChrono` `renderEras` `renderWall` `renderGrowth` `renderGaps` `renderBars` `renderFacts` `renderRanks` `renderCollab` `renderPicks` `renderChapters` |
+| 展櫃捲動 | `measureRack` `paintRackFromScroll` `rackStepBy`（原生橫向捲動；拖曳、左右箭頭、←→／Home／End 共用一條路徑） |
 | 曲目總表 | `buildIndex` `renderCat` `renderCatBase` |
 | 抽屜 | `openSheet` `closeSheet` `stepSheet` `trapFocus` |
 | 播放 | `trackOf` `syncPlayingRows` `plPaint` `plLoad` `plSelect` `plStep` `plClose` `setMediaSession` `initAudio` `syncRangeFill` |
-| 歌手外觀 | `applyArtistChrome` `bindArtistSwitch` |
+| 歌手外觀 | `applyArtistChrome` `bindArtistSwitch` `applyArtist` |
 | 揭示 | `observeReveals` |
 | 其他 | `toast` `magnetize` `bindChrome` `bind` `init` |
+
+就地在歌手間切換：
+
+- `init()` 與 `applyArtist(id)` 共用 `renderAll()`，不各留一份渲染清單
+- `applyArtist()` 先 `resetHosts()` 再重繪，最後 `syncPlayingRows()` 重新標記正在播的那列；
+  `<audio>` 不重建，所以換歌手時播放不中斷
+- `resetHosts()` 清的是 `appendChild` 型宿主（`APPEND_HOSTS`）與模組級 `index`／`fanCards`／
+  `cards`／`ringNodes`／`legendNodes`／`ringsLive`；`buildIndex()` 自己也清 `index`
+- 換歌手用 `history.pushState` 更新 `?a=`，`popstate` 就地套用，不觸發整頁導航
 
 ### `lyrics.js`（歌手頁全屏歌詞，手寫，IIFE，無依賴）
 
@@ -89,6 +101,13 @@
 
 - `data.js` 或其欄位 → `npm run build`，再跑站點 E2E
 - `app.js` 任何渲染函式 → `npm run lint` + 站點 E2E（結構計數 20 項）
+- 換歌手 / `applyArtist` / `resetHosts` → 額外實測：連切多位再切回首位後，
+  曲目表、卷宗、年表、年代、封面牆、精選、年輪圖例的數量皆為該歌手正確值且零累積；
+  `#plAudio` 未重建、`paused` 恆為 false、`currentTime` 持續增加；上一頁／下一頁正確
+- 主視覺輪播 / `fanHover` → 額外實測：懸停最右與最左那張時，其餘卡片往同側讓開、
+  被指那張放大、移出即精確回位；鍵盤聚焦同效
+- 展櫃 → 額外實測（**先點「展櫃」分頁再量**）：`scrollWidth > clientWidth`、
+  箭頭各捲一張且到端 disabled、拖曳可捲、拖曳不誤開抽屜、←→／Home／End、HUD 編號與進度條
 - 跑馬燈 → 額外實測：捲動時隨之平移；指標在帶子右半整條往右推、左半往左推，
   移出後回位；`hover: none` 與 `prefers-reduced-motion` 下不做指標平移
 - `lyrics.js` 或歌詞舞台 → 額外實測：解析器（標題頭行／製作人員行必須消失、

@@ -75,9 +75,19 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   點中央那張已選中的封面等同「進入專輯」，直接進該歌手頁
 - 歌手頁主視覺是可左右翻的專輯輪播：中央為當前專輯、兩側各兩張（其餘 `hidden` 且不下載），
   點兩側翻到中央、點中央開啟該專輯抽屜、方向鍵與 Home／End 可操作；
-  實測點右鄰封面後中央由《散了吧》變成《蒙娜麗莎的眼淚》，再點中央開出 12 首的抽屜
-- 歌手頁 10 個 `<section>`（三視圖合併後實測七位歌手一致），14 個展示面；
-  無合作者標注的歌手（薛之謙）該區自動收起
+  實測點右鄰封面後中央由《散了吧》變成《蒙娜麗莎的眼淚》，再點中央開出 12 首的抽屜。
+  滑鼠停在任一張（或鍵盤聚焦）時該張放大跳出來，其餘照**視覺方向**往外讓開
+  （實測最右那張被指到時，其餘四張寬度不變、位置全部左移 40–55px；移出即精確回位）
+- 歌手頁「展櫃」是原生橫向捲動：頁面縱向捲動不被劫持，卡片要橫看再自己拖／按箭頭。
+  實測 1440 寬下 `scrollWidth` 3778 / `clientWidth` 1906，拖曳 0→368（一張卡），
+  右箭頭 0→368→736，左箭頭回 368，`End` 1872、`Home` 0，拖曳不誤開抽屜
+- 切換歌手是**就地換資料**，不整頁重載，所以正在播的歌不會中斷：
+  實測連切八次（走完七位再回首位）`paused` 恆為 false、`currentTime` 由 1.6 持續到 21.1 秒，
+  且每次切片後曲目數／年輪／卷宗／年表／年代／封面牆／精選皆為該歌手正確值、零累積
+- 歌手頁 10 個 `<section>`（三視圖合併後實測七位歌手一致）；展示面由 `renderAll()` 一次列全，
+  就地換歌手與首次載入共用同一條路徑，無合作者標注的歌手（薛之謙）該區自動收起
+- 播放列圖示（連續播放整張／全屏歌詞／關閉播放列等）滑鼠移上或鍵盤聚焦時顯示說明，
+  文字直接取 `aria-label`（實測 12px、`::after` 的 opacity 由 0 變 1），翻譯與狀態變化自動跟上
 - `eslint .` 0 問題；`prettier --check .` 全通過
 - `check-line-endings.py` 937 檔 0 不一致；`check-markdown-links.py` 0 錯誤
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用（五位歌手各實測）
@@ -89,7 +99,7 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   Apple 用目錄自帶的 `collectionId` 直達專輯（91/91 張都有），其餘平台為搜尋連結
 - 入口頁是單一舞台：中央封面組 + 兩側相鄰與遠端，桌面中央封面 253–297px，
   窄屏為可用寬度的 65%；首屏五要素在 1366×768 與 390×844 都在折線以上
-- 開場動畫首次 900ms，同會話切換歌手直接呈現
+- 開場動畫只在首次載入跑；就地在歌手間切換不重播開場，也不重新載入頁面
 - 站點截圖 19 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`
 
 ## 待辦
@@ -125,7 +135,19 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 本環境截圖對 `sticky` / `fixed` 圖層不可靠，常整片回傳背景色。
   驗證改用 DOM 斷言，或在截圖前隱藏其餘 `section` 並回到頂部
 - 全螢幕 `mix-blend-mode` 顆粒會讓每一幀重繪整個視口，改為靜態
-- `.rack-pin` 用 `overflow: hidden` 或 `will-change` 都會破壞 sticky，用 `clip`
+- **就地換歌手必須清兩類狀態，否則畫面會悄悄疊加**：一是 `appendChild` 型宿主
+  （曲目總表、卷宗、年表、年代、封面牆、精選、年輪圖例、主視覺、數據帶、章節），
+  二是模組級索引 `index`（`buildIndex()` 只 push）。實測不清時連切三位歌手後
+  曲目表 126→301→427、卷宗 10→26→36、年表 10→26→36、年代 3→7→10、精選 35→73，
+  而 `catTotal` 卻是對的——數字對、DOM 疊，最容易看漏
+- 抽屜開關要判外層 `.sheet` 的 `hidden`，不能判 `.sheet-panel`：
+  後者是常駐 DOM、`display` 恆為 `flex`，用它判斷會永遠得到「已開啟」，
+  把拖曳誤判成「誤開抽屜」
+- 歌手頁目錄區有「展櫃／封面牆／年表」三個分頁，**上次選中的分頁存在瀏覽器 context 裡**：
+  Playwright 量單一視圖前必須先點對應分頁，否則量到的是 `display: none` 的容器，
+  會把「容器高 0、不可捲」誤判成功能壞了
+- `position: sticky` 在展櫃已不使用（改原生橫向捲動）；若日後恢復 sticky，
+  注意 `overflow: hidden` 與 `will-change` 都會破壞它，要用 `clip`
 - PowerShell `Set-Content` / `Add-Content` 預設寫 CRLF，且 5.1 的 `-Encoding UTF8` 會寫入 BOM。
   兩者都會污染事實層：BOM 讓 `build.mjs` 的 `JSON.parse` 直接丟 SyntaxError（整份 data.js
   生不出來），CRLF 與 `.gitattributes` 的 LF 約定不符。抓取腳本改用
@@ -140,6 +162,7 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 架構與設計決策 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - 進行中計畫與 UI 改進待辦 → [docs/PLAN.md](docs/PLAN.md)
 - 首頁立體唱片架執行規劃 → [docs/artist-selector-plan.md](docs/artist-selector-plan.md)
+- 全屏歌詞舞台改版規劃（對標 Folia） → [docs/lyric-stage-plan.md](docs/lyric-stage-plan.md)
 - 決策與依據記錄 → [.agents/notes/](.agents/notes/)
 - 樣式手冊 → [css/README.md](css/README.md)
 - 腳本手冊 → [js/README.md](js/README.md)
