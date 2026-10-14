@@ -350,7 +350,10 @@ main { padding-top: var(--nav-h); }
   position: relative;
   width: 100%; max-width: var(--page); margin: 0 auto;
   padding: 0 var(--gutter);
-  display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr);
+  /* 艺术列略宽、文案列略窄：五張封面的扇形橫向跨度約為單張的兩倍，
+     放大封面時若只調卡片寬度就會吃掉中間的欄距（實測 64px → 18px）。
+     分給艺术列後，欄距仍留 64px。 */
+  display: grid; grid-template-columns: minmax(0, .96fr) minmax(0, 1.04fr);
   gap: clamp(28px, 4vw, 64px); align-items: center;
 }
 
@@ -417,8 +420,12 @@ html.ld-booting .ht-line span {
 /* fanned sleeves */
 .hero-art {
   position: relative;
-  aspect-ratio: 1 / 1.06;
-  max-height: min(66vh, 620px);
+  /* 容器高度貼住內容：五張封面只佔 1.01 × 卡片寬，而先前是 1/1.06，
+     豎向空了近一半。0.82 留約兩成餘裕，放得下懸停的 -3% 抬升與陰影；
+     再收到 0.70 會把封面推向欄距（實測與左欄標題只剩 18px）。
+     卡片同時由 54% 放到 58%，兩邊都要留給 hero-grid 的 64px 欄距。 */
+  aspect-ratio: 1 / .82;
+  max-height: min(64vh, 560px);
   justify-self: center; width: 100%;
 }
 .fan {
@@ -432,7 +439,10 @@ html.ld-booting .ht-line span {
 }
 .fan-card {
   position: absolute; top: 50%; left: 50%;
-  width: 54%; aspect-ratio: 1 / 1;
+  /* 58%：五張扇形橫向跨度約為卡片寬的 1.19 倍，兩側各溢出容器約四十像素，
+     正好落進 hero-grid 的欄距（clamp(28px,4vw,64px)）而不壓到左欄標題。
+     再往上到 62% 就會侵入標題（實測左緣 929 < 左欄右緣 934）。 */
+  width: 58%; aspect-ratio: 1 / 1;
   padding: 0; border: 0; background: none;
   border-radius: var(--r);
   overflow: hidden;
