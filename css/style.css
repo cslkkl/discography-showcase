@@ -1792,8 +1792,13 @@ html { scroll-padding-bottom: 96px; }
 /* 入口頁：立體唱片架。封面組以最小環形位移排位，歌手色只點綴印章、
    選中態、主按鈕與低強度光暈；尺寸沿用既有權杖，不另造一套。 */
 .ld-hero {
-  --ld-cover: clamp(186px, min(56vw, 33vh), 328px);
-  padding: clamp(14px, 2.4vh, 30px) 0 clamp(28px, 4vw, 56px);
+  /* 封面尺度：下限抬高（手機不要縮成一格小圖）、上限放寬到 400px，
+     並把 vh 係數由 33vh 提到 40vh，寬度項由 56vw 提到 62vw——
+     原本 900 高的視窗在 33vh 就撞上限，等於沒吃到視窗高度，
+     而大螢幕（1920）只看得到 55% 的內容高度、底部空 546px。
+     62vw 讓寬螢幕也繼續放大，400px 上限避免蓋掉兩側鄰居。 */
+  --ld-cover: clamp(196px, min(62vw, 40vh), 400px);
+  padding: clamp(20px, 3.4vh, 44px) 0 clamp(40px, 6vh, 84px);
 }
 /* 入口沒有固定頂欄，不需要讓開 --nav-h 的高度 */
 .ld-main { padding-top: 0; }
@@ -1815,10 +1820,19 @@ html { scroll-padding-bottom: 96px; }
 .ld-seal svg { width: 100%; height: 100%; }
 .ld-seal text { font-family: var(--f-serif); font-size: 42px; fill: var(--accent); }
 .ld-brandname {
-  font-family: var(--f-serif); font-size: 1rem;
-  letter-spacing: .16em; color: var(--paper); white-space: nowrap;
+  font-family: var(--f-serif); font-size: 1.06rem;
+  letter-spacing: .2em; color: var(--paper); white-space: nowrap;
 }
-.ld-brandsub { font-size: .75rem; letter-spacing: .16em; color: var(--paper-3); white-space: nowrap; }
+/* 副題前面加一道短橫線，把「站名 · 類別」讀成博物館銘牌的兩段，
+   而不是兩個並排的普通詞。橫線用偽元素，不動 HTML 結構。 */
+.ld-brandsub {
+  display: inline-flex; align-items: center; gap: .6em;
+  font-size: .75rem; letter-spacing: .18em; color: var(--paper-3); white-space: nowrap;
+}
+.ld-brandsub::before {
+  content: ''; width: 18px; height: 1px; flex: none;
+  background: var(--line-3);
+}
 .ld-lang { margin: 0; flex: none; }
 
 .ld-stage {
@@ -1831,11 +1845,31 @@ html { scroll-padding-bottom: 96px; }
   position: absolute; top: 50%; left: 50%;
   width: calc(var(--ld-cover) * 2.5); height: calc(var(--ld-cover) * 1.6);
   transform: translate(-50%, -50%);
-  background: radial-gradient(
-    closest-side,
-    color-mix(in srgb, var(--accent) 20%, transparent),
-    transparent 72%
-  );
+  /* 環境光取當前歌手的強調色（JS 寫入 .ld-hero 的 --accent），
+     兩層疊加：內圈較亮的暖芯 + 外圈大面積暈開。
+     藝術展的展台打光就是這個結構——中心亮、邊緣迅速衰減，
+     單一 20% 的漸層會顯得平。 */
+  background:
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--accent) 30%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--accent) 13%, transparent),
+      transparent 82%
+    );
+  pointer-events: none;
+}
+/* 展台陰影：封面組下方一道貼地的柔和暗影，讓卡片像「立」在台面上而不是飄著。
+   放在 .ld-stage 的偽元素上，跟著舞台寬度走，不隨卡片位移抖動。 */
+.ld-stage::after {
+  content: ''; position: absolute; left: 50%; bottom: 6%;
+  width: min(78%, calc(var(--ld-cover) * 2.1)); height: calc(var(--ld-cover) * .17);
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .62), transparent 76%);
+  filter: blur(6px);
   pointer-events: none;
 }
 .ld-groups { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; }
@@ -1848,16 +1882,58 @@ html { scroll-padding-bottom: 96px; }
   transition: transform .6s var(--ease), opacity .6s var(--ease);
 }
 .ld-group[hidden] { display: none; }
+/* 位移取「設計值」與「幾何安全值」較小者，任何視口都不越界。
+   安全值：最外那張左緣 = 視口半寬 − 位移 − 卡片半寬，要 ≥ 0；
+   位移 = |x| × cover/100，卡片半寬 = cover × s / 2，故
+     |x| ≤ (50vw − cover·s/2) / cover × 100 —— 但 calc 不能用變數當除數，
+   所以改寫成 px 的型式：位移上限 = 50vw − 卡片半寬 − 邊距，
+   再用 min() 與設計值（百分比）比大小。min() 可混用 px 與 %，
+   而 % 的基準正是 transform 的參考框（即 --ld-cover），兩者同量綱。
+   先前的 bug：800–1300 視口那段（860 檔與桌面檔之間）沿用了 ±128%，
+   而該區間上限只有 92–114%，最外封面被推出畫面（實測 left −227px）。 */
 .ld-group[data-off='0'] { --x: 0%; --s: 1; --ry: 0deg; --o: 1; --z: 5; }
-.ld-group[data-off='-1'] { --x: -66%; --s: .84; --ry: 21deg; --o: 1; --z: 4; }
-.ld-group[data-off='1'] { --x: 66%; --s: .84; --ry: -21deg; --o: 1; --z: 4; }
-.ld-group[data-off='-2'] { --x: -128%; --s: .72; --ry: 27deg; --o: .48; --z: 3; }
-.ld-group[data-off='2'] { --x: 128%; --s: .72; --ry: -27deg; --o: .48; --z: 3; }
+.ld-group[data-off='-1'] { --x: max(-66%, calc(0px - (50vw - var(--ld-cover) * 0.42 - 12px))); --s: .84; --ry: 21deg; --o: 1; --z: 4; }
+.ld-group[data-off='1'] { --x: min(66%, calc(50vw - var(--ld-cover) * 0.42 - 12px)); --s: .84; --ry: -21deg; --o: 1; --z: 4; }
+.ld-group[data-off='-2'] { --x: max(-128%, calc(0px - (50vw - var(--ld-cover) * 0.36 - 12px))); --s: .72; --ry: 27deg; --o: .48; --z: 3; }
+.ld-group[data-off='2'] { --x: min(128%, calc(50vw - var(--ld-cover) * 0.36 - 12px)); --s: .72; --ry: -27deg; --o: .48; --z: 3; }
 
 .ld-gbtn {
   position: relative; display: block; width: 100%; height: 100%;
   padding: 0; border: 0; background: none; border-radius: var(--r);
   cursor: pointer;
+}
+/* 卡片質感：一道掠過的高光 + 邊緣亮線。純 CSS，不寫逐字腳本、不做逐幀跟隨，
+   所以不吃主線程（展櫃的 .album-plate::after 是同一個做法）。
+   ::before 是高光帶（斜向 linear-gradient，進場時由左掃到右），
+   ::after 是邊緣亮線（inset 陰影，只在被指到時浮現）。 */
+.ld-gbtn::before,
+.ld-gbtn::after {
+  content: ''; position: absolute; inset: 0; z-index: 4;
+  pointer-events: none; border-radius: inherit;
+  opacity: 0;
+  transition: opacity .45s var(--ease), transform .75s var(--ease);
+}
+.ld-gbtn::before {
+  background: linear-gradient(
+    104deg,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(255, 255, 255, .16) 47%,
+    rgba(255, 255, 255, .30) 50%,
+    rgba(255, 255, 255, .16) 53%,
+    rgba(255, 255, 255, 0) 62%
+  );
+  transform: translateX(-62%);
+}
+.ld-gbtn::after {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .34);
+}
+.ld-group[data-off='0'] .ld-gbtn::before {
+  opacity: .85; transform: translateX(62%);
+}
+.ld-group[data-off='0'] .ld-gbtn::after { opacity: .55; }
+@media (hover: hover) {
+  .ld-group:hover .ld-gbtn::before { opacity: .9; transform: translateX(58%); }
+  .ld-group:hover .ld-gbtn::after { opacity: .5; }
 }
 .ld-gstack { position: absolute; inset: 0; display: block; }
 .ld-gstack img {
@@ -1890,6 +1966,20 @@ html { scroll-padding-bottom: 96px; }
   margin: .42em 0 0; font-family: var(--f-num); font-variant-numeric: tabular-nums;
   font-size: .86rem; letter-spacing: .06em; color: var(--paper-2);
 }
+/* 年份區間：展品標籤上的「年代」那一行。用拉丁字體與大寫間距，
+   與上面的統計行分開層級；內容由 landing.js 從 stats 填入。 */
+.ld-span {
+  margin: .5em 0 0; font-family: var(--f-num);
+  font-size: .78rem; letter-spacing: .26em; color: var(--paper-3);
+  font-variant-numeric: tabular-nums;
+}
+.ld-span:empty { display: none; }
+/* 統計行與年份行之間一道短分隔線，讓資訊段落有呼吸（展品標籤的做法） */
+.ld-span::before {
+  content: ''; display: block; width: 28px; height: 1px;
+  margin: 0 auto .72em; background: var(--line-2);
+}
+.ld-span:empty::before { display: none; }
 .ld-cta {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 46px; margin-top: clamp(10px, 1.8vh, 18px); padding: 0 28px;
@@ -2082,6 +2172,11 @@ html.has-lyrics .player { z-index: 95; }
   :root { --nav-h: 60px; }
   .nav { display: none; }
   .brand-text i { display: none; }
+  /* 入口頁在 620–860px 之間是空檔：封面仍是桌面檔的 400px，
+     但視口只有 620–860，套桌面檔的 ±66%/±128% 位移會讓最外那張
+     越出左緣（實測 827px 視口下 left −227px）。這一檔先把封面收回，
+     位移沿用 620px 檔的比例（±66%/±72%），幾何就裝得下。 */
+  .ld-hero { --ld-cover: clamp(196px, min(62vw, 40vh), 300px); }
   .cat-views { overflow-x: auto; scrollbar-width: none; }
   .cat-views::-webkit-scrollbar { display: none; }
   .cv-btn { flex: none; }

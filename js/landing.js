@@ -96,6 +96,7 @@
   var enEl = $('#ldEn');
   var nameEl = $('#ldName');
   var statsEl = $('#ldStats');
+  var spanEl = $('#ldSpan');
   var ctaEl = $('#ldCta');
   var liveEl = $('#ldLive');
   var langBtn = $('#ldLang');
@@ -107,23 +108,24 @@
   var enNode = document.createTextNode('');
   var nameNode = document.createTextNode('');
   var statsNode = document.createTextNode('');
+  var spanNode = document.createTextNode('');
   var ctaNode = document.createTextNode('');
   enEl.appendChild(enNode);
   nameEl.appendChild(nameNode);
   statsEl.appendChild(statsNode);
+  if (spanEl) spanEl.appendChild(spanNode);
   ctaEl.appendChild(ctaNode);
 
+  /* 展品標籤的兩行資訊：上行是年代，下行是數量。
+     先前擠成一行（「1997 至 2020 · 10 張專輯 · 126 首作品」），
+     年代與數量混在一起、層級不分；拆開後年代獨立成行，
+     用拉丁字體與大字距呈現，並由 CSS 加一道短分隔線。 */
+  function spanText(a) {
+    return a.stats.from + ' — ' + a.stats.to;
+  }
+
   function statsText(a) {
-    return (
-      a.stats.from +
-      ' 至 ' +
-      a.stats.to +
-      ' · ' +
-      a.stats.albums +
-      ' 張專輯 · ' +
-      a.stats.tracks +
-      ' 首作品'
-    );
+    return a.stats.albums + ' 張專輯 · ' + a.stats.tracks + ' 首作品';
   }
 
   /* ---------- 建構：每位歌手一組封面、一顆封面鈕與一顆姓名鈕 ---------- */
@@ -242,6 +244,7 @@
     enEl.hidden = !a.en || a.en === a.name;
     setText(nameNode, a.name);
     setText(statsNode, statsText(a));
+    if (spanEl) setText(spanNode, spanText(a));
     setText(ctaNode, '進入專輯');
     setAttr(ctaEl, 'aria-label', '進入 ' + a.name + ' 的唱片目錄');
     ctaEl.setAttribute('href', 'artist.html?a=' + encodeURIComponent(a.id));
