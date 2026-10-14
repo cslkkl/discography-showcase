@@ -12,9 +12,9 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
-<link rel="stylesheet" href="assets/fonts/fonts.css?v=47af20b5">
-<link rel="stylesheet" href="css/style.css?v=47af20b5">
-<link rel="stylesheet" href="css/motifs.css?v=47af20b5">
+<link rel="stylesheet" href="assets/fonts/fonts.css?v=db5c3213">
+<link rel="stylesheet" href="css/style.css?v=db5c3213">
+<link rel="stylesheet" href="css/motifs.css?v=db5c3213">
 </head>
 <body>
 
@@ -390,7 +390,22 @@
   </button>
 </div>
 
-<!-- 播放列：音源優先取自有音檔（整首），其次為 Apple 目錄隨附的官方 30 秒試聽片段 -->
+<!-- 播放列：
+<!-- 歌曲狀態列 Mini Song Bar。
+     貼在頁面底部的「當前檔案卡」：只交代現在讀的是哪一首（歌名／歌手／專輯／年份）
+     與歌詞入口。它不是播放器——播放控制仍在底下的播放列上，這裡一格控制項都沒有。
+     內容全部由 app.js 依既有資料填，這裡只留骨架，不寫死任何一首歌；
+     歌名與「查看歌詞」各自是一個入口（回這首歌的檔案／開歌詞舞台）。 -->
+<div class="msb" id="msb" hidden>
+  <div class="msb-inner">
+    <span class="msb-dot" aria-hidden="true">◎</span>
+    <button class="msb-title" id="msbTitle" type="button" data-msb-open></button>
+    <p class="msb-meta">
+      <span id="msbArtist"></span><span class="msb-sep">·</span><span id="msbAlbum"></span><span class="msb-sep">·</span><span id="msbYear"></span>
+    </p>
+    <button class="msb-act" id="msbLyrics" type="button" data-msb-lyrics>查看歌詞<span class="msb-sym" aria-hidden="true">→</span></button>
+  </div>
+</div>音源優先取自有音檔（整首），其次為 Apple 目錄隨附的官方 30 秒試聽片段 -->
 <div class="player" id="player">
   <div class="pl-inner">
     <img class="pl-cover" id="plCover" src="assets/favicon.svg" alt="" width="46" height="46">
@@ -437,8 +452,8 @@
   </div>
 </noscript>
 
-<script src="js/data.js?v=47af20b5"></script>
-<script src="js/lyrics.js?v=47af20b5"></script>
-<script src="js/app.js?v=47af20b5"></script>
+<script src="js/data.js?v=db5c3213"></script>
+<script src="js/lyrics.js?v=db5c3213"></script>
+<script src="js/app.js?v=db5c3213"></script>
 </body>
 </html>

@@ -2247,6 +2247,8 @@
     var wasShown = sarch.classList.contains('is-open');
     if (!wasShown) saLastFocus = document.activeElement;
     saRef = { album: hit.album.id, n: hit.track.n };
+    /* 檔案是「一首歌」，開檔案就是「點了這一首歌」：底部的狀態列跟著換內容 */
+    msbFocus(hit.album.id, hit.track.n);
     if (hit.album.theme) {
       saPanel.style.setProperty('--accent', hit.album.theme.accent);
       saPanel.style.setProperty('--accent-on', hit.album.theme.accentOn);
@@ -2607,6 +2609,8 @@
     plAudio.src = hit.track.audio;
     plPaint(hit.album, hit.track);
     plShow();
+    /* 卡片跟著「當前這一首」走：按播放是點歌的另一條路徑（見 msbFocus 的說明） */
+    msbFocus(hit.album.id, hit.track.n);
     /* 歌詞隨曲目預載；舞台開著時載完會自動接上（見 js/lyrics.js） */
     if (window.JCLyrics) window.JCLyrics.loadFor(hit.album.title, hit.track);
     if (autoplay !== false) plPlay();
@@ -2682,6 +2686,8 @@
     document.body.classList.remove('has-player');
     /* 播放列關掉就沒有音源了，歌詞舞台一起收，否則會停在最後一句 */
     if (window.JCLyrics && window.JCLyrics.isOpen()) window.JCLyrics.close();
+    /* 當前曲目清空＝卡片沒有指涉的對象了，一起淡出（見 mini song bar 一節） */
+    msbHide();
     plState = { album: null, n: null, queue: [], qi: -1, loop: false, scrubbing: false };
     ['#plRange', '#plPrev', '#plNext', '#plToggle'].forEach(function (s) {
       var el2 = $(s);
@@ -2887,6 +2893,172 @@
     });
   }
 
+  /* ── mini song bar ──────────────────────────────────────────────────────
+     貼在頁面底部的「當前檔案卡」（#msb）：只交代現在讀的是哪一首
+     （歌名／歌手／專輯／年份）與歌詞入口。它不是播放器，所以這裡一格播放控制都沒有，
+     播放列（#player）照舊負責播放。
+
+     顯示時機是「使用者點了一首歌」，兩條路徑都收斂到 msbFocus()：
+       · 點歌名／代表曲開歌曲檔案 → openArchive()
+       · 按下播放（曲目列、整張連續播放、隨機試聽、上下首）→ plLoad()
+     內容是「上一次被點開或被播放的那一首」，所以：
+       · 關掉播放列（plClose）＝ 當前曲目清空，卡片一起淡出
+       · 就地在歌手間切換時，卡片若還指著上一位歌手、而且不是正在播的那一首，就收起；
+         正在播的那一首與播放列一致地留著（播放列本來就不因換歌手而清空）
+
+     動效：出現／消失是 .6s 淡入淡出；換歌是兩段錯峰（舊卡 .36s 往上退 →
+     換內容 → 新卡 .36s 從下面進來），合計 720ms。狀態只寫類別，時長在 CSS；
+     減少動效下不排隊等那 .36s（REDUCED 時直接換內容）。 */
+  var msbEl = null,
+    msbTitle = null,
+    msbArtist = null,
+    msbAlbum = null,
+    msbYear = null,
+    msbAct = null;
+  var msbRef = null; /* 卡片上那一首：{ album, n }；null 表示卡片不在畫面上 */
+  var msbSwapTimer = 0,
+    msbHideTimer = 0,
+    msbUpRaf = 0,
+    msbEnterRaf = 0;
+  var msbSeq = 0; /* 收尾的序號：淡出途中又被叫回來時作廢上一輪（同 saSeq 的理由） */
+  var MSB_SWAP = 360; /* 單段換歌時長，CSS 的 .36s；兩段相加 720ms */
+  var MSB_OUT = 600; /* 淡出時長，CSS 的 .6s */
+
+  function msbNodes() {
+    if (msbEl) return true;
+    msbEl = $('#msb');
+    if (!msbEl) return false;
+    msbTitle = $('#msbTitle', msbEl);
+    msbArtist = $('#msbArtist', msbEl);
+    msbAlbum = $('#msbAlbum', msbEl);
+    msbYear = $('#msbYear', msbEl);
+    msbAct = $('#msbLyrics', msbEl);
+    return true;
+  }
+
+  /* 卡片上的動態文字一律走 setLive()：它先清 localize 的原文快取再寫，
+     否則切換繁簡時會還原成上一首的歌名（與 syncPlayingRows 同一條理由） */
+  function msbPaint(a, t) {
+    setLive(msbTitle, t.zh);
+    setLive(msbArtist, JC.name);
+    setLive(msbAlbum, '《' + a.title + '》');
+    setLive(msbYear, String(a.year));
+    /* 兩顆入口都是「這一首」的動作，名字裡要帶歌名；寫入前先清屬性快取 */
+    dropAttr(msbTitle, 'aria-label');
+    msbTitle.setAttribute('aria-label', '開啟歌曲檔案，' + t.zh);
+    localize(msbTitle);
+    if (msbAct) {
+      dropAttr(msbAct, 'aria-label');
+      msbAct.setAttribute('aria-label', '查看歌詞，' + t.zh);
+      localize(msbAct);
+    }
+  }
+
+  function msbShow() {
+    if (!msbNodes()) return;
+    /* 作廢上一輪的收尾，否則淡出計時器會把剛回來的卡片又收掉 */
+    clearTimeout(msbHideTimer);
+    msbHideTimer = 0;
+    msbSeq++;
+    document.body.classList.add('has-msb');
+    document.documentElement.classList.add('has-msb');
+    if (msbEl.hidden) {
+      /* 剛從 hidden 出來：先讓瀏覽器畫出起始態再上類別，
+         否則起始與結束在同一幀，transition 會被合併掉直接跳到終態 */
+      msbEl.hidden = false;
+      if (msbUpRaf) cancelAnimationFrame(msbUpRaf);
+      msbUpRaf = requestAnimationFrame(function () {
+        msbUpRaf = 0;
+        msbEl.classList.add('is-up');
+      });
+    } else {
+      /* 淡出途中又被叫回來：起始態已經在畫面上，補回類別就是「淡回來」 */
+      msbEl.classList.add('is-up');
+    }
+  }
+
+  function msbHide() {
+    if (!msbNodes() || msbEl.hidden) return;
+    clearTimeout(msbSwapTimer);
+    msbSwapTimer = 0;
+    if (msbUpRaf) {
+      cancelAnimationFrame(msbUpRaf);
+      msbUpRaf = 0;
+    }
+    if (msbEnterRaf) {
+      cancelAnimationFrame(msbEnterRaf);
+      msbEnterRaf = 0;
+    }
+    msbRef = null;
+    msbEl.classList.remove('is-up', 'is-swapping', 'is-entering');
+    document.body.classList.remove('has-msb');
+    document.documentElement.classList.remove('has-msb');
+    /* 淡出要跑完才 hidden：先設 hidden 等於沒有淡出。
+       守衛用序號，不能用「還開著嗎」——那時 hidden 還是 false，正是等收尾才要設的 */
+    var token = ++msbSeq;
+    msbHideTimer = setTimeout(
+      function () {
+        msbHideTimer = 0;
+        if (token !== msbSeq) return;
+        msbEl.hidden = true;
+      },
+      REDUCED.matches ? 0 : MSB_OUT
+    );
+  }
+
+  /* 卡片是不是正在播的那一首（換歌手時用它決定卡片要不要留） */
+  function msbPlaying() {
+    return !!(msbRef && plKey() && msbRef.album + ':' + msbRef.n === plKey());
+  }
+
+  /* 使用者點了一首歌：卡片沒出現就淡入，已經在畫面上就換內容。
+     同一首再點一次不動（不重播動畫）。 */
+  function msbFocus(albumId, n) {
+    if (!msbNodes()) return;
+    var hit = trackOf(albumId, n);
+    if (!hit) return;
+    var key = hit.album.id + ':' + hit.track.n;
+    var same = !!msbRef && msbRef.album + ':' + msbRef.n === key;
+    var shown = !!msbRef;
+    msbRef = { album: hit.album.id, n: hit.track.n };
+    if (same && !msbEl.hidden) return;
+    if (!shown || msbEl.hidden) {
+      msbPaint(hit.album, hit.track);
+      msbShow();
+      return;
+    }
+    /* 已顯示、換了歌：舊卡退出 → 換內容 → 新卡從下面進來。
+       這 .36s 一個計時器管完兩段，期間又點別首就重排（clearTimeout）。
+       減少動效時不做這兩段，內容直接換掉（CSS 的時長也已被壓成 .001ms） */
+    clearTimeout(msbSwapTimer);
+    if (msbEnterRaf) {
+      cancelAnimationFrame(msbEnterRaf);
+      msbEnterRaf = 0;
+    }
+    msbEl.classList.remove('is-entering', 'is-swapping');
+    if (REDUCED.matches) {
+      msbPaint(hit.album, hit.track);
+      return;
+    }
+    msbEl.classList.add('is-swapping');
+    msbSwapTimer = setTimeout(function () {
+      msbSwapTimer = 0;
+      msbPaint(hit.album, hit.track);
+      msbEl.classList.remove('is-swapping');
+      msbEl.classList.add('is-entering');
+      /* 一定要等瀏覽器把「起始態」畫出來再移除，所以要**兩次** rAF：
+         在同一個 frame 裡加類又移類，樣式根本不會被計算（加與移之間沒有 style
+         recalc），結果新卡是從上一階段的 -8px 浮回 0（實測 -5.86 → 0），
+         而不是從下面進來。rAF 回呼跑在該 frame 的樣式計算之前，
+         所以要一次讓它畫、一次才移除。 */
+      msbEnterRaf = requestAnimationFrame(function () {
+        msbEnterRaf = requestAnimationFrame(function () {
+          msbEnterRaf = 0;
+          msbEl.classList.remove('is-entering');
+        });
+      });
+    }, MSB_SWAP);
+  }
   /* ── toast ──────────────────────────────────────────────────────────── */ var toastEl,
     toastTimer;
   function toast(msg) {
@@ -3403,6 +3575,17 @@
         openSheet(saGo);
         return;
       }
+      /* 歌曲狀態列（頁面層，疊在模態之下）的兩顆入口。
+         它指著的是「當前那一首」，所以兩個動作出發前都確認 msbRef 還在 */
+      if (e.target.closest('[data-msb-open]')) {
+        if (msbRef) openArchive(msbRef.album, msbRef.n);
+        return;
+      }
+      if (e.target.closest('[data-msb-lyrics]')) {
+        /* 沒有音源或沒有本機歌詞時就地說明；線上的預設出口是 toast（見 openLyricsFor） */
+        if (msbRef) openLyricsFor(msbRef.album, msbRef.n);
+        return;
+      }
       // playback takes precedence: the row controls live inside list rows
       var play = e.target.closest('[data-play]');
       if (play) {
@@ -3836,6 +4019,10 @@
     /* 檔案是「某一位歌手的某一首歌」：換歌手時就地收起，
        免得它指著上一份目錄（還開著的話，內容與播放列會分屬兩位歌手） */
     if (saOpen()) closeArchive({ instant: true, keepFocus: true });
+    /* 底部的狀態列同理：它若指著上一位歌手的歌就一起收起。
+       唯一的例外是那一首正在播——播放列本來就不因換歌手而清空，
+       卡片跟著播放列留著，兩者才不會互相矛盾（見 msbPlaying） */
+    if (!msbPlaying()) msbHide();
     JC = next;
     ALBUMS = JC.albums;
     resetHosts();

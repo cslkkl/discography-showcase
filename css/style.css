@@ -3036,7 +3036,132 @@ body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px)
 }
 .sa-note:empty { display: none; }
 
-/* ── 25. responsive ────────────────────────────────────────────────────── */
+/* ── 25. responsive
+/* ── 29. mini song bar (current archive card) ──────────────────────────── */
+/* 貼在頁面底部的「當前檔案卡」：只交代現在讀的是哪一首
+   （歌名／歌手／專輯／年份）與歌詞入口，**不是播放器**——播放控制仍在 24 節的
+   播放列上。視覺沿用檔案層的語言：半透明墨底、毛玻璃、1px 極細描邊、微弱陰影、
+   無彩色色塊，文字型入口與 .sa-act 同一套（hover 底部長出 1px 強調色細線）。
+
+   它是**頁面層**（z-index 985，見下面模態堆疊）：抽屜 990 以上的模態會把它蓋掉，
+   不與模態搶版面；播放列（1005）是固定層，有播放列時整張卡往上讓開。
+
+   出現／消失是淡入淡出（.6s），換歌是「舊卡退出→換內容→新卡進入」兩段錯峰
+   （.36s + .36s = 720ms，落在需求給的 500–800ms 內），狀態全寫在類別上，
+   末節把時長壓成 .001ms 時內容直接到位。 */
+.msb {
+  position: fixed; left: 50%; bottom: var(--msb-b, 18px); z-index: 985;
+  max-width: min(92vw, 46rem);
+  /* 置中位移只疊在 X 上：進場與出場分別是 Y 的 14px 與 0，
+     寫成 transform: none 會把置中一起抹掉 */
+  --msb-x: -50%;
+  transform: translate(var(--msb-x), 14px);
+  opacity: 0;
+  background: rgba(10, 10, 13, .72);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .44);
+  /* 用 --ease-2 而不是站點慣用的 --ease：--ease 是 cubic-bezier(.16, 1, .3, 1)，
+     30% 就走完 95%（實測淡入 181ms 就「到位」），那正是需求要避免的「快速彈出」；
+     --ease-2 的 0.95 落在約 520ms，整段淡入讀起來才是 500–800ms 的慢慢出現。 */
+  transition: opacity .6s var(--ease-2), transform .6s var(--ease-2);
+}
+.msb.is-up { opacity: 1; transform: translate(var(--msb-x), 0); }
+/* 明寫一條：上面沒有宣告 display，但日後若給它 display 就會蓋掉 hidden 屬性 */
+.msb[hidden] { display: none; }
+
+/* 播放列是固定層（z-index 1005，比卡片高一階），兩者疊在同一個底緣上。
+   --pl-h 是播放列的**實測**高度（單列 74px；窄屏兩列由 25 節覆寫成 99px）。
+   它與 24 節為播放列留的讓位（78px／92px）差幾像素，是量出來的，所以不沿用那兩個數字。
+   少了這一條，卡片會被播放列蓋住一半，連「查看歌詞」都點不到
+   （真實指標點擊會被播放列攔截，Playwright 會回報 pl-inner intercepts pointer events）。 */
+:root { --pl-h: 74px; }
+body.has-player .msb { --msb-b: calc(var(--pl-h) + 18px); }
+
+.msb-inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'dot title act' 'dot meta act';
+  align-content: center; align-items: center;
+  row-gap: 2px; column-gap: clamp(10px, 1.4vw, 18px);
+  padding: 10px clamp(14px, 1.5vw, 20px);
+}
+/* 換歌：舊卡往上退、新卡從下面進來。is-entering 那一條要 transition: none，
+   否則「先跳到起始態」這一步本身也會被補間掉，等於沒有進入方向 */
+/* 換歌：舊卡往上退、新卡從下面進來。is-entering 那一條要 transition: none，
+   否則「先跳到起始態」這一步本身也會被補間掉，等於沒有進入方向。
+   兩段都用 --ease-2（與出現／消失同一條）：換歌的兩段相加約 720ms，
+   用 --ease 會在 ~200ms 內就走完，看起來像彈一下。 */
+.msb-inner { transition: opacity .36s var(--ease-2), transform .36s var(--ease-2); }
+.msb.is-swapping .msb-inner { opacity: 0; transform: translateY(-8px); }
+.msb.is-entering .msb-inner { opacity: 0; transform: translateY(8px); transition: none; }
+
+.msb-dot { grid-area: dot; font-size: .78rem; line-height: 1; color: var(--accent); }
+/* 歌名是本列的主角：檔案卡的字體（襯線），長歌名截斷不換行——
+   卡片高度必須是定值，否則下面為它留的讓位（body.has-msb）會對不上 */
+.msb-title {
+  grid-area: title; min-width: 0; max-width: 100%;
+  display: block; padding: 0; border: 0; background: none;
+  position: relative; text-align: left; cursor: pointer;
+  font-family: var(--f-serif); font-size: .95rem; line-height: 1.35; letter-spacing: .04em;
+  color: var(--paper);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.msb-title::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 1px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .34s var(--ease);
+}
+.msb-title:hover::after,
+.msb-title:focus-visible::after { transform: scaleX(1); }
+.msb-title:focus-visible { outline-color: var(--accent); outline-offset: 3px; }
+
+/* 一行交代歌手、專輯與年份：小字、字距放寬、全部同一行（截斷不換行）。
+   年份用數字字體，與檔案層的年份同一族 */
+.msb-meta {
+  grid-area: meta; min-width: 0; margin: 0;
+  font-size: .75rem; line-height: 1.4; letter-spacing: .1em; color: var(--paper-3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.msb-meta #msbYear { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.msb-sep { margin: 0 .45em; color: var(--line-3); }
+
+/* 歌詞入口是文字型按鈕（形狀鎖的明列例外，與 .sa-act 同一支）：
+   透明底、無圓角，hover／focus 時底部長出 1px 強調色細線，箭頭往右讓開 */
+.msb-act {
+  grid-area: act; align-self: center;
+  position: relative;
+  display: inline-flex; align-items: center; gap: .5em;
+  min-height: 32px; padding: 0 2px 6px;
+  border: 0; border-radius: 0; background: none;
+  font-size: .82rem; letter-spacing: .12em; color: var(--paper-2);
+  white-space: nowrap;
+  transition: color .3s var(--ease);
+}
+.msb-act::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 4px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .34s var(--ease);
+}
+.msb-act:hover, .msb-act:focus-visible { color: var(--paper); }
+.msb-act:hover::after,
+.msb-act:focus-visible::after { transform: scaleX(1); }
+.msb-act:focus-visible { outline-color: var(--accent); }
+.msb-act .msb-sym {
+  font-family: var(--f-sans); line-height: 1; color: var(--accent);
+  transition: transform .34s var(--ease);
+}
+.msb-act:hover .msb-sym,
+.msb-act:focus-visible .msb-sym { transform: translateX(4px); }
+
+/* 讓位給固定層：卡片不遮內容，也不遮鍵盤焦點的落點。
+   卡片實測 62px（窄屏 59px）、播放列實測 --pl-h，再各留一點呼吸。
+   這一組數字要與 .msb 的實際高度對得上，改卡片內距就要一起量。 */
+body.has-msb { padding-bottom: 84px; }
+body.has-player.has-msb { padding-bottom: calc(var(--pl-h) + 18px + 76px); }
+html.has-msb { scroll-padding-bottom: 176px; } ────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   :root { --nav-h: 62px; }
   .nav { gap: 22px; }
@@ -3068,7 +3193,7 @@ body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px)
 }
 
 @media (max-width: 860px) {
-  :root { --nav-h: 60px; }
+  :root { --nav-h: 60px; --pl-h: 99px; }
   .nav { display: none; }
   .brand-text i { display: none; }
   /* 檔案的事實表與署名欄收回單欄：860px 以下這一欄只剩 300–700px，
@@ -3138,6 +3263,9 @@ body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px)
   .pl-btns { grid-area: btns; }
   .pl-loop { display: none !important; }
   body.has-player { padding-bottom: 92px; }
+  /* 歌曲狀態列：窄屏的播放列是兩列（實測 99px，即上面的 --pl-h），
+     卡片整張往上讓開同一段高度（18px 是卡片與播放列之間的呼吸） */
+  body.has-player .msb { --msb-b: calc(var(--pl-h) + 18px); }
   /* 窄屏的播放列是兩列（92px），檔案內容要讓開同樣的高度 */
   body.has-player .sa-inner { padding-bottom: calc(56px + 104px); }
 }
@@ -3216,6 +3344,26 @@ body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px)
   /* 曲目列的懸停動作在窄屏收掉：窄列放不下三個動作（它們在檔案裡都有常駐按鈕，
      所以沒有資訊只留在這裡）——與 12 節的 @media (hover: none) 同一條理由 */
   .tr-acts { display: none; }
+  /* 歌曲狀態列：窄屏整張貼滿螢幕寬度、貼著底緣（不再是一張浮起來的置中卡），
+     所以圓角與左右描邊都收掉，與播放列排成同一個底部堆疊。
+     卡片裡的字距收一階，390px 下歌名與入口仍在同一行 */
+  .msb {
+    --msb-b: 0;
+    --msb-x: 0%;
+    left: 0; right: 0; max-width: none;
+    border-radius: 0; border-left: 0; border-right: 0;
+  }
+  /* 播放列貼著底緣時，卡片直接疊在它上面（不留縫），
+     否則兩條同寬的橫條中間夾一道空隙，看起來像掉了一塊 */
+  body.has-player .msb { --msb-b: var(--pl-h); }
+  .msb-inner { padding: 8px var(--gutter) 9px; column-gap: 12px; }
+  .msb-title { font-size: .92rem; }
+  .msb-meta { letter-spacing: .06em; }
+  .msb-act { font-size: .78rem; letter-spacing: .08em; }
+  /* 卡片與播放列都貼著底緣，讓位要算兩層：卡片實測 59px ＋ 播放列 --pl-h */
+  body.has-msb { padding-bottom: 78px; }
+  body.has-player.has-msb { padding-bottom: calc(var(--pl-h) + 59px + 14px); }
+  html.has-msb { scroll-padding-bottom: 176px; }
 }
 
 /* ── 18. reduced motion ────────────────────────────────────────────────── */
@@ -3266,5 +3414,10 @@ body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px)
   .ls-ch { transition: none; }
   .ls-prev,
   .ls-next { filter: none; transition: none; }
+  /* 歌曲狀態列：出現與換歌都不做位移，直接到位。
+     全域已把 transition-duration 壓成 .001ms，這裡再把進場那 14px 歸零，
+     卡片就不會「滑進來」；JS 端也不排隊等換歌的 .36s（見 app.js 的 msbFocus） */
+  .msb,
+  .msb.is-up { transform: translate(var(--msb-x), 0); }
 
 }
