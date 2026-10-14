@@ -1204,8 +1204,12 @@ html.ld-booting .ht-line span {
 }
 
 .cat-tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(20px, 4vw, 72px); }
+/* 一列是一筆檔案條目：編號 → 歌名 → 年份 → 時長。
+   年份欄固定寬度，讓同一張專輯的十幾列字面完全對齊（檔案感來自對齊，
+   不是來自裝飾），時長殿後。 */
 .cat-track {
-  display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+  position: relative;
+  display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) 3.1rem auto;
   align-items: center; gap: 10px;
   padding: 11px 0; border-top: 1px solid var(--line);
   transition: background .3s var(--ease);
@@ -1216,10 +1220,16 @@ html.ld-booting .ht-line span {
   font-family: var(--f-num); font-size: .84rem; color: var(--paper-3);
   font-variant-numeric: tabular-nums; transition: color .3s var(--ease);
 }
-.ct-name {
+/* 歌名是這一列的入口：它是一顆按鈕，但排版上仍是那一行字 */
+.ct-name, .st-name {
+  text-align: left; width: 100%; min-width: 0;
   font-size: .95rem; letter-spacing: .03em; color: var(--paper-2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   transition: color .3s var(--ease), transform .4s var(--ease);
+}
+.ct-year, .st-year {
+  font-family: var(--f-num); font-size: .8rem; color: var(--paper-3);
+  font-variant-numeric: tabular-nums; letter-spacing: .04em;
 }
 .ct-len {
   font-family: var(--f-num); font-size: .82rem; color: var(--paper-3);
@@ -1228,6 +1238,44 @@ html.ld-booting .ht-line span {
 .cat-track:hover .ct-name { color: var(--paper); transform: translateX(4px); }
 /* signature tracks carry a weight change too, so the meaning is never colour-only */
 .cat-track.is-sig .ct-name { color: var(--paper); font-weight: 500; }
+
+/* ── 列的懸停動作：播放／閱讀歌詞／查看檔案 ────────────────────────────────
+   靜置時整組不存在（opacity 0、不吃指標），滑鼠移上或鍵盤聚焦才淡入。
+   這一組**不改行高**：它是絕對定位疊在時長上的一層，左緣接一道墨色漸層，
+   長歌名滑到這裡自然沉進暗處，所以來回掃過不會推動任何一行。
+   span 而非 button：見 js/app.js 的 trackActions（指標捷徑，不進 Tab 序）。 */
+.tr-acts {
+  position: absolute; right: 0; top: 50%;
+  transform: translateY(-50%);
+  display: flex; align-items: center; gap: clamp(10px, 1.6vw, 22px);
+  padding-left: 30px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink-0) 95%, transparent) 30px);
+  opacity: 0; pointer-events: none;
+  transition: opacity .28s var(--ease);
+  white-space: nowrap;
+}
+.cat-track:hover .tr-acts,
+.cat-track:focus-within .tr-acts,
+.sheet-track:hover .tr-acts,
+.sheet-track:focus-within .tr-acts { opacity: 1; pointer-events: auto; }
+.ta {
+  font-size: .75rem; letter-spacing: .1em; color: var(--paper-2);
+  /* 內距只做可點面積（21px 的行高撐到 45px），不影響列高：
+     這一組是絕對定位在時長上的圖層，撐高它不會推動任何一行 */
+  padding: 12px 0;
+  cursor: pointer;
+  transition: color .2s var(--ease);
+}
+.ta:hover { color: var(--paper); }
+.ta[data-play]:hover { color: var(--accent); }
+/* 正在播的那一列，動作列裡的播放字樣跟著變成暫停的語彙 */
+.ta.is-current { color: var(--accent); }
+/* 觸控裝置沒有 hover：這一組永遠不出現，改用歌名鈕進檔案、
+   編號欄的播放鈕播放（既有規則已讓播放圖示常駐）。
+   三個動作在檔案裡都有對應的常駐按鈕，所以沒有資訊只留在這裡。 */
+@media (hover: none) {
+  .tr-acts { display: none; }
+}
 
 .empty {
   max-width: var(--page); margin: 0 auto; padding: clamp(48px, 7vw, 96px) var(--gutter);
@@ -1404,7 +1452,8 @@ html.ld-booting .ht-line span {
 
 .sheet-tracks { margin-top: 8px; }
 .sheet-track {
-  display: grid; grid-template-columns: 4.4rem minmax(0, 1fr) auto;
+  position: relative;
+  display: grid; grid-template-columns: 4.4rem minmax(0, 1fr) 3.1rem auto;
   align-items: center; gap: 12px;
   padding: 12px 0; border-bottom: 1px solid var(--line);
   transition: background .3s var(--ease);
@@ -2540,7 +2589,10 @@ html.ld-booting .ld-hint { opacity: 0; animation: ld-fade .9s var(--ease) 2.9s b
 .lyric-stage {
   position: fixed;
   inset: 0;
-  z-index: 90; /* 在抽屜（80）之上、提示條之下 */
+  /* 模態層的堆疊順序：抽屜 990 → 歌曲檔案 1000 → 歌詞舞台 1002 → 播放列 1005
+     → 提示條 1010。舞台要蓋過檔案（檔案底部那顆「閱讀歌詞」按下去時舞台才開），
+     播放列仍留在最上層讓使用者隨時能停。 */
+  z-index: 1002;
   display: grid;
   grid-template-rows: 1fr auto;
   align-content: center;
@@ -2639,10 +2691,350 @@ html.ld-booting .ld-hint { opacity: 0; animation: ld-fade .9s var(--ease) 2.9s b
 }
 .ls-close .ico { width: 1.05rem; height: 1.05rem; }
 
-/* 舞台開著時鎖住底層捲動，並讓播放鍵保持可見（舞台自帶底部留白） */
+/* 舞台開著時鎖住底層捲動（播放列留在最上層，見上面的 z-index 說明） */
 html.has-lyrics,
 html.has-lyrics body { overflow: hidden; }
-html.has-lyrics .player { z-index: 95; }
+
+/* ── 28. song archive (one song, one dossier) ──────────────────────────── */
+/* 一首歌的獨立檔案：頂列是檔案編號與翻頁，主體左邊是博物館說明牌（題名、歌手、
+   專輯／年份／時長），右邊是這張唱片（封面是實體，唱片與光影是氛圍），
+   下方是創作資訊與兩個文字型入口。
+   這一層是模態：app.js 先移除 hidden、下一個 rAF 加 is-open；關閉時移除 is-open，
+   900ms 之後才 hidden，所以淡出必須在那之前跑完（實際 800ms，見下方宣告）。
+   舊頁面不是被壓暗的——它被這層不透明的墨幕蓋掉，所以不得去動 main 的 opacity。
+   顏色：app.js 把這張專輯派生的 --accent／--accent-on 與封面平均色 --amb
+   寫在 .sa-panel 上。--amb 只做低透明度（≤ .30）背景光暈，
+   不參與文字、邊框、按鈕或任何狀態的著色。 */
+.sarch { position: fixed; inset: 0; z-index: 1000; }
+
+.sa-scrim {
+  position: absolute; inset: 0;
+  background: rgba(4, 4, 6, .82);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  opacity: 0; transition: opacity .62s var(--ease);
+}
+.sarch.is-open .sa-scrim { opacity: 1; }
+
+.sa-panel {
+  position: absolute; inset: 0;
+  background: var(--ink-0);
+  overflow: hidden;
+  opacity: 0; transform: translateY(2.4vh) scale(.99);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+  display: flex; flex-direction: column;
+}
+.sarch.is-open .sa-panel { opacity: 1; transform: none; }
+/* 它是程式聚焦的容器（tabindex="-1"），不是控制項，所以不要焦點圈 */
+.sa-panel:focus { outline: none; }
+/* 作品層打光：封面平均色只做兩層低透明度光暈，再墊一層極淡的強調色留住
+   這張唱片的色彩人格（與 .hero::before 同一套做法，透明度更低） */
+.sa-panel::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(72% 56% at 78% 10%, rgba(var(--amb, 224, 65, 43), .20), transparent 66%),
+    radial-gradient(58% 48% at 16% 88%, rgba(var(--amb, 224, 65, 43), .10), transparent 68%),
+    radial-gradient(56% 44% at 50% 46%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 72%);
+}
+
+.sa-bar {
+  position: relative; z-index: 2; flex: none;
+  height: var(--nav-h);
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 var(--gutter);
+  border-bottom: 1px solid var(--line);
+  background: rgba(8, 8, 10, .5);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.sa-back {
+  flex: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: .55em;
+  padding: .8em 1.4em; border-radius: var(--r-pill); min-height: 44px;
+  font-size: .78rem; letter-spacing: .1em; color: var(--paper-2);
+  border: 1px solid transparent;
+  transition: color .3s var(--ease), border-color .3s var(--ease), background .3s var(--ease);
+}
+.sa-back:hover, .sa-back:focus-visible {
+  color: var(--paper); border-color: var(--line-2); background: rgba(255, 255, 255, .04);
+}
+.sa-back .ico { width: 1.05rem; height: 1.05rem; }
+
+/* 檔案編號：把整位歌手的目錄當成一冊卷宗，這裡是這一筆的座標。
+   它是頂列唯一允許被壓縮的欄位（min-width: 0 + ellipsis），
+   窄屏才不會把翻頁與關閉鈕擠出畫面。 */
+.sa-count {
+  flex: 1 1 auto; min-width: 0; margin-left: 6px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--f-num); font-size: .78rem; letter-spacing: .14em;
+  color: var(--paper-3); font-variant-numeric: tabular-nums;
+}
+/* 翻頁與關閉是圖示型控制項：44px、--r-pill（形狀鎖） */
+.sa-step, .sa-close {
+  flex: none;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-2);
+  color: var(--paper-2);
+  transition: color .18s var(--ease), border-color .18s var(--ease), transform .4s var(--ease);
+}
+.sa-step .ico, .sa-close .ico { width: 1.05rem; height: 1.05rem; }
+.sa-step:hover:not(:disabled), .sa-step:focus-visible,
+.sa-close:hover, .sa-close:focus-visible { color: var(--paper); border-color: var(--accent); }
+.sa-step:disabled { opacity: .3; cursor: default; }
+.sa-close:hover { transform: rotate(90deg); }
+
+/* 檔案自己捲動：頂列 flex: none 留在原地，.sa-scroll 是唯一的捲動容器 */
+.sa-scroll {
+  position: relative; z-index: 1;
+  flex: 1; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+}
+/* 播放列是固定層（z-index 1005，比檔案高一階），會蓋住檔案底部那行。
+   它就地在講「這首沒有本機歌詞」「歌詞載入中」時不能被蓋掉，
+   所以有播放列時多留一段底距（實測列高 70px，窄屏兩列 92px）。 */
+body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px); }
+.sa-inner {
+  max-width: var(--page); margin: 0 auto;
+  padding: clamp(26px, 3.6vw, 60px) var(--gutter) clamp(56px, 8vw, 108px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
+  /* 右欄（唱片＋專輯說明）跨前兩列：唱片高約 480px，若只佔第一列，
+     左欄的創作資訊要等到唱片底部才開始，兩者之間會空掉兩百多像素；
+     說明跟著唱片留在同一欄，才填得掉唱片底下那塊空白 */
+  grid-template-areas: 'head art' 'craft art' 'acts acts' 'story story';
+  align-items: start;
+  column-gap: clamp(26px, 3.6vw, 64px);
+  row-gap: clamp(26px, 3.2vw, 50px);
+}
+.sa-head { grid-area: head; min-width: 0; }
+/* app.js 把唱片與專輯說明包成同一欄（.sa-art）：說明貼在唱片正下方。
+   .sa-stage 不再直接參與 .sa-inner 的格線，所以 grid-area 掛在這裡而不是它身上 */
+.sa-art { grid-area: art; align-self: start; min-width: 0; }
+.sa-craft { grid-area: craft; min-width: 0; }
+.sa-acts { grid-area: acts; }
+.sa-story { grid-area: story; min-width: 0; }
+
+/* 入場：四段錯峰（40／120／180／240ms），每段 .6s，最後一段在 840ms 結束；
+   連同上面 .sa-panel 的 .8s，整段 600–1000ms。關鍵狀態寫在 class 上而不是
+   animation 上，所以末節把時長壓成 0 時內容直接到位，不會卡在起始態。 */
+.sa-head, .sa-art, .sa-craft, .sa-acts {
+  opacity: 0; transform: translateY(12px);
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
+}
+.sarch.is-open .sa-head  { opacity: 1; transform: none; transition-delay: 40ms; }
+.sarch.is-open .sa-art   { opacity: 1; transform: none; transition-delay: 120ms; }
+.sarch.is-open .sa-craft { opacity: 1; transform: none; transition-delay: 180ms; }
+.sarch.is-open .sa-acts  { opacity: 1; transform: none; transition-delay: 240ms; }
+
+/* 說明牌：銘牌 → 檔案編號 → 題名（中文大題名）→ 歌手 → 三組關鍵事實 */
+.sa-kicker {
+  font-family: var(--f-display); font-weight: 500;
+  font-size: .78rem; letter-spacing: .34em; text-transform: uppercase;
+  color: var(--paper-3);
+}
+.sa-access {
+  margin-top: 10px;
+  font-family: var(--f-num); font-size: .78rem; letter-spacing: .16em;
+  color: var(--paper-3); font-variant-numeric: tabular-nums;
+}
+.sa-title {
+  margin-top: clamp(14px, 2vh, 22px);
+  font-family: var(--f-serif); font-weight: 900;
+  font-size: clamp(1.9rem, 4.4vw, 3.4rem);
+  line-height: 1.12; letter-spacing: .03em; padding-bottom: .08em;
+}
+.sa-title::after {
+  content: ''; display: block;
+  width: 64px; height: 2px; margin-top: 18px;
+  background: var(--accent);
+}
+.sa-by {
+  margin-top: 10px;
+  font-family: var(--f-serif); font-size: clamp(.95rem, 1.4vw, 1.15rem);
+  letter-spacing: .12em; color: var(--paper-2);
+}
+/* app.js 把每一組包在 div 裡（合法的 dl 結構）：contents 讓 dt／dd 回到同一張
+   格線，三組的標籤欄才會彼此對齊 */
+.sa-key {
+  margin-top: clamp(18px, 2.4vw, 26px);
+  padding-top: clamp(16px, 2vw, 22px);
+  border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px 22px; align-items: baseline;
+  max-width: 34rem; font-size: .8rem;
+}
+.sa-key > div { display: contents; }
+.sa-key dt { color: var(--paper-3); letter-spacing: .14em; white-space: nowrap; }
+.sa-key dd { color: var(--paper-2); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+
+/* 中間的視覺區（整區 aria-hidden：同樣的資訊說明牌已唸過一次）。
+   唱片是靜態的同心圓溝紋，不旋轉——這裡是檔案，不是播放器。 */
+.sa-stage {
+  position: relative; isolation: isolate;
+  width: 100%; max-width: 30rem; margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  display: grid; place-items: center;
+}
+.sa-glow {
+  position: absolute; inset: -10%; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(50% 50% at 64% 32%, rgba(var(--amb, 224, 65, 43), .26), transparent 68%),
+    radial-gradient(44% 44% at 30% 76%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 72%);
+}
+/* 唱片從封面右後方探出半張。溝紋是靜態的同心圓，永遠不轉：
+   這一頁是檔案，不是播放器（也避開 WCAG 2.2.2 的自動動效問題）。
+   底色仍是墨（--ink-2／--ink-3），只用低透明度白提一階並畫溝紋，
+   否則在 #08080A 上整張唱片會糊成一個黑洞。 */
+.sa-disc {
+  position: absolute; z-index: 1;
+  top: 50%; left: 50%;
+  width: 76%; aspect-ratio: 1 / 1;
+  transform: translate(-22%, -50%);
+  border-radius: 50%;
+  background:
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .06) 0 1px, transparent 1px 5px),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, .05), rgba(255, 255, 255, .012) 72%),
+    radial-gradient(circle at 50% 50%, var(--ink-3) 0 26%, var(--ink-2) 26% 100%);
+  box-shadow: 0 30px 76px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(255, 255, 255, .07);
+}
+/* 中心那圈是紙標：比溝紋亮一階，上面再壓一顆軸孔 */
+.sa-disc::before {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 34%; aspect-ratio: 1 / 1; margin: -17% 0 0 -17%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, var(--ink-3) 0 62%, var(--ink-1) 62% 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10),
+              0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.sa-disc::after {
+  content: ''; position: absolute; left: 50%; top: 50%;
+  width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%; background: var(--ink-0);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .22);
+}
+/* 封面是檔案裡的實體：app.js 在 pointermove 時把聚光位置寫成 --px／--py
+   （與展櫃封面同一套契約），這一層只讀不寫，也不做動畫 */
+.sa-plate {
+  position: relative; z-index: 2;
+  display: block; width: 78%; aspect-ratio: 1 / 1;
+  transform: translateX(-7%);
+  border-radius: var(--r); overflow: hidden;
+  background: var(--ink-2);
+  box-shadow: 0 34px 88px rgba(0, 0, 0, .62), 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.sa-plate img { width: 100%; height: 100%; object-fit: cover; }
+.sa-plate::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(240px circle at var(--px, 50%) var(--py, 50%),
+              rgba(255, 255, 255, .10), rgba(255, 255, 255, 0) 60%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10);
+}
+
+/* 創作資訊：一列事實表（沿用抽屜的分工）＋ 一段散文。
+   刻意不做成卡片：這是說明牌，不是又一張要堆起來的面板。 */
+.sa-h {
+  font-size: .75rem; letter-spacing: .24em; color: var(--paper-3);
+  display: flex; align-items: center; gap: 14px;
+}
+.sa-h::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+/* 兩欄：左邊是這首歌的事實，右邊是署名（作詞／作曲／編曲／製作人與其他）。
+   並排而不是把署名接成事實表的後幾列——署名多是短字串，接在下面會讓左欄再長
+   一截，把底部兩個入口推下折線（實測 1440×900 下左欄本就是較高的那一欄，
+   `.sa-acts` 底緣 845/900）。窄屏（≤860px）收回單欄。 */
+.sa-notes {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr);
+  gap: clamp(18px, 2.4vw, 40px);
+  margin-top: clamp(16px, 2vw, 24px);
+}
+.sa-facts {
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px 26px; align-items: baseline;
+  max-width: 44rem; font-size: .8rem;
+}
+.sa-facts dt { color: var(--paper-3); letter-spacing: .14em; white-space: nowrap; }
+.sa-facts dd { color: var(--paper-2); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+/* 署名欄：標籤欄窄一階（最長是「製作人」三字），值一律可折行 */
+.sa-credits {
+  display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px 18px; align-items: baseline;
+  max-width: 44rem; font-size: .8rem;
+}
+/* 這一欄的小標題佔滿整列，讓它與左欄的「曲序／發行」對齊在同一條起線上 */
+.sa-credits-h {
+  grid-column: 1 / -1; margin-bottom: 1px;
+  font-size: .75rem; letter-spacing: .24em; color: var(--paper-3);
+}
+.sa-credits dt { color: var(--paper-3); letter-spacing: .14em; white-space: nowrap; }
+.sa-credits dd { color: var(--paper-2); letter-spacing: .04em; }
+/* 逐曲文案與時代背景放在兩個入口之後（見 app.js 的同一條註解）：
+   長度不可預期，放在入口之前一填上文案就會把入口推下折線 */
+.sa-story {
+  display: grid; gap: clamp(14px, 1.8vw, 22px);
+  padding-top: clamp(20px, 2.6vw, 30px);
+  border-top: 1px solid var(--line);
+}
+.sa-prose {
+  margin: 0; max-width: 44rem;
+  font-family: var(--f-serif); font-size: clamp(.92rem, 1.05vw, 1rem);
+  line-height: 2; letter-spacing: .05em; color: var(--paper-2);
+}
+/* 專輯說明跟著唱片（在 .sa-art 欄內），填的是唱片底下那塊空白，
+   所以它不再是「創作資訊的後一段」：沒有上分隔線與內距，只有一段上緣間隔。
+   限寬比照唱片寬度（34rem），免得說明比唱片寬出一大截；
+   限寬用 rem 不用 ch（CJK 字體下 1ch 只有半個漢字寬，見 .ha-note／.ls-inner）。 */
+.sa-blurb {
+  margin: clamp(18px, 2.4vw, 28px) auto 0;
+  max-width: min(100%, 34rem);
+  font-family: var(--f-serif); font-size: clamp(.92rem, 1.05vw, 1rem);
+  line-height: 2; letter-spacing: .05em; color: var(--paper-2);
+}
+.sa-blurb-tag {
+  display: block; margin-bottom: 8px;
+  font-family: var(--f-sans); font-size: .75rem; letter-spacing: .24em;
+  color: var(--paper-3);
+}
+
+/* 底部的入口是文字型按鈕：透明底、無圓角、無邊框，hover／focus 時底部長出
+   1px 強調色細線，與 .ld-cta／.hero-cta .btn 同一套語言（形狀鎖的明列例外）。
+   不做彩色色塊——這一頁已經有一個強調色在封面與銘牌線上。 */
+.sa-acts {
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  gap: clamp(20px, 3vw, 46px);
+  padding-top: clamp(20px, 2.6vw, 30px);
+  border-top: 1px solid var(--line);
+}
+.sa-act {
+  position: relative;
+  display: inline-flex; align-items: center; gap: .55em;
+  min-height: 44px; padding: 0 2px 10px;
+  border: 0; border-radius: 0; background: none;
+  font-size: .95rem; letter-spacing: .14em; color: var(--paper);
+}
+.sa-act::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .34s var(--ease);
+}
+.sa-act:hover::after, .sa-act:focus-visible::after { transform: scaleX(1); }
+.sa-act .sa-sym {
+  font-family: var(--f-sans); line-height: 1; color: var(--accent);
+  transition: transform .34s var(--ease);
+}
+.sa-act:hover .sa-sym,
+.sa-act:focus-visible .sa-sym { transform: translateX(5px); }
+/* 播放符號在動詞之前：往右會撞上文字，所以它往左讓開 */
+.sa-act[data-sa-play]:hover .sa-sym,
+.sa-act[data-sa-play]:focus-visible .sa-sym { transform: translateX(-4px); }
+.sa-act:focus-visible { outline-color: var(--accent); }
+/* 就地的成敗說明（role="status" 由 app.js 掛好）；空的時候不佔位 */
+.sa-note {
+  flex: 1 1 100%; margin: 0;
+  font-size: .78rem; letter-spacing: .1em; color: var(--paper-3);
+}
+.sa-note:empty { display: none; }
 
 /* ── 25. responsive ────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
@@ -2665,12 +3057,23 @@ html.has-lyrics .player { z-index: 95; }
   .data-body { grid-template-columns: minmax(0, 1fr); }
   .ranks-body { grid-template-columns: minmax(0, 1fr); }
   .data-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 歌曲檔案：單欄。唱片與說明（.sa-art）收窄置中，並挪到創作資訊之後——
+     30rem 的方形若緊接題名，會在平板上把創作資訊整段推到折線以下 */
+  .sa-inner {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'head' 'craft' 'art' 'acts' 'story';
+    row-gap: 26px;
+  }
+  .sa-stage { max-width: 22rem; }
 }
 
 @media (max-width: 860px) {
   :root { --nav-h: 60px; }
   .nav { display: none; }
   .brand-text i { display: none; }
+  /* 檔案的事實表與署名欄收回單欄：860px 以下這一欄只剩 300–700px，
+     並排會讓長署名折成三四行 */
+  .sa-notes { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   /* 入口頁在 620–860px 之間是空檔：封面仍是桌面檔的 400px，
      但視口只有 620–860，套桌面檔的 ±66%/±128% 位移會讓最外那張
      越出左緣（實測 827px 視口下 left −227px）。這一檔先把封面收回，
@@ -2735,6 +3138,8 @@ html.has-lyrics .player { z-index: 95; }
   .pl-btns { grid-area: btns; }
   .pl-loop { display: none !important; }
   body.has-player { padding-bottom: 92px; }
+  /* 窄屏的播放列是兩列（92px），檔案內容要讓開同樣的高度 */
+  body.has-player .sa-inner { padding-bottom: calc(56px + 104px); }
 }
 
 @media (max-width: 620px) {
@@ -2769,7 +3174,9 @@ html.has-lyrics .player { z-index: 95; }
   .ld-hint { font-size: .75rem; }
   .artist-switch { position: static; }
   .artist-menu { right: auto; left: 50%; transform: translateX(-50%); min-width: 220px; }
-  .sheet-track { grid-template-columns: 3.6rem minmax(0, 1fr) auto; gap: 10px; }
+  /* 抽屜的曲目列在窄屏仍是四欄（播放／歌名／年份／時長）：
+     列多了年份欄之後，這裡若還留三欄，時長會被推到第二列去 */
+  .sheet-track { grid-template-columns: 3.6rem minmax(0, 1fr) 2.6rem auto; gap: 10px; }
   .sheet-track .ct-play { min-width: 40px; padding: 0 7px; gap: 5px; }
   /* keep the row on one line: number, year, title, chevron */
   .chrono-row {
@@ -2791,6 +3198,24 @@ html.has-lyrics .player { z-index: 95; }
   .era-covers button { flex: 0 0 calc(33.333% - 8px); }
   .pl-btn--skip { display: none; }
   .pl-times { font-size: .75rem; }
+  /* 歌曲檔案：返回只留圖示（但仍撐住 44×44），編號欄自己省略，
+     其餘三顆鈕都是 44px——390px 下 44×4 + 間距仍在 350px 內，overflowX = 0 */
+  .sa-bar { gap: 4px; }
+  .sa-back { padding: .55em .8em; min-width: 44px; }
+  .sa-back span { display: none; }
+  .sa-count { margin-left: 2px; letter-spacing: .1em; }
+  .sa-inner { padding-top: 20px; row-gap: 22px; }
+  .sa-title { font-size: clamp(1.72rem, 8.6vw, 2.2rem); }
+  .sa-stage { max-width: 17rem; }
+  .sa-plate { width: 80%; }
+  .sa-key, .sa-facts { gap: 8px 16px; }
+  /* 窄屏的署名欄與事實表同寬同節奏 */
+  .sa-credits { gap: 8px 16px; }
+  .sa-acts { gap: 14px 26px; padding-top: 18px; }
+  .sa-act { font-size: .88rem; letter-spacing: .1em; }
+  /* 曲目列的懸停動作在窄屏收掉：窄列放不下三個動作（它們在檔案裡都有常駐按鈕，
+     所以沒有資訊只留在這裡）——與 12 節的 @media (hover: none) 同一條理由 */
+  .tr-acts { display: none; }
 }
 
 /* ── 18. reduced motion ────────────────────────────────────────────────── */
@@ -2841,4 +3266,5 @@ html.has-lyrics .player { z-index: 95; }
   .ls-ch { transition: none; }
   .ls-prev,
   .ls-next { filter: none; transition: none; }
+
 }

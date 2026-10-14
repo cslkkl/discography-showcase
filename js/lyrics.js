@@ -1,8 +1,15 @@
 /*  js/lyrics.js — 全屏歌词舞台
  *
  *  零依赖、无构建，随 artist.html 以经典脚本加载。
- *  数据：js/data.js 的 track.lyrics（仅本机听歌模式存在，见 npm run build:local）。
- *  歌词文件是第三方版权文本，登记档与文件都不进版本库。
+ *  数据：js/data.js 里每首歌的 song.lyrics（一个 sidecar 描述子，只有本机听歌模式
+ *  才有；公开产物连这个键都没有，见 npm run build:local）。歌词文件是第三方版权
+ *  文本，登记档与文件都不进版本库，也不内嵌进 data.js。
+ *
+ *  一行歌词的规范形状（歌曲档案的资料模型共用它，见 docs/ARCHITECTURE.md 的契约节）：
+ *    { time: 12.34, text: '想要有直升机', end: 15.2 }
+ *    time 是秒（数字，便于比较与扫光插值），text 是该行文字，
+ *    end 是这一行的结束时间、由解析器从下一行的 time 补出（最后一行给 4 秒）。
+ *    由 parseLrc() 产出；舞台内部直接消费这个形状，没有第二套。
  *
  *  逐行 LRC 没有逐字时间轴，所以扫光位置由「当前行时长」在字元间按宽度插值，
  *  并对短句降级（见 hintFor）：这一层思路取自 Folia 的 renderHints，
@@ -95,11 +102,11 @@
         var frac = st[3] || '0';
         var sec =
           Number(st[1]) * 60 + Number(st[2]) + Number('0.' + frac.padEnd(3, '0').slice(0, 3));
-        pending.push({ t: sec, text: body });
+        pending.push({ time: sec, text: body });
       }
     }
     pending.sort(function (a, b) {
-      return a.t - b.t;
+      return a.time - b.time;
     });
     /* 过滤制作人员行、演唱者标记与空行 */
     for (var k = 0; k < pending.length; k++) {
@@ -107,11 +114,11 @@
       if (!tx) continue;
       if (CREDIT.test(tx)) continue;
       if (SPEAKER.test(tx)) continue;
-      out.push({ t: pending[k].t, text: tx });
+      out.push({ time: pending[k].time, text: tx });
     }
     /* 补出每行的结束时间（下一行开始；最后一行给一个合理默认） */
     for (var j = 0; j < out.length; j++) {
-      out[j].end = j + 1 < out.length ? out[j + 1].t : out[j].t + 4;
+      out[j].end = j + 1 < out.length ? out[j + 1].time : out[j].time + 4;
     }
     return out;
   }
@@ -123,6 +130,8 @@
   var stageTrack = '';
   var loading = false;
   var loadSeq = 0;
+  /* 已受理但還沒解析完的「開舞台」請求（見 openFor）：{ zh, title, fail } */
+  var pending = null;
   var rafId = 0;
   var lastIdx = -2;
   var active = false;
@@ -170,8 +179,8 @@
     if (hint.sweep === 'instant') {
       lit = spans.length;
     } else {
-      var span = Math.max(0.001, line.end - line.t);
-      lit = Math.round(((now - line.t) / span) * spans.length);
+      var span = Math.max(0.001, line.end - line.time);
+      lit = Math.round(((now - line.time) / span) * spans.length);
     }
     if (lit < 0) lit = 0;
     if (lit > spans.length) lit = spans.length;
@@ -184,7 +193,7 @@
     var hit = -1;
     while (lo <= hi) {
       var mid = (lo + hi) >> 1;
-      if (lines[mid].t <= now) {
+      if (lines[mid].time <= now) {
         hit = mid;
         lo = mid + 1;
       } else hi = mid - 1;
@@ -205,7 +214,7 @@
       elPrev.textContent = prev ? prev.text : '';
       elNext.textContent = next ? next.text : '';
       if (cur) {
-        var hint = hintFor(cur.end - cur.t);
+        var hint = hintFor(cur.end - cur.time);
         var spans = paintLine(elCur, cur.text, REDUCED.matches ? false : true);
         elCur.setAttribute('data-cls', hint.cls);
         /* 前奏里这一句还没开始唱，一个字都不点亮 */
@@ -216,7 +225,7 @@
     } else if (head >= 0 && idx >= 0 && !REDUCED.matches) {
       var line = lines[head];
       var sp = elCur.querySelectorAll('.ls-ch');
-      if (sp.length) sweep(sp, line, now, hintFor(line.end - line.t));
+      if (sp.length) sweep(sp, line, now, hintFor(line.end - line.time));
     }
   }
 
@@ -271,6 +280,8 @@
   function close() {
     if (!stage) return;
     active = false;
+    /* 關掉舞台時把「待開」的請求一起取消：解析完成後不該再自己彈回來 */
+    pending = null;
     stage.classList.remove('is-open');
     stage.hidden = true;
     document.documentElement.classList.remove('has-lyrics');
@@ -286,9 +297,61 @@
     return !!stage && !stage.hidden;
   }
 
+  /* ── 歌曲檔案的歌詞入口 ─────────────────────────────────────
+     檔案（Song Archive）以「一首歌」為單位，它的閱讀歌詞鈕按下去時，
+     歌詞未必已經在記憶體裡（plLoad 的預載是非同步的）。這裡把
+     「沒有歌詞檔」與「還在解析」兩件事分開講清楚：
+       回傳 false → 這首沒有歌詞，呼叫方就地說明，不要開空舞台；
+       回傳 true  → 已受理；解析完成就自己開舞台。
+     失敗訊息交給呼叫方（onFail），因為只有它知道自己那塊畫面的文案在哪。 */
+  function openFor(albumTitle, track, onFail) {
+    if (!ensureDom()) {
+      if (onFail) onFail('歌詞舞台不在這一頁');
+      return false;
+    }
+    if (!track || !track.lyrics) {
+      if (onFail) onFail('這首沒有本機歌詞');
+      return false;
+    }
+    var a = document.getElementById('plAudio');
+    if (!a || !a.src) {
+      if (onFail) onFail('先播放一首再開歌詞');
+      return false;
+    }
+    if (lines.length && stageTrack === track.zh) {
+      open(albumTitle, track.zh);
+      return true;
+    }
+    pending = { zh: track.zh, title: albumTitle || '', fail: onFail || null };
+    if (!loadFor(albumTitle, track)) {
+      pending = null;
+      if (onFail) onFail('這首沒有本機歌詞');
+      return false;
+    }
+    return true;
+  }
+
+  /* 受理後又被取消（例如檔案已經關掉）：不要再自己把舞台打開 */
+  function cancel() {
+    pending = null;
+  }
+
+  /* 解析結束的收尾：只有「這一首」的待開請求會被兌現，
+     換歌後才回來的舊回應一律作廢（與 lines 的序號守衛同一個理由） */
+  function settlePending(ok, zh) {
+    var p = pending;
+    if (!p || p.zh !== zh) return;
+    pending = null;
+    if (ok) open(p.title, zh);
+    else if (p.fail) p.fail('歌詞載入失敗');
+  }
+
   /* 换歌：读 lyrics 路径并解析。异步取，不阻塞播放；取不到就清空，
-     舞台打开时会就地说明「这首没有本机歌词」。 */
-  function loadFor(albumId, albumTitle, track) {
+     舞台打开时会就地说明「这首没有本机歌词」。
+     参数只有专辑名（给说明行用）与曲目本身；专辑 id 曾经在签名里但从未被用到，
+     留着一个不讀的参数只会让调用端多传一个错的位（openFor 一度就因此传错位、
+     被当成「这首没有本机歌词」）。 */
+  function loadFor(albumTitle, track) {
     lines = [];
     lastIdx = -2;
     stageAlbum = albumTitle || '';
@@ -296,6 +359,7 @@
     var rel = track && track.lyrics;
     if (!rel) return false;
     loading = true;
+    var wantZh = (track && track.zh) || '';
     /* 快速連按上下首時，先發的請求可能後到：用序號丟掉過期回應 */
     var seq = ++loadSeq;
     var xhr = new XMLHttpRequest();
@@ -303,9 +367,15 @@
     xhr.onload = function () {
       if (seq !== loadSeq) return;
       loading = false;
-      if (xhr.status && xhr.status !== 200 && xhr.status !== 0) return;
+      if (xhr.status && xhr.status !== 200 && xhr.status !== 0) {
+        settlePending(false, wantZh);
+        return;
+      }
       var parsed = parseLrc(xhr.responseText, track && track.zh);
-      if (!parsed.length) return;
+      if (!parsed.length) {
+        settlePending(false, wantZh);
+        return;
+      }
       lines = parsed;
       lastIdx = -2;
       stageTrack = (track && track.zh) || '';
@@ -315,9 +385,13 @@
         var a = document.getElementById('plAudio');
         paint(a ? a.currentTime : 0);
       }
+      /* 檔案（Song Archive）按下閱讀歌詞時舞台還沒開，這裡把它接上 */
+      settlePending(true, wantZh);
     };
     xhr.onerror = function () {
-      if (seq === loadSeq) loading = false;
+      if (seq !== loadSeq) return;
+      loading = false;
+      settlePending(false, wantZh);
     };
     xhr.send(null);
     return true;
@@ -328,6 +402,8 @@
     hintFor: hintFor,
     loadFor: loadFor,
     open: open,
+    openFor: openFor,
+    cancel: cancel,
     close: close,
     isOpen: isOpen,
     toggle: function (albumTitle, trackZh) {

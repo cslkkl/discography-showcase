@@ -233,6 +233,52 @@
     );
   }
 
+  /* 歌曲列的動作：靜置只呈現事實（編號／歌名／年份／時長），
+     滑鼠移上或鍵盤聚焦才淡入這三個動作。
+     它們是**指標捷徑**，不是第二組控制項：真正進得了鍵盤與讀屏的是編號欄的
+     播放鈕、歌名鈕與檔案裡的兩顆入口鈕。所以這裡用 span + aria-hidden，
+     既不製造重複的無障礙節點，也不讓 175 列多出幾百個 Tab 停點。
+     沒有音源的曲目就不放「播放」這一項，免得按下去只換來一句沒有試聽。 */
+  function trackActions(a, t) {
+    var w = playWords(t);
+    return (
+      '<span class="tr-acts" aria-hidden="true">' +
+      (t.audio
+        ? '<span class="ta" data-play="' + a.id + ':' + t.n + '">▶ ' + w.verb + '</span>'
+        : '') +
+      '<span class="ta" data-archive-lyrics="' +
+      a.id +
+      ':' +
+      t.n +
+      '">◎ 閱讀歌詞</span>' +
+      '<span class="ta" data-archive="' +
+      a.id +
+      ':' +
+      t.n +
+      '">→ 查看檔案</span>' +
+      '</span>'
+    );
+  }
+
+  /* 歌名是這一列的主要入口：點下去進歌曲檔案（Song Archive），
+     不是展開清單、也不是直接播放。播放留在編號欄那顆鈕上。 */
+  function trackNameButton(a, t, cls) {
+    return (
+      '<button class="' +
+      cls +
+      '" type="button" data-archive="' +
+      a.id +
+      ':' +
+      t.n +
+      '"' +
+      ' aria-label="開啟歌曲檔案，' +
+      esc(t.zh) +
+      '">' +
+      esc(t.zh) +
+      '</button>'
+    );
+  }
+
   /* ── boot ───────────────────────────────────────────────────────────── */
   var bootEl = $('#boot'),
     bootYear = $('#bootYear'),
@@ -375,19 +421,24 @@
     setAmbient(ALBUMS[fanIdx] && ALBUMS[fanIdx].sourceAvg);
   }
 
+  /* 封面的平均色 → "r, g, b"：--amb 的消費端一律是 rgba(var(--amb), α)。
+     歌手頁的打光與歌曲檔案（Song Archive）的打光共用這一個出口，
+     免得同一個色值有兩份解析。 */
+  function ambTriple(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+    if (!m) return null;
+    var v = parseInt(m[1], 16);
+    return ((v >> 16) & 255) + ', ' + ((v >> 8) & 255) + ', ' + (v & 255);
+  }
+
   /* 動態環境光：當前專輯封面的平均色寫進 --amb，CSS 以 rgba(var(--amb), α) 疊光。
      背景不再是固定的一層紅，而是隨唱片換色——Apple Music 的年鑑就是這個做法。
      只寫一個自訂屬性，不動版面、不讀版面。 */
   function setAmbient(hex) {
-    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
-    if (!m) return;
-    var v = parseInt(m[1], 16);
+    var amb = ambTriple(hex);
+    if (!amb) return;
     var hero = $('#hero');
-    if (hero)
-      hero.style.setProperty(
-        '--amb',
-        ((v >> 16) & 255) + ', ' + ((v >> 8) & 255) + ', ' + (v & 255)
-      );
+    if (hero) hero.style.setProperty('--amb', amb);
   }
 
   /* 換片：舊片先退場，短暫過渡，新片再放大出現、光線增強一次。
@@ -1483,8 +1534,9 @@
     JC.signature.forEach(function (t) {
       var b = el('button', 'pick');
       b.type = 'button';
-      b.setAttribute('data-open', t.album);
-      b.setAttribute('aria-label', t.zh + '，' + t.albumTitle + '，' + t.len);
+      /* 代表曲也是「歌」：點下去進歌曲檔案，與曲目總表同一條路徑 */
+      b.setAttribute('data-archive', t.album + ':' + t.n);
+      b.setAttribute('aria-label', '開啟歌曲檔案，' + t.zh + '，' + t.albumTitle + '，' + t.len);
       b.innerHTML =
         '<span class="pk-title">' +
         esc(t.zh) +
@@ -1576,14 +1628,18 @@
       var ol = el('ol', 'cat-tracks');
       g.tracks.forEach(function (t) {
         var li = el('li', 'cat-track' + (t.sig ? ' is-sig' : ''));
+        /* 檔案式條目：編號 → 歌名 → 年份 → 時長，一行一筆。
+           年份與時長都是既有資料（專輯年份、曲目時長），不新增欄位 */
         li.innerHTML =
           playBtn(g.album.id, t, 'ct-num') +
-          '<span class="ct-name">' +
-          esc(t.zh) +
+          trackNameButton(g.album, t, 'ct-name') +
+          '<span class="ct-year">' +
+          g.album.year +
           '</span>' +
           '<span class="ct-len">' +
           t.len +
-          '</span>';
+          '</span>' +
+          trackActions(g.album, t);
         ol.appendChild(li);
       });
       wrap.appendChild(ol);
@@ -1740,12 +1796,15 @@
           (t.sig ? ' is-sig' : '') +
           '">' +
           playBtn(a.id, t, 'st-num') +
-          '<span class="st-name">' +
-          esc(t.zh) +
+          trackNameButton(a, t, 'st-name') +
+          '<span class="st-year">' +
+          a.year +
           '</span>' +
           '<span class="st-len">' +
           t.len +
-          '</span></li>'
+          '</span>' +
+          trackActions(a, t) +
+          '</li>'
         );
       })
       .join('');
@@ -1869,6 +1928,505 @@
         return n.offsetParent !== null;
       }
     );
+    if (!items.length) return;
+    var first = items[0],
+      last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
+  /* ── song archive ──────────────────────────────────────────────────────
+     一首歌的獨立檔案空間（Song Archive）。過去點一首歌只有兩個結果：播放，
+     或展開一份清單；這裡讓「歌」本身成為一份可以讀的檔案——頂部是檔案編號
+     與題名（歌名／歌手／專輯／年份／時長），中間是唱片視覺，底部是歌詞與
+     完整檔案兩個入口，再下面是從既有資料算出來的創作資訊。
+
+     兩層模態的關係：檔案疊在專輯抽屜之上（抽屜仍開著，回來時還在原位），
+     歌詞舞台再疊在檔案之上。三者都是 aria-modal，所以檔案開著時把底下的
+     抽屜標成 aria-hidden，免得讀屏同時念到兩份內容。
+
+     顏色：歌手層的 --accent 不動；檔案是「一張唱片」的表面，強調色取該張
+     專輯派生的色（與抽屜面板同一條規則），封面的平均色另走 --amb 打光。 */
+  var sarch, saPanel, saScroll, saCount, saNote, saPrevBtn, saNextBtn;
+  var saRef = null; /* 檔案當前指向的那一首：{ album, n } */
+  var saLastFocus = null;
+  var saCloseTimer = 0;
+  /* 收場的序號：關檔案的收尾要等淡出跑完（900ms），這期間可能又被打開。
+     守衛**不能**用 saOpen()——那時 hidden 還是 false（正是等收尾才要設的），
+     它會恆為真，於是收尾永遠提早 return、檔案再也收不掉。 */
+  var saSeq = 0;
+
+  function saOpen() {
+    return !!sarch && !sarch.hidden;
+  }
+
+  /* 動態寫入的文字要先清掉 localize() 的原文快取，否則切換語言時會還原成
+     上一首的歌名（與 syncPlayingRows 對 .pl-label 的做法同一條理由） */
+  function setLive(node, text) {
+    if (!node) return;
+    var tn = node.firstChild;
+    if (tn && tn.nodeType === 3) textOrig.delete(tn);
+    node.textContent = text;
+    localize(node);
+  }
+
+  /* 檔案編號：把整位歌手的目錄當成一冊卷宗，這首是第幾筆。
+     song 紀錄已經帶了同一個數字（build.mjs 依全目錄順序編號），有就直接用；
+     舊版資料沒有 song 時才自己數一遍，兩條路徑得到相同的值。 */
+  function archiveNo(a, t) {
+    if (t.song && t.song.no) return t.song.no;
+    for (var i = 0; i < JC.tracks.length; i++) {
+      var x = JC.tracks[i];
+      if (x.album === a.id && String(x.n) === String(t.n)) return i + 1;
+    }
+    return 0;
+  }
+
+  /* 一首歌的檔案紀錄。新版資料每首歌自帶一份 song（欄位見 docs/ARCHITECTURE.md
+     的契約節）；舊版 data.js 沒有這個欄位，所以缺什麼就從曲目與專輯就地補出
+     同樣的形狀——HTML 更新而 JS 還是舊版（或反過來）時，畫面與從前一致，
+     不會因為多讀一個不存在的欄位而整塊空白。 */
+  function songOf(a, t) {
+    if (t.song) return t.song;
+    return {
+      id: a.id + '-' + t.n,
+      no: archiveNo(a, t),
+      title: t.zh,
+      artist: JC.name,
+      album: a.title,
+      albumId: a.id,
+      year: a.year,
+      duration: t.len,
+      durationSec: t.sec,
+      cover: a.cover
+    };
+  }
+
+  /* 這首歌落在那個年代分期裡（分期由 meta.mjs 手寫、build.mjs 依年份歸戶） */
+  function eraOfYear(y) {
+    var list = JC.eras || [];
+    for (var i = 0; i < list.length; i++) {
+      if (y >= list[i].from && y <= list[i].to) return list[i];
+    }
+    return null;
+  }
+
+  /* 署名的顯示順序：四個規範角色在前（資料模型固定的欄位），
+     其餘（混音／母帶／吉他…）依原樣接在後面 */
+  var CREDIT_ROLES = [
+    ['lyricist', '作詞'],
+    ['composer', '作曲'],
+    ['arranger', '編曲'],
+    ['producer', '製作人']
+  ];
+
+  function creditRowsHTML(s) {
+    var out = '';
+    CREDIT_ROLES.forEach(function (r) {
+      if (s[r[0]]) out += '<dt>' + r[1] + '</dt><dd>' + esc(s[r[0]]) + '</dd>';
+    });
+    /* 一首都沒有時仍留一列：署名是資料模型的一部分，空著要說清楚是「未收錄」 */
+    return out || '<dt>署名</dt><dd>未收錄</dd>';
+  }
+
+  /* 其他署名（混音／母帶／吉他／OP…）整理成一行文字。
+     這些值常帶著錄音室與城市（實測「Randy Merrill at Sterling Sound (New York, NY)」），
+     塞進只有兩百多像素寬的署名欄會折成三四行，把底部兩個入口頂出首屏
+     （實測 `.sa-acts` 底緣 845 → 1049）；所以它們走入口之後的補充區，
+     那裡是整段寬度，最壞 8 條也只佔一段。 */
+  function extraCreditsText(s) {
+    return (s.credits || [])
+      .map(function (c) {
+        return c && c.role && c.name ? c.role + ' ' + c.name : '';
+      })
+      .filter(Boolean)
+      .join('、');
+  }
+
+  /* 段落：標籤在上、本文在下（沿用專輯說明那套 .sa-blurb-tag） */
+  function proseHTML(tag, text) {
+    if (!text) return '';
+    return '<p class="sa-prose"><span class="sa-blurb-tag">' + tag + '</span>' + esc(text) + '</p>';
+  }
+
+  /* 歌名裡的合唱標註：檔案已經在歌手欄寫了本尊，合作者另立一列 */
+  function trackCollab(t) {
+    var m = /\((?:feat\.|with)\s*([^)]+)\)/i.exec(t.zh || '');
+    return m ? m[1].trim() : '';
+  }
+
+  function archiveHTML(a, t) {
+    var pos = 1;
+    a.tracks.forEach(function (x, i) {
+      if (String(x.n) === String(t.n)) pos = i + 1;
+    });
+    var acc = archiveNo(a, t);
+    var w = playWords(t);
+    /* 這首在該專輯裡的長度位置：全部由曲目時長直接算，沒有估算值 */
+    var sum = 0;
+    a.tracks.forEach(function (x) {
+      sum += x.sec || 0;
+    });
+    var avg = a.tracks.length ? Math.round(sum / a.tracks.length) : 0;
+    var diff = avg && t.sec ? Math.round(t.sec - avg) : 0;
+    var lenNote = !diff
+      ? '與本輯平均相同'
+      : diff > 0
+        ? '比本輯平均長 ' + diff + ' 秒'
+        : '比本輯平均短 ' + Math.abs(diff) + ' 秒';
+    var collab = trackCollab(t);
+    /* 歌曲的檔案紀錄：署名、逐曲文案與年代都在這裡。全部走 songOf() 的 fallback，
+       缺欄位時（舊資料、未收錄）就少一列、少一段，不留空殼。 */
+    var song = songOf(a, t);
+    var era = song.year ? eraOfYear(song.year) : null;
+    var story =
+      proseHTML('其他署名', extraCreditsText(song)) +
+      proseHTML('歌曲介紹', song.description) +
+      proseHTML('創作背景', song.story) +
+      (era ? proseHTML('時代背景 · ' + era.title + (era.en ? ' ' + era.en : ''), era.note) : '');
+    return (
+      '<div class="sa-inner">' +
+      '<header class="sa-head">' +
+      '<p class="sa-kicker">SONG ARCHIVE</p>' +
+      '<p class="sa-access">NO. ' +
+      String(acc ? acc : 0).padStart(3, '0') +
+      ' / ' +
+      JC.stats.tracks +
+      ' · ' +
+      esc(JC.en) +
+      '</p>' +
+      '<h2 class="sa-title" id="saTitle">' +
+      esc(t.zh) +
+      '</h2>' +
+      '<p class="sa-by">' +
+      esc(JC.name) +
+      '</p>' +
+      '<dl class="sa-key">' +
+      '<div><dt>專輯</dt><dd>《' +
+      esc(a.title) +
+      (a.alt ? ' · ' + esc(a.alt) : '') +
+      '》</dd></div>' +
+      '<div><dt>年份</dt><dd>' +
+      a.year +
+      '</dd></div>' +
+      '<div><dt>時長</dt><dd>' +
+      esc(t.len) +
+      '</dd></div>' +
+      '</dl>' +
+      '</header>' +
+      /* 中間的視覺區：封面是實體，光影與唱片是氛圍。
+         整區 aria-hidden，因為同樣的資訊在上面那張說明牌已經唸過一次。
+         專輯說明跟著唱片走：它填的是唱片底下那塊空白，而左欄因此短一截，
+         兩個入口才進得了首屏（實測 1440×900 下 1036 → 832 以內） */
+      '<div class="sa-art">' +
+      '<div class="sa-stage" aria-hidden="true">' +
+      '<span class="sa-glow"></span>' +
+      '<span class="sa-disc"></span>' +
+      '<span class="sa-plate"><img src="assets/covers/responsive/' +
+      a.id +
+      '-480.jpg" srcset="' +
+      srcset(a) +
+      '" sizes="(max-width: 860px) 74vw, 30vw" alt="" decoding="async"></span>' +
+      '</div>' +
+      '<p class="sa-blurb"><span class="sa-blurb-tag">專輯說明</span>' +
+      esc(a.blurb) +
+      '</p>' +
+      '</div>' +
+      /* 創作資訊分兩欄：左邊是這首歌的事實（曲序、發行、出版…），
+         右邊是署名（作詞、作曲、編曲、製作人與其他）。兩欄並排而不是接成一長串，
+         才不會把底部的兩個入口推到折線以下（實測左欄已是較高的那一欄）。 */
+      '<section class="sa-craft">' +
+      '<h3 class="sa-h">創作資訊</h3>' +
+      '<div class="sa-notes">' +
+      '<dl class="sa-facts">' +
+      '<dt>曲序</dt><dd>第 ' +
+      pos +
+      ' / ' +
+      a.tracks.length +
+      ' 首' +
+      (t.disc > 1 ? '（第 ' + t.disc + ' 碟）' : '') +
+      '</dd>' +
+      '<dt>發行</dt><dd>' +
+      esc(a.date) +
+      '</dd>' +
+      '<dt>出版</dt><dd>' +
+      esc(a.publisher) +
+      '</dd>' +
+      '<dt>長度</dt><dd>' +
+      esc(t.len) +
+      ' · ' +
+      lenNote +
+      '</dd>' +
+      '<dt>音源</dt><dd>' +
+      w.mode +
+      '</dd>' +
+      '<dt>歌詞</dt><dd>' +
+      (t.lyrics ? '已收錄本機歌詞' : '未收錄本機歌詞') +
+      '</dd>' +
+      (collab ? '<dt>合作</dt><dd>' + esc(collab) + '</dd>' : '') +
+      (t.sig ? '<dt>選錄</dt><dd>本輯代表曲</dd>' : '') +
+      '</dl>' +
+      '<dl class="sa-credits">' +
+      '<dt class="sa-credits-h">署名</dt>' +
+      creditRowsHTML(song) +
+      '</dl>' +
+      '</div>' +
+      '</section>' +
+      /* 底部的入口：歌詞與完整檔案。文字型按鈕，不做彩色色塊 */
+      '<div class="sa-acts">' +
+      (t.audio
+        ? '<button class="sa-act" type="button" data-sa-play>' +
+          '<span class="sa-sym" aria-hidden="true">▶</span>' +
+          w.verb +
+          '</button>'
+        : '') +
+      '<button class="sa-act" type="button" data-sa-lyrics>閱讀歌詞' +
+      '<span class="sa-sym" aria-hidden="true">→</span></button>' +
+      '<button class="sa-act" type="button" data-sa-open>查看完整檔案' +
+      '<span class="sa-sym" aria-hidden="true">→</span></button>' +
+      '<p class="sa-note" id="saNote" role="status" aria-live="polite"></p>' +
+      '</div>' +
+      /* 讀物放在兩個入口之後：逐曲文案與時代背景是「往下讀」的內容，
+         長度不可預期；放在入口之前，一填上文案就會把入口推下折線。 */
+      (story ? '<section class="sa-story">' + story + '</section>' : '') +
+      '</div>'
+    );
+  }
+
+  /* 就地說明（不開空舞台、不彈 toast 蓋住檔案）。
+     說明行在檔案底部，播放列一起來就會把它壓到折線下——說了等於沒說，
+     所以寫入後把底部帶進視野（減少動效時直接跳，不做平滑捲動）。 */
+  function saSay(msg) {
+    setLive(saNote, msg || '');
+    if (msg && saScroll) {
+      saScroll.scrollTo({
+        top: saScroll.scrollHeight,
+        behavior: REDUCED.matches ? 'auto' : 'smooth'
+      });
+    }
+  }
+
+  function saPaintNav(hit) {
+    var a = hit.album;
+    var pos = 1;
+    a.tracks.forEach(function (x, i) {
+      if (String(x.n) === String(hit.track.n)) pos = i + 1;
+    });
+    setLive(saCount, '第 ' + pos + ' / ' + a.tracks.length + ' 首 · ' + a.title);
+    if (saPrevBtn) saPrevBtn.disabled = pos <= 1;
+    if (saNextBtn) saNextBtn.disabled = pos >= a.tracks.length;
+  }
+
+  /* silent：換首時不要把焦點從上一首／下一首鈕上搶走 */
+  function openArchive(albumId, n, opts) {
+    var hit = trackOf(albumId, n);
+    if (!hit) return false;
+    opts = opts || {};
+    if (!sarch) {
+      sarch = $('#sarch');
+      if (!sarch) return false;
+      saPanel = $('#saPanel', sarch);
+      saScroll = $('#saScroll', sarch);
+      saCount = $('#saCount', sarch);
+      saNote = null;
+    }
+    if (saCloseTimer) {
+      clearTimeout(saCloseTimer);
+      saCloseTimer = 0;
+    }
+    /* 作廢上一次的收尾（它可能在淡出途中） */
+    saSeq++;
+    /* 回焦的目標只在「檔案本來不可見」時更新：換首（已可見）不該改動它，
+       但淡出途中從另一列重開時要跟著換成新的那一列 */
+    var wasHidden = sarch.hidden;
+    var wasShown = sarch.classList.contains('is-open');
+    if (!wasShown) saLastFocus = document.activeElement;
+    saRef = { album: hit.album.id, n: hit.track.n };
+    if (hit.album.theme) {
+      saPanel.style.setProperty('--accent', hit.album.theme.accent);
+      saPanel.style.setProperty('--accent-on', hit.album.theme.accentOn);
+    }
+    var amb = ambTriple(hit.album.sourceAvg);
+    if (amb) saPanel.style.setProperty('--amb', amb);
+    saScroll.innerHTML = archiveHTML(hit.album, hit.track);
+    saNote = $('#saNote', saScroll);
+    saPaintNav(hit);
+    localize(saScroll);
+    saScroll.scrollTop = 0;
+    sarch.hidden = false;
+    if (wasHidden) {
+      /* 剛從 hidden 出來：先讓瀏覽器畫出起始態再上類別，
+         否則起始與結束在同一幀，transition 會被合併掉直接跳到終態 */
+      requestAnimationFrame(function () {
+        sarch.classList.add('is-open');
+      });
+    } else if (!wasShown) {
+      /* 淡出途中重開：過場本來就還在跑，直接補回類別就是「淡回來」。
+         少了這一步，內容會換好卻停在透明態（最難察覺的一種壞法） */
+      sarch.classList.add('is-open');
+    }
+    document.body.classList.add('is-locked');
+    /* 底下那層抽屜還在：兩個 aria-modal 疊著會讓讀屏同時念到兩份內容 */
+    if (sheet && !sheet.hidden) sheet.setAttribute('aria-hidden', 'true');
+    if (!opts.silent) saPanel.focus({ preventScroll: true });
+    return true;
+  }
+
+  /* instant：給「從檔案打開專輯」用——兩層模態直接換手，不要隔著一層淡出 */
+  function closeArchive(opts) {
+    if (!saOpen()) return;
+    opts = opts || {};
+    clearTimeout(saCloseTimer);
+    saCloseTimer = 0;
+    var token = ++saSeq;
+    /* 收尾前先記住去處：saRef 馬上要清掉 */
+    var back = saRef;
+    sarch.classList.remove('is-open');
+    saRef = null;
+    /* 歌詞舞台待開的請求一起作廢：檔案關了就不該再自己彈回來 */
+    if (window.JCLyrics) window.JCLyrics.cancel();
+    if (sheet && !sheet.hidden) sheet.removeAttribute('aria-hidden');
+    if (opts.instant) {
+      sarch.hidden = true;
+      saScroll.innerHTML = '';
+    } else {
+      saCloseTimer = setTimeout(function () {
+        saCloseTimer = 0;
+        if (token !== saSeq) return; /* 淡出期間又開過：這一輪作廢 */
+        sarch.hidden = true;
+        saScroll.innerHTML = '';
+      }, 900);
+    }
+    /* 捲動鎖留給還在底下的抽屜 */
+    if (!sheet || sheet.hidden) document.body.classList.remove('is-locked');
+    if (opts.keepFocus) return;
+    var target = saLastFocus;
+    /* 從列的滑鼠捷徑進來時 activeElement 是 body（那三個動作不是可聚焦節點），
+       這時把焦點還給同一列的歌名鈕，鍵盤使用者才不會被丟回頁首 */
+    if ((!target || target === document.body) && back) {
+      var key = back.album + ':' + back.n;
+      target = $('[data-archive="' + key + '"]') || target;
+    }
+    if (target && target.focus) target.focus({ preventScroll: true });
+  }
+
+  /* 上一首／下一首只在這張專輯內走，走到頭就停（兩顆鈕各自 disabled） */
+  function stepArchive(d) {
+    if (!saRef) return;
+    var a = albumById(saRef.album);
+    if (!a) return;
+    var i = -1;
+    a.tracks.forEach(function (x, k) {
+      if (String(x.n) === String(saRef.n)) i = k;
+    });
+    var k2 = i + d;
+    if (k2 < 0 || k2 >= a.tracks.length) return;
+    openArchive(a.id, a.tracks[k2].n, { silent: true });
+  }
+
+  /* 檔案的歌詞入口：先把這一首載進播放列（歌詞要跟著音訊走）再開舞台。
+     沒有歌詞檔就地說明，不開一個空舞台。已在播的那一首不動播放狀態——
+     plSelect 對同一首是「切換播放／暫停」，從檔案進來不該把歌停掉。 */
+  function openLyricsFor(albumId, n, note) {
+    var hit = trackOf(albumId, n);
+    var say = note || toast;
+    if (!hit || !hit.track.audio) {
+      say('這首沒有可用的試聽片段');
+      return false;
+    }
+    var same = plState.album === albumId && String(plState.n) === String(n);
+    if (!same) plSelect(albumId, n);
+    if (!window.JCLyrics) {
+      say('歌詞舞台不在這一頁');
+      return false;
+    }
+    return window.JCLyrics.openFor(hit.album.title, hit.track, say);
+  }
+
+  function bindArchive() {
+    if (!sarch) sarch = $('#sarch');
+    if (!sarch) return;
+    saPanel = $('#saPanel', sarch);
+    saScroll = $('#saScroll', sarch);
+    saCount = $('#saCount', sarch);
+    saPrevBtn = $('#saPrev', sarch);
+    saNextBtn = $('#saNext', sarch);
+    if (saPrevBtn)
+      saPrevBtn.addEventListener('click', function () {
+        stepArchive(-1);
+      });
+    if (saNextBtn)
+      saNextBtn.addEventListener('click', function () {
+        stepArchive(1);
+      });
+
+    /* 唱片的動態光影：與展櫃封面同一套做法（--px／--py 聚光位置），
+       熱路徑只讀一次 getBoundingClientRect */
+    var saRaf = 0,
+      saEvt = null;
+    saScroll.addEventListener(
+      'pointermove',
+      function (e) {
+        if (REDUCED.matches || e.pointerType === 'touch') return;
+        saEvt = e;
+        if (saRaf) return;
+        saRaf = requestAnimationFrame(function () {
+          saRaf = 0;
+          var ev = saEvt;
+          if (!ev) return;
+          var plate = $('.sa-plate', saScroll);
+          if (!plate) return;
+          var r = plate.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          var fx = (((ev.clientX - r.left) / r.width) * 100).toFixed(1) + '%';
+          var fy = (((ev.clientY - r.top) / r.height) * 100).toFixed(1) + '%';
+          plate.style.setProperty('--px', fx);
+          plate.style.setProperty('--py', fy);
+        });
+      },
+      { passive: true }
+    );
+
+    /* 檔案是模態層：Esc 與方向鍵先給它，別讓底下的抽屜同時反應。
+       這一支必須比歌詞舞台那一支先註冊（見 init 的呼叫順序），
+       且舞台開著時整支讓路——鍵盤那時歸舞台（它自己處理 Esc）。
+       capture 階段 stopPropagation 正好擋掉抽屜的冒泡處理器。 */
+    document.addEventListener(
+      'keydown',
+      function (e) {
+        if (!saOpen()) return;
+        if (window.JCLyrics && window.JCLyrics.isOpen()) return;
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          e.stopPropagation();
+          closeArchive();
+          return;
+        }
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          e.stopPropagation();
+          stepArchive(e.key === 'ArrowLeft' ? -1 : 1);
+          return;
+        }
+        if (e.key === 'Tab') {
+          e.stopPropagation();
+          trapArchiveFocus(e);
+        }
+      },
+      true
+    );
+  }
+
+  function trapArchiveFocus(e) {
+    var sel = 'button, [href], input, [tabindex]:not([tabindex="-1"])';
+    var items = $$(sel, saPanel).filter(function (n) {
+      return n.offsetParent !== null && !n.disabled;
+    });
     if (!items.length) return;
     var first = items[0],
       last = items[items.length - 1];
@@ -2050,7 +2608,7 @@
     plPaint(hit.album, hit.track);
     plShow();
     /* 歌詞隨曲目預載；舞台開著時載完會自動接上（見 js/lyrics.js） */
-    if (window.JCLyrics) window.JCLyrics.loadFor(hit.album.id, hit.album.title, hit.track);
+    if (window.JCLyrics) window.JCLyrics.loadFor(hit.album.title, hit.track);
     if (autoplay !== false) plPlay();
     syncPlayingRows();
     setMediaSession(hit.album, hit.track);
@@ -2820,12 +3378,50 @@
   function bind() {
     document.addEventListener('click', function (e) {
       if (!e.target.closest) return;
+      /* 歌曲檔案（Song Archive）的內部件先判：它疊在頁面之上，
+         底下的 data-open／data-play 都不該被同一點擊順手觸發 */
+      if (e.target.closest('[data-sa-close]')) {
+        closeArchive();
+        return;
+      }
+      var saPlay = e.target.closest('[data-sa-play]');
+      if (saPlay && saRef) {
+        plSelect(saRef.album, saRef.n);
+        return;
+      }
+      var saLy = e.target.closest('[data-sa-lyrics]');
+      if (saLy && saRef) {
+        openLyricsFor(saRef.album, saRef.n, saSay);
+        return;
+      }
+      var saAlbum = e.target.closest('[data-sa-open]');
+      if (saAlbum && saRef) {
+        var saGo = saRef.album;
+        /* 兩層模態直接換手：檔案的墨幕退掉與抽屜的進場同時發生，
+           否則淡出那 900ms 會蓋在剛開好的抽屜上 */
+        closeArchive({ instant: true });
+        openSheet(saGo);
+        return;
+      }
       // playback takes precedence: the row controls live inside list rows
       var play = e.target.closest('[data-play]');
       if (play) {
         if (play.disabled) return;
         var parts = play.getAttribute('data-play').split(':');
         plSelect(parts[0], parts[1]);
+        return;
+      }
+      /* 歌名列：進歌曲檔案。列上的 hover 動作是同一個出口的指標捷徑 */
+      var arch = e.target.closest('[data-archive]');
+      if (arch) {
+        var ap = arch.getAttribute('data-archive').split(':');
+        openArchive(ap[0], ap[1]);
+        return;
+      }
+      var archLy = e.target.closest('[data-archive-lyrics]');
+      if (archLy) {
+        var al = archLy.getAttribute('data-archive-lyrics').split(':');
+        openLyricsFor(al[0], al[1]);
         return;
       }
       var all = e.target.closest('[data-playall]');
@@ -3142,6 +3738,9 @@
     }
 
     renderAll();
+    /* 模態層的 Esc 有先後：歌曲檔案的處理器要在歌詞舞台之前註冊，
+       舞台開著時檔案讓路（見 bindArchive）。舞台那一支在 initAudio 裡。 */
+    bindArchive();
     initAudio();
 
     // sheet nodes must exist before bind()
@@ -3234,6 +3833,9 @@
     var next = DISCOGRAPHY && DISCOGRAPHY.artists[id];
     if (!next || next === JC) return false;
     opts = opts || {};
+    /* 檔案是「某一位歌手的某一首歌」：換歌手時就地收起，
+       免得它指著上一份目錄（還開著的話，內容與播放列會分屬兩位歌手） */
+    if (saOpen()) closeArchive({ instant: true, keepFocus: true });
     JC = next;
     ALBUMS = JC.albums;
     resetHosts();
