@@ -11,8 +11,8 @@
 <meta property="og:description" content="選擇一位歌手，走進他的唱片年輪。">
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="css/style.css?v=e29c6ec9">
+<link rel="stylesheet" href="assets/fonts/fonts.css?v=cc4611c1">
+<link rel="stylesheet" href="css/style.css?v=cc4611c1">
 </head>
 <body>
 
@@ -26,12 +26,17 @@
   <section class="ld-hero">
 
     <div class="ld-inner ld-brandrow">
+      <!-- 品牌銘牌：印章 + 三行銘文（站名／英文題名／起始年）。
+           起始年由 landing.js 取全站最早的統計年份填入，不寫死 -->
       <p class="ld-brand">
         <span class="ld-seal" aria-hidden="true">
           <svg viewBox="0 0 100 100" role="presentation"><text x="50" y="52" text-anchor="middle" dominant-baseline="central">聲</text></svg>
         </span>
-        <span class="ld-brandname">聲之年輪</span>
-        <span class="ld-brandsub">歌手唱片陳列</span>
+        <span class="ld-mark">
+          <span class="ld-brandname">聲之年輪</span>
+          <span class="ld-branden">SOUND ARCHIVE</span>
+          <span class="ld-est"></span>
+        </span>
       </p>
       <button class="lang ld-lang" id="ldLang" type="button" aria-label="切換繁體與簡體">
         <span class="lang-opt" data-opt="s">簡</span><span class="lang-opt" data-opt="t">繁</span>
@@ -49,8 +54,9 @@
         <p class="ld-en" id="ldEn"></p>
         <h2 class="ld-name" id="ldName"></h2>
         <p class="ld-stats" id="ldStats"></p>
-        <p class="ld-span" id="ldSpan"></p>
-        <a class="ld-cta" id="ldCta" href="#"></a>
+        <p class="ld-span" id="ldSpan"><span class="ld-sp-y"></span><span class="ld-sp-line" aria-hidden="true"></span><span class="ld-sp-y"></span></p>
+        <p class="ld-note" id="ldNote"></p>
+        <a class="ld-cta" id="ldCta" href="#"><span class="ld-cta-arrow" aria-hidden="true">→</span></a>
       </div>
 
       <div class="ld-inner ld-controls" id="ldControls" role="group" aria-label="切換歌手">
@@ -76,7 +82,7 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-<script src="js/data.js?v=e29c6ec9"></script>
-<script src="js/landing.js?v=e29c6ec9"></script>
+<script src="js/data.js?v=cc4611c1"></script>
+<script src="js/landing.js?v=cc4611c1"></script>
 </body>
 </html>

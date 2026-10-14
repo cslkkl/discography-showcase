@@ -11,14 +11,20 @@
                        lighting only*: it is the album's own averaged cover
                        colour mixed 78% toward the ink base, and it is never
                        used for text, borders, buttons or state.
-   Shape lock ........ Two radii, documented rule:
-                         --r-pill : every interactive control (buttons, toggle,
-                                    search field, chips)
-                         --r      : every surface and image (plates, panels)
-   Type lock ......... three families, one role each
-                         Noto Serif SC ... display / album titles (CJK serif)
-                         Bodoni Moda ..... numerals, years, latin display
-                         Noto Sans SC .... body, meta, controls
+   Shape lock ........ Radii: --r-pill for interactive controls, --r for
+                       surfaces and images. Documented exception: the two
+                       museum CTAs (`.ld-cta` on the entrance, `.hero-cta` on
+                       the artist page) are text buttons with a hairline
+                       underline instead of pills — an exhibition entrance is
+                       not a capsule button. Icon controls (top bar, rack
+                       steps, player, drawer) keep --r-pill.
+   Type lock ......... four families, one role each
+                         Noto Serif SC ... display / album titles / CJK serif
+                         Cormorant Garamond  latin display: museum-plate labels
+                                          (artist latin names, SOUND ARCHIVE,
+                                          EST. 1997, latin archive captions)
+                         Bodoni Moda ..... numerals, years, tabular data
+                         Noto Sans SC .... body, meta, controls, CJK sans
    ========================================================================= */
 
 /* ── 1. reset & tokens ─────────────────────────────────────────────────── */
@@ -52,6 +58,13 @@
   --f-serif: 'Noto Serif SC', 'Songti SC', 'SimSun', 'Noto Serif', serif;
   --f-sans:  'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
   --f-num:   'Bodoni Moda', 'Didot', 'Times New Roman', serif;
+  /* 拉丁展示體：只給博物館銘牌那一類的拉丁文字（歌手拉丁名、SOUND ARCHIVE、
+     EST. 1997、檔案標籤）。Cormorant Garamond 是高對比度的老式襯線，
+     在大字距小字號下比 Didone 的 Bodoni 更適合當銘牌；
+     它沒有漢字，所以字組裡墊一個 Noto Serif SC，混排時不會掉到系統預設襯線。
+     自託管於 assets/fonts/（latin 與 latin-ext 子集，400／500），
+     離線可用、零執行期依賴。 */
+  --f-display: 'Cormorant Garamond', 'Bodoni Moda', 'Noto Serif SC', 'Songti SC', serif;
 
   --gutter: clamp(20px, 4.2vw, 72px);
   --page: 1440px;
@@ -216,7 +229,16 @@ a, button, input, [role="button"] { touch-action: manipulation; }
 .brand:hover .brand-seal { transform: rotate(-8deg) scale(1.06); }
 .brand-seal svg { width: 76%; height: 76%; fill: currentColor; }
 .brand-seal text { font-family: var(--f-serif); font-size: 60px; font-weight: 700; }
-.brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+.brand-text { display: flex; flex-direction: column; line-height: 1.15; gap: 1px; }
+/* 站名與英文題名並排：博物館的銘牌一定是「中文館名 + 拉丁題名」成對出現。
+   選擇器要寫成 .brand-text .bt-en（而不是 .bt-en）——
+   下面的 .brand-text i 優先序更高，否則字距與顏色會被蓋掉。 */
+.bt-top { display: inline-flex; align-items: baseline; gap: 9px; }
+.brand-text .bt-en {
+  font-family: var(--f-display); font-weight: 500;
+  font-size: .75rem; letter-spacing: .26em;
+  color: var(--paper-2); white-space: nowrap;
+}
 .brand-text b {
   font-family: var(--f-serif); font-size: 1.02rem; font-weight: 600;
   letter-spacing: .16em;
@@ -340,10 +362,22 @@ main { padding-top: var(--nav-h); }
   position: relative;
   overflow: hidden;
 }
+/* 動態環境光：光色取「當前那張專輯封面」的平均色（JS 以 --amb 寫入 RGB 三元組，
+   見 app.js 的 fanPaint）。單一固定強調色的背景在切換專輯時沒有任何回饋，
+   而 Apple Music 一類的年鑑就是把封面色暈進背景——紅專輯給暗紅光、藍專輯給深藍光。
+   低透明度、只落在標題與封面後方，不動正文對比度。
+
+   這是一條需要寫下來的邊界（原則是「一個歌手頁只有一個強調色」）：
+   `--amb` 是**作品層的打光**，與抽屜面板的 `--tint` 同一性質——來自封面、
+   隨唱片變化，不參與文字、邊框、按鈕或任何狀態的著色；
+   歌手的 `--accent` 仍然獨佔所有控制項與狀態。第四層用極淡的 accent
+   保留歌手的色彩人格（8% 只夠在深墨上認出色相，不足以干擾文字）。 */
 .hero::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background:
-    radial-gradient(110% 78% at 78% 26%, rgba(224, 65, 43, .10), transparent 62%),
+    radial-gradient(110% 78% at 78% 26%, rgba(var(--amb, 224, 65, 43), .16), transparent 62%),
+    radial-gradient(70% 60% at 22% 96%, rgba(var(--amb, 224, 65, 43), .07), transparent 68%),
+    radial-gradient(64% 54% at 12% 84%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 66%),
     radial-gradient(80% 60% at 8% 88%, rgba(255, 255, 255, .035), transparent 60%);
 }
 .hero-grid {
@@ -405,21 +439,121 @@ html.ld-booting .ht-line span {
 }
 .hero-sub span { display: block; }
 
-.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(20px, 3vw, 40px); }
+/* 主視覺的兩顆入口改成文字型按鈕（紀錄在檔案開頭的 Shape lock 例外）：
+   展廳入口不是膠囊按鈕。預設只有文字，底線由 hover 長出來；箭頭往右讓開。
+   兩個檔位分開：主入口吃強調色底線與紙白字，次入口整顆降一階灰。 */
+.hero-cta .btn {
+  position: relative; min-height: 44px; padding: 0 0 10px;
+  border: 0; background: none; border-radius: 0;
+  font-size: .95rem; font-weight: 400; letter-spacing: .14em;
+  color: var(--paper);
+  transition: color .3s var(--ease), transform .3s var(--ease);
+}
+.hero-cta .btn::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .34s var(--ease);
+}
+.hero-cta .btn:hover::after,
+.hero-cta .btn:focus-visible::after { transform: scaleX(1); }
+.hero-cta .btn .ico {
+  font-size: .95em; color: var(--paper-2);
+  transition: transform .34s var(--ease), color .34s var(--ease);
+}
+.hero-cta .btn:hover .ico,
+.hero-cta .btn:focus-visible .ico { transform: translateX(5px); color: var(--accent); }
+.hero-cta .btn-ghost { color: var(--paper-2); }
+.hero-cta .btn-ghost:hover, .hero-cta .btn-ghost:focus-visible { color: var(--paper); }
+.hero-cta .btn-ghost:hover .ico { transform: none; }
+/* 強調色底沒了，焦點圈要跟著回到強調色（原本為了在色塊上看得見才改成紙白） */
+.hero-cta .btn-accent:focus-visible { outline-color: var(--accent); }
 /* the primary CTA leans very slightly toward the cursor (React Bits "magnetic"
    idea, capped at 6px so it never fights the pointer) */
 .hero-cta .btn-accent {
   transform: translate3d(var(--mgx, 0px), var(--mgy, 0px), 0);
-  transition: background .35s var(--ease), color .35s var(--ease),
-              border-color .35s var(--ease), transform .3s var(--ease);
+  transition: color .35s var(--ease), transform .3s var(--ease);
 }
 .hero-cta .btn-accent:active {
   transform: translate3d(var(--mgx, 0px), calc(var(--mgy, 0px) + 1px), 0) scale(.985);
 }
 
+/* ── 歌手檔案：標題底下的資訊層 ────────────────────────────────────────────
+   名字底下原本是空的。按博物館說明牌的順序補上：拉丁名、年代、作品數、
+   一句簡介。全部取自資料（meta.mjs 的 en／intro 與構建期算出的 stats），
+   不新增任何手寫欄位；intro 的末句就是那句簡介。 */
+.hero-archive { margin-top: clamp(20px, 3vh, 36px); max-width: 34rem; }
+.hero-archive:empty { display: none; }
+.ha-en {
+  font-family: var(--f-display); font-weight: 500;
+  font-size: clamp(1.05rem, 1.6vw, 1.4rem);
+  /* Cormorant 的字母比 Didone 窄，.34em 會散成一份清單而不是一個名字；
+     .2em 仍讀得出銘牌的刻意感，也讓 "TERRY LIN" 落在約 80px */
+  letter-spacing: .2em; text-transform: uppercase; color: var(--paper);
+}
+/* 拉丁名下方一道短強調線，與 .sec-title::before 同一套語言 */
+.ha-en::after {
+  content: ''; display: block; width: 44px; height: 1px;
+  margin-top: 13px; background: var(--accent);
+}
+.ha-meta {
+  margin-top: 13px; font-family: var(--f-num); font-size: .82rem;
+  letter-spacing: .16em; color: var(--paper-2);
+  font-variant-numeric: tabular-nums;
+}
+.ha-meta b { color: var(--paper); font-weight: 500; }
+.ha-note {
+  margin-top: 13px;
+  /* 用 rem 而不是 ch 限寬：ch 依宣告處的字體解析，這一層是 CJK 字體，
+     1ch 只有半個漢字寬，30ch 會把一句話切成兩行（實測「一把清亮的嗓子，
+     把現場唱成錄音室的水準」被斷在「錄音／室」）。30rem 約 20 個漢字。 */
+  max-width: min(100%, 30rem);
+  font-family: var(--f-serif); font-size: clamp(.9rem, 1.05vw, .98rem);
+  line-height: 1.95; letter-spacing: .06em; color: var(--paper-2);
+}
+
+/* ── 作品年表軸 ────────────────────────────────────────────────────────────
+   「聲之年輪」的核心是時間，但頁面上原本只有年輪與年表兩種讀法，
+   首屏看不到時間的形狀。這條軸把整個目錄壓成一把尺：橫向細軌，
+   每個階段起點一顆強調色圓點與年份，每張專輯一道細刻痕。
+   位置由 JS 依 (year - from) / (to - from) 算好寫進 --p，CSS 只負責畫。
+   軸本身與刻痕 aria-hidden，讀屏讀 ol 的 aria-label 與各階段文字。 */
+.hero-axis {
+  position: relative; list-style: none;
+  margin: clamp(26px, 3.6vh, 44px) 0 0;
+  height: 76px;
+}
+.hero-axis::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, var(--line), var(--line-3) 18%, var(--line-3) 82%, var(--line));
+}
+.ha-alb {
+  position: absolute; top: -2px; left: var(--p, 0%);
+  width: 1px; height: 5px; background: var(--line-3);
+}
+.ha-era {
+  position: absolute; top: 0; left: var(--p, 0%);
+  transform: translateX(-50%);
+  display: grid; justify-items: center; gap: 9px; white-space: nowrap;
+}
+/* 兩端的標籤不能溢出這條軸：首端往右展開、末端往左收 */
+.ha-era.is-first { transform: none; justify-items: start; }
+.ha-era.is-last { transform: translateX(-100%); justify-items: end; }
+.ha-dot {
+  width: 5px; height: 5px; margin-top: -2px;
+  border-radius: 50%; background: var(--accent);
+}
+.ha-year {
+  font-family: var(--f-num); font-size: .86rem; letter-spacing: .1em;
+  color: var(--paper-2); font-variant-numeric: tabular-nums;
+}
+.ha-title { font-size: .75rem; letter-spacing: .12em; color: var(--paper-3); }
+
 /* fanned sleeves */
 .hero-art {
   position: relative;
+  /* 自身成為堆疊脈絡：環境光的兩層用 z-index:-1 留在封面後面 */
+  z-index: 0;
   /* 容器高度貼住內容：五張封面只佔 1.01 × 卡片寬，而先前是 1/1.06，
      豎向空了近一半。0.82 留約兩成餘裕，放得下懸停的 -3% 抬升與陰影；
      再收到 0.70 會把封面推向欄距（實測與左欄標題只剩 18px）。
@@ -427,20 +561,66 @@ html.ld-booting .ht-line span {
   aspect-ratio: 1 / .82;
   max-height: min(64vh, 560px);
   justify-self: center; width: 100%;
-  /* 立體唱片架的透視基準，與入口頁 `.ld-stage` 同源（1400px）。
-     透視寫在這一層即可：.fan 本身不改 transform，旋轉在 .fan-card 上，
-     所以不需要 preserve-3d 中轉（入口頁三層也都是 flat，實測 rotateY 仍生效）。 */
-  perspective: 1400px;
+  /* 這裡**不掛** perspective，也不在 .fan 上掛 preserve-3d。
+     縱深改由每張卡自己的 perspective() 函式做（見 .fan 與 .is-ready .fan-card）。
+     原因是一個實測到的 P0 級回歸：祖先的 perspective ＋ 子層 preserve-3d
+     會形成真正的 3D 脈絡，於是「退到後面」的封面在真實指標下命中不到自己——
+     在 .fan 子樹內做 64×44 網格取樣，貼在卡片幾何範圍內的 1586 個點裡有
+     439 個（27.7%）穿到宿主 div.fan 而不是卡片；DOM 斷言（elementsFromPoint）
+     卻仍回報卡片，所以只有真實滑鼠點得出來。改成「祖先不給透視、每張卡
+     自己 perspective(1400px)」之後，同一組取樣（1622 點）命中率 100%，
+     而卡片投影寬度幾乎不變（遠端 241→235px），縱深沒有被犧牲。
+     （先前註解寫的 99.4% 是「注入樣式做 A/B 對照」那一輪的數字，
+     出廠版本重測為 100%，兩者是不同修訂，不要混用。） */
 }
+/* 展台環境光：隨當前專輯封面顏色變化的柔光。少了這一層，兩側往後轉的封面
+   只靠縮放表達遠近，看起來仍是一排貼圖。 */
+.hero-art::before {
+  content: ''; position: absolute; inset: -16% -9% -8%;
+  z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(closest-side, rgba(var(--amb, 224, 65, 43), .24), transparent 78%),
+    radial-gradient(closest-side, rgba(255, 255, 255, .05), transparent 70%);
+  transition: opacity .6s var(--ease);
+}
+/* 切換專輯時的「光線增強」：只動 opacity（合成器屬性），不觸發重繪。 */
+.hero-art::after {
+  content: ''; position: absolute; inset: -22% -12% -12%;
+  z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(var(--amb, 224, 65, 43), .38), transparent 74%);
+  transition: opacity .6s var(--ease);
+}
+.hero-art.is-lit::after { opacity: 1; }
 .fan {
   position: absolute; inset: 0;
-  /* 不再有 transform-style: preserve-3d 與父層 perspective: 1500px。
-     那兩條只為滑鼠視差服務，而視差是整頁最貴的一段——隔離實測
-     （CDP 主線程，同頁同指標事件數）掠過主視覺 5.3 秒吃掉樣式重算
-     1798.7ms／1246 次、主線程 3159ms；停用視差後剩 259.1ms／405 次、823ms。
-     preserve-3d 下改一次 transform 要為整棵子樹重算 3D 矩陣（單次 1.44ms），
-     而它換來的只是輕微傾斜。層級靠 --z 與 box-shadow 表達即可。 */
+  /* 不再 preserve-3d：見 .hero-art 的說明（祖先 perspective ＋ 子層 preserve-3d
+     會形成真正的 3D 脈絡，退到後面的封面在真實指標下命中不到自己）。
+     縱深改由每張卡自己的 perspective() 承擔，命中率由 72.3% 回到 100%。
+     換台的整體縮放留在這一層（transform 不是分組屬性，不會壓平子樹）。 */
+  transition: transform .34s var(--ease);
 }
+/* 換片：舊片退場。暗度下放到每一張卡自己（--fo 是它自己的格位透明度）——
+   群組 opacity < 1 會把整個子樹壓平，外側封面會在換片頭尾各跳一次
+   （實測寬度 241 → 257.7 → 241，7.2%），正是「電影感」的反面。 */
+.fan.is-shifting { transform: scale(.972); }
+.fan.is-shifting .fan-card { opacity: calc(var(--fo, 1) * .26); }
+/* 新片進場：整體放大歸位，卡片同時由暗轉亮 */
+.fan.is-arriving { animation: fan-arrive .62s var(--ease) both; }
+.fan.is-arriving .fan-card { animation: fan-card-in .62s var(--ease) both; }
+@keyframes fan-arrive {
+  from { transform: scale(.975); }
+  to { transform: none; }
+}
+@keyframes fan-card-in {
+  from { opacity: 0; }
+  to { opacity: var(--fo, 1); }
+}
+/* 入場錯峰只服務入場：換位時必須歸零。卡片身上那條
+   `transition-delay: calc(--i * 95ms + 240ms)` 配上 1.15s 的入場時長，
+   會讓一次換片要等 1458–2263ms 才停穩（實測），而「光線增強」的
+   is-arriving 只有 620ms，兩者對不上，看起來像卡住。 */
+.fan.is-shifting .fan-card,
+.fan.is-arriving .fan-card { transition-delay: 0ms; transition-duration: .62s; }
 .fan-card {
   position: absolute; top: 50%; left: 50%;
   /* 58%：五張扇形橫向跨度約為卡片寬的 1.19 倍，兩側各溢出容器約四十像素，
@@ -453,9 +633,9 @@ html.ld-booting .ht-line span {
   cursor: pointer;
   z-index: var(--z, 1);
   opacity: 0;
-  /* 入場起始態要與 `.is-ready .fan-card` 的結束態同型（都用 rotateY），
+  /* 入場起始態要與 `.is-ready .fan-card` 的結束態同型（都用 rotateY 與 translateZ），
      否則兩態之間的 transform 函式清單不一致，過渡會直接跳而不是轉。 */
-  transform: translate(-50%, -50%) rotateY(0deg) scale(.86);
+  transform: translate(-50%, -50%) perspective(1400px) translateZ(0px) rotateY(0deg) scale(.86);
   box-shadow: 0 34px 82px rgba(0, 0, 0, .64), 0 0 0 1px rgba(255, 255, 255, .07);
   /* 入場與懸停各走各的通道：opacity／transform 只服務入場（1s／1.15s ＋ --i 錯峰），
      懸停避讓走 translate／scale 兩條獨立通道（零 delay）。
@@ -479,23 +659,32 @@ html.ld-booting .ht-line span {
 .is-ready .fan-card {
   opacity: var(--fo, 1);
   /* 入場的完整姿態留在 transform 這條鏈上（1.15s ＋ --i 錯峰，與原本一致）：
-     格位 --fx/--fy、旋轉 --fr、基準縮放 --fs 都由行內給。
+     格位 --fx/--fy、縱深 --fz、旋轉 --fr、基準縮放 --fs 都由行內給。
      --fr 是 **rotateY** 角度（立體唱片架，同入口頁 .ld-group）；
      寫成平面 rotate 的話角度只會被當斜切，看不到三維縱深。
+     --fz 是 translateZ：中央那張最近（0），相鄰與遠端依序往後退。
+     透視由卡片**自己**的 perspective(1400px) 提供（不是祖先的 perspective 屬性）：
+     兩者對單一元素的視覺等價，但前者不會建立 3D 脈絡，
+     退到後面的封面因此仍接得到指標（見 .hero-art 的實測說明）。
      注意 translate 要在 rotateY 之**後**才不會被透視連座標一起推歪。 */
   transform:
     translate(-50%, -50%)
     translate(var(--fx, 0%), var(--fy, 0%))
+    perspective(1400px)
+    translateZ(var(--fz, 0px))
     rotateY(var(--fr, 0deg))
     scale(var(--fs, 1));
   /* 懸停避讓走兩條獨立的個別屬性（不在上面那條鏈裡，所以不吃入場的 1.15s 與錯峰）：
-     --hx/--hy 是額外讓開的位移，--hs 是懸停放大乘數。
+     --hx/--hy 是額外讓開的位移，--hs 是懸停放大乘數，--hz 是懸停往前跳的縱深。
      個別 scale 會連 transform 裡的位移一起放大，所以要補回錨點
      t = (1 - hs) × (fx - 50%)，讓放大後的中心仍停在原本的格位上；
-     hs = 1 時這個補償是 0，入場完全不受影響。 */
+     hs = 1 時這個補償是 0，入場完全不受影響。
+     --hz 走同一條個別屬性通道（translate 的第三個分量），所以是即時的，
+     而且 preserve-3d 的 3D 脈絡下元素按 z 排序，被指到那張真的浮到最前面。 */
   translate:
     calc(var(--hx, 0%) + (1 - var(--hs, 1)) * (var(--fx, 0%) - 50%))
-    calc(var(--hy, 0%) + (1 - var(--hs, 1)) * (var(--fy, 0%) - 50%));
+    calc(var(--hy, 0%) + (1 - var(--hs, 1)) * (var(--fy, 0%) - 50%))
+    var(--hz, 0px);
   scale: var(--hs, 1);
 }
 /* ── 懸停避讓 ─────────────────────────────────────────────────────────────
@@ -509,40 +698,73 @@ html.ld-booting .ht-line span {
    （輪播是環形的，DOM 順序與視覺左右在頭尾會反過來，
    純姊妹選擇器或逐格列 [style*=...] 都會判錯方向或根本贏不了行內值）。 */
 .fan-card.is-yield {
-  translate: var(--hx, 0%) 0;
+  translate: var(--hx, 0%) 0 0;
 }
-/* 被指到／聚焦那張：放大、微抬、抬到最上層（中央那張的 --z 是 6）。
-   只設 --hs／--hy，實際的 translate／scale 由上面 `.is-ready .fan-card` 那條
+/* 被指到／聚焦那張：放大、微抬、往前浮出（中央那張的 --z 是 6）。
+   只設 --hs／--hy／--hz，實際的 translate／scale 由上面 `.is-ready .fan-card` 那條
    帶錨點補償的公式算；直接寫 translate／scale 會蓋掉補償，
-   放大後封面會從原本的格位漂開。這兩個屬性是獨立通道，
+   放大後封面會從原本的格位漂開。這幾個屬性是獨立通道，
    不吃入場的 1.15s ＋ --i 錯峰，所以懸停與回位都是即時的。 */
 .fan-card.is-hover {
   --hs: 1.14;
   --hy: -3%;
+  --hz: 70px;
   z-index: 9;
 }
 /* 中央那張本身就是主角：hover 只輕微放大，避免與「點它開專輯」的提示打架 */
-.fan-card.is-live.is-hover { --hs: 1.04; }
+.fan-card.is-live.is-hover { --hs: 1.04; --hz: 34px; }
 .fan-card img { width: 100%; height: 100%; object-fit: cover; }
+/* 表面高光掃過：一道斜向的柔光帶由左掠到右。刻意做成**寬而軟**的漸層，
+   不是窄而硬的白條——先前兩版（104deg／112deg 的硬邊）在方形封面上掃起來
+   就是一根白豎條，不像反光。帶寬約佔 18%，兩側各留 6% 的羽化。
+   只動 transform 與 opacity（合成器屬性），不重繪封面。 */
+.fan-sheen {
+  position: absolute; inset: -12% -34%; z-index: 3;
+  pointer-events: none; opacity: 0;
+  background: linear-gradient(
+    102deg,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, .10) 47%,
+    rgba(255, 255, 255, .22) 51%,
+    rgba(255, 255, 255, .10) 55%,
+    rgba(255, 255, 255, 0) 62%
+  );
+  transform: translate3d(-72%, 0, 0);
+  transition: transform 1.05s var(--ease), opacity .34s var(--ease);
+}
+@keyframes sleeve-sheen {
+  from { transform: translate3d(-72%, 0, 0); }
+  to { transform: translate3d(72%, 0, 0); }
+}
+.fan-card:hover .fan-sheen,
+.fan-card:focus-visible .fan-sheen {
+  opacity: 1;
+  animation: sleeve-sheen 1.05s var(--ease) both;
+}
 /* 壓暗與描邊都用一層覆蓋物，靠 opacity 過渡——合成器屬性，不觸發重繪。
    先前用 filter: brightness() 與過渡 box-shadow，兩者每幀都要重畫整張封面
    （含 82px 的陰影），是滑過主視覺時掉幀的來源。
-   覆蓋物同時承擔「讓開時壓暗」與「被指到時描邊」，所以它常駐但不吃事件。 */
+   覆蓋物同時承擔「讓開時壓暗」與「被指到時描邊」，所以它常駐但不吃事件。
+   壓暗改成向外的漸層：中央幾乎不動，只讓四緣收暗——像展櫃的邊緣落影，
+   被指到的那張才會「亮起來」，而不是整張蓋上一層灰。 */
 .fan-card::before {
   content: ''; position: absolute; inset: 0; z-index: 2;
   pointer-events: none; border-radius: inherit;
-  background: rgba(6, 6, 9, .38);
+  background: radial-gradient(118% 118% at 50% 46%, rgba(6, 6, 9, .06) 46%, rgba(6, 6, 9, .62) 100%);
   box-shadow: inset 0 0 0 2px var(--accent);
   opacity: 0;
   transition: opacity .17s var(--ease);
 }
-.is-ready .fan-card::before { opacity: var(--veil, 0); }
+.is-ready .fan-card::before { opacity: 0; }
 .is-ready .fan-card.is-yield::before { opacity: .62; }
 .is-ready .fan-card.is-hover::before { opacity: 1; }
 .fan-card::after {
-  content: ''; position: absolute; inset: 0; border-radius: inherit;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, .34));
+  content: ''; position: absolute; inset: 0; z-index: 4; border-radius: inherit; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .10);
+  opacity: 0;
+  transition: opacity .3s var(--ease);
 }
+.is-ready .fan-card.is-hover::after { opacity: 1; }
 
 /* ── 7. figures band ───────────────────────────────────────────────────── */
 .figures {
@@ -676,6 +898,12 @@ html.ld-booting .ht-line span {
   gap: clamp(18px, 2.6vw, 46px);
   padding: 0 var(--gutter);
   width: max-content;
+  /* 立體展櫃的透視基準。掛在軌道上（卡片的直屬父層）就夠：
+     透視只對「該元素的子元素」生效，`.album-card` 再做三維中轉把
+     `.album-plate` 的微傾帶進同一個透視裡。透視寫在捲動容器上會被
+     `overflow-x: auto` 壓平。 */
+  perspective: 1500px;
+  perspective-origin: 50% 42%;
 }
 
 .album-card {
@@ -685,11 +913,22 @@ html.ld-booting .ht-line span {
   /* 橫向捲動後每張卡都在視野內進出，淡化改由「是否當前」以外的中性態呈現：
      未選中的卡不再壓暗到幾乎看不見（那在捲動式展櫃裡是為了聚焦中央） */
   opacity: .82;
+  /* 三維中轉：沒有它，`.album-plate` 的 rotateX／rotateY 只會被壓平成一條斜切，
+     看不到卡片繞自身軸微微轉動的縱深 */
+  transform-style: preserve-3d;
   transition: opacity .5s var(--ease), transform .5s var(--ease);
 }
 .album-card.is-live { opacity: 1; }
-
-.album-hit { display: block; width: 100%; text-align: left; }
+/* 上浮走卡片層、微傾走封面層，兩者分開：上浮是「離開台面」，
+   傾斜是「這張唱片正被拿起來看」。位移只 6px、角度只 2.2deg，
+   克制到不會變成遊戲感的翻牌。 */
+@media (hover: hover) {
+  .album-card:hover { opacity: 1; transform: translateY(-6px); }
+}
+.album-hit {
+  display: block; width: 100%; text-align: left;
+  transform-style: preserve-3d;
+}
 /* 展柜卡片上的试听入口：与「点封面看专辑」并列，不互相吞掉点击 */
 .album-play {
   display: inline-flex; align-items: center; gap: 7px;
@@ -731,7 +970,11 @@ html.ld-booting .ht-line span {
   aspect-ratio: 1 / 1; border-radius: var(--r);
   overflow: hidden; background: var(--ink-2);
   box-shadow: 0 22px 54px rgba(0, 0, 0, .5), 0 0 0 1px rgba(255, 255, 255, .06);
-  transition: box-shadow .7s var(--ease), transform .7s var(--ease);
+  /* 微傾（--rx／--ry 由 app.js 在同一個 rAF 內依指標位置寫入，最大 2.2deg）
+     與縮放共用一條 transform 通道；`.album-plate img` 的 1.045 倍推近不動，
+     兩者作用在不同元素上，互不覆寫。 */
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: box-shadow .7s var(--ease), transform .3s var(--ease);
 }
 .album-card.is-live .album-plate {
   box-shadow: 0 30px 72px rgba(0, 0, 0, .62), 0 0 0 1px rgba(255, 255, 255, .11);
@@ -742,15 +985,46 @@ html.ld-booting .ht-line span {
 }
 .album-hit:hover .album-plate img { transform: scale(1.045); }
 
+/* 表面高光掃過：斜向柔光帶由左掠到右，只在懸停時掃一次。
+   刻意做成寬而軟的漸層——窄而硬的色帶在方形封面上會變成一根白豎條
+   （本倉庫實測過 104deg／112deg 兩版都失敗，見入口頁 .ld-gbtn 的註解）。
+   動的是 ::before 的 transform 與 opacity，圖片本身不重繪。 */
+.album-plate::before {
+  content: ''; position: absolute; inset: -14% -40%; z-index: 3;
+  pointer-events: none; opacity: 0;
+  background: linear-gradient(
+    102deg,
+    rgba(255, 255, 255, 0) 41%,
+    rgba(255, 255, 255, .09) 47%,
+    rgba(255, 255, 255, .20) 51%,
+    rgba(255, 255, 255, .09) 55%,
+    rgba(255, 255, 255, 0) 61%
+  );
+  transform: translate3d(-70%, 0, 0);
+}
+@media (hover: hover) {
+  .album-hit:hover .album-plate::before,
+  .album-hit:focus-visible .album-plate::before {
+    opacity: 1;
+    animation: sleeve-sheen 1.1s var(--ease) both;
+  }
+}
+
 /* Pointer-tracked sheen on the sleeve. Pattern borrowed from the "spotlight
    card" idea in React Bits / Aceternity UI, reimplemented in plain CSS: no
-   library, two custom properties, no blend mode. */
+   library, two custom properties, no blend mode.
+   亮度變化與邊緣亮線都併進這一層：一層平白 5% 提亮 = 封面「亮起來」，
+   內描邊 = 邊緣微亮線；兩者都只過渡 opacity，不重繪封面、
+   也不過渡 box-shadow（本倉庫實測那是滑過封面掉幀的主因）。 */
 .album-plate::after {
   content: ''; position: absolute; inset: 0; z-index: 2;
   pointer-events: none; border-radius: inherit;
   opacity: 0;
-  background: radial-gradient(260px circle at var(--px, 50%) var(--py, 50%),
-              rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 58%);
+  background:
+    radial-gradient(260px circle at var(--px, 50%) var(--py, 50%),
+              rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 58%),
+    rgba(255, 255, 255, .05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
   transition: opacity .5s var(--ease);
 }
 .album-hit:hover .album-plate::after { opacity: 1; }
@@ -1341,9 +1615,14 @@ html.ld-booting .ht-line span {
   max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter);
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(12px, 1.7vw, 28px);
+  /* 封面牆的透視基準：與展櫃同一套（.rack-track 1500px）。
+     牆上是四欄網格，透視原點取偏上，讓整面牆像立起來的展板。 */
+  perspective: 1500px;
+  perspective-origin: 50% 38%;
 }
-.wall-cell { position: relative; }
-.wall-tile { display: block; width: 100%; text-align: left; }
+/* 三維中轉要走完整條鏈（格 → 磁貼 → 封面），少一層 rotate 就被壓平 */
+.wall-cell { position: relative; transform-style: preserve-3d; }
+.wall-tile { display: block; width: 100%; text-align: left; transform-style: preserve-3d; }
 /* 浏览与播放分开：角落一颗直接试听，不抢封面的点击 */
 .wt-play {
   position: absolute; right: 10px; bottom: calc(clamp(12px, 1.5vw, 20px) + 40px);
@@ -1366,24 +1645,56 @@ html.ld-booting .ht-line span {
   position: relative; display: block; aspect-ratio: 1 / 1;
   border-radius: var(--r); overflow: hidden; background: var(--ink-2);
   box-shadow: 0 16px 40px rgba(0, 0, 0, .46), 0 0 0 1px rgba(255, 255, 255, .06);
-  transition: transform .6s var(--ease), box-shadow .6s var(--ease);
+  /* 微傾與展櫃同一套契約（--rx／--ry 由 app.js 寫入）；上浮留在 .wall-tile 上，
+     兩條通道分開，位移不會被旋轉連座標一起推歪 */
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .3s var(--ease);
+}
+/* 上浮與深度陰影留在磁貼層：這一層不帶 3D 旋轉，box-shadow 只跟著 hover 切換，
+   而它的過渡是既有的 .6s（本倉庫對「過渡 box-shadow」的代價有記錄，
+   所以新增的亮度與描邊一律走覆蓋物的 opacity，不再加第二條陰影過渡）。 */
+.wall-tile { transition: transform .45s var(--ease); }
+.wall-tile:hover,
+.wall-tile:focus-visible { transform: translateY(-7px); }
+.wall-tile:hover .wt-plate,
+.wall-tile:focus-visible .wt-plate {
+  box-shadow: 0 26px 54px rgba(0, 0, 0, .62), 0 0 0 1px rgba(255, 255, 255, .13);
 }
 .wall-tile img {
   width: 100%; height: 100%; object-fit: cover;
   transition: transform 1s var(--ease);
 }
-.wall-tile:hover .wt-plate,
-.wall-tile:focus-visible .wt-plate {
-  transform: translateY(-7px);
-  box-shadow: 0 26px 54px rgba(0, 0, 0, .62), 0 0 0 1px rgba(255, 255, 255, .13);
-}
 .wall-tile:hover img { transform: scale(1.05); }
+/* 表面高光掃過：與展櫃同一道斜向柔光帶（見 .album-plate::before 的說明） */
+.wt-plate::before {
+  content: ''; position: absolute; inset: -14% -40%; z-index: 3;
+  pointer-events: none; opacity: 0;
+  background: linear-gradient(
+    102deg,
+    rgba(255, 255, 255, 0) 41%,
+    rgba(255, 255, 255, .09) 47%,
+    rgba(255, 255, 255, .20) 51%,
+    rgba(255, 255, 255, .09) 55%,
+    rgba(255, 255, 255, 0) 61%
+  );
+  transform: translate3d(-70%, 0, 0);
+}
+@media (hover: hover) {
+  .wall-tile:hover .wt-plate::before,
+  .wall-tile:focus-visible .wt-plate::before {
+    opacity: 1;
+    animation: sleeve-sheen 1.1s var(--ease) both;
+  }
+}
 /* same pointer sheen as the rack, sharing the --px/--py contract */
 .wt-plate::after {
   content: ''; position: absolute; inset: 0; z-index: 2;
   pointer-events: none; border-radius: inherit; opacity: 0;
-  background: radial-gradient(240px circle at var(--px, 50%) var(--py, 50%),
-              rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 58%);
+  background:
+    radial-gradient(240px circle at var(--px, 50%) var(--py, 50%),
+              rgba(255, 255, 255, .20), rgba(255, 255, 255, 0) 58%),
+    rgba(255, 255, 255, .05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
   transition: opacity .5s var(--ease);
 }
 .wall-tile:hover .wt-plate::after { opacity: 1; }
@@ -1809,7 +2120,7 @@ html { scroll-padding-bottom: 96px; }
 
 .ld-brandrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .ld-brand {
-  display: inline-flex; align-items: center; gap: 12px;
+  display: inline-flex; align-items: center; gap: 14px;
   margin: 0; min-width: 0;
 }
 .ld-seal {
@@ -1819,48 +2130,68 @@ html { scroll-padding-bottom: 96px; }
 }
 .ld-seal svg { width: 100%; height: 100%; }
 .ld-seal text { font-family: var(--f-serif); font-size: 42px; fill: var(--accent); }
+/* 品牌銘牌：印章 + 三行銘文（站名／英文題名／起始年），左側一道細線。
+   先前只有「站名 —— 歌手唱片陳列」一行，像頁首標籤而不是館名；
+   改成豎排銘牌後，站名、英文題名與起始年各自成行，讀起來像入口的銅牌。
+   英文題名與起始年用拉丁展示體（--f-display）大字距，與中文站名分開層級。 */
+.ld-mark {
+  display: grid; gap: 3px; min-width: 0;
+  padding-left: 13px; border-left: 1px solid var(--line-2);
+}
 .ld-brandname {
-  font-family: var(--f-serif); font-size: 1.06rem;
-  letter-spacing: .2em; color: var(--paper); white-space: nowrap;
+  font-family: var(--f-serif); font-size: 1.1rem;
+  letter-spacing: .22em; line-height: 1.15;
+  color: var(--paper); white-space: nowrap;
 }
-/* 副題前面加一道短橫線，把「站名 · 類別」讀成博物館銘牌的兩段，
-   而不是兩個並排的普通詞。橫線用偽元素，不動 HTML 結構。 */
-.ld-brandsub {
-  display: inline-flex; align-items: center; gap: .6em;
-  font-size: .75rem; letter-spacing: .18em; color: var(--paper-3); white-space: nowrap;
+.ld-branden {
+  font-family: var(--f-display); font-weight: 500;
+  font-size: .82rem; letter-spacing: .24em; line-height: 1.1;
+  color: var(--paper-2); white-space: nowrap;
 }
-.ld-brandsub::before {
-  content: ''; width: 18px; height: 1px; flex: none;
-  background: var(--line-3);
+.ld-est {
+  font-family: var(--f-display); font-size: .75rem;
+  letter-spacing: .22em; line-height: 1.1;
+  color: var(--paper-3); white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
+.ld-est:empty { display: none; }
 .ld-lang { margin: 0; flex: none; }
 
+/* 入口的舞台本身也要能「暗一下」：換歌手的電影感過渡由 .is-switching
+   把整台壓暗微縮（舊片退場），新片在基礎態下由 .ld-group 的位置過渡帶進來。
+   過渡掛在基礎態，加類與移類兩個方向才都平滑。 */
 .ld-stage {
-  position: relative; overflow: clip; perspective: 1400px;
+  position: relative; overflow: clip;
+  /* 這裡**不掛** perspective：透視交給每張卡自己的 perspective() 函式。
+     祖先 perspective ＋ 子層 preserve-3d 會形成真正的 3D 脈絡，
+     被推到後面的封面就接不到指標——真實滑鼠點右側封面會穿透到舞台，
+     落進「點空白處進退一位」那條路徑（實測點右二只前進一位）。
+     改成每張卡自帶透視後，命中正常，扇形張角也回到與幾何安全值相符
+     （位移不再被透視二次收縮）。 */
   height: calc(var(--ld-cover) * 1.14);
   margin-top: clamp(6px, 1.6vh, 18px);
   touch-action: pan-y;
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
 }
+.ld-hero.is-switching .ld-stage { opacity: .42; transform: scale(.986); }
+.ld-hero.is-switching .ld-glow { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
 .ld-glow {
   position: absolute; top: 50%; left: 50%;
   width: calc(var(--ld-cover) * 2.5); height: calc(var(--ld-cover) * 1.6);
   transform: translate(-50%, -50%);
-  /* 環境光取當前歌手的強調色（JS 寫入 .ld-hero 的 --accent），
-     兩層疊加：內圈較亮的暖芯 + 外圈大面積暈開。
-     藝術展的展台打光就是這個結構——中心亮、邊緣迅速衰減，
-     單一 20% 的漸層會顯得平。 */
+  /* 環境光改成兩層：主層取**當前歌手封面主色**（JS 把第一個封面所屬專輯的
+     sourceAvg 寫進 .ld-hero 的 --amb，格式 "r, g, b"），副層留一點歌手強調色。
+     先前只有單一強調色的兩圈暈，切歌手時背景不跟著唱片換色，
+     紅封面與藍封面看起來是同一個展台。藝術展的展台打光就是這個結構——
+     中心亮、邊緣迅速衰減；順序是「封面色為主、強調色為輔」。
+     保留 opacity／transform 過渡供換歌手的過場使用（is-switching）。 */
   background:
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--accent) 30%, transparent),
-      transparent 58%
-    ),
-    radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--accent) 13%, transparent),
-      transparent 82%
-    );
+    radial-gradient(closest-side, rgba(var(--amb, 224, 65, 43), .30), transparent 58%),
+    radial-gradient(closest-side, rgba(var(--amb, 224, 65, 43), .13), transparent 82%),
+    radial-gradient(closest-side, color-mix(in srgb, var(--accent) 14%, transparent), transparent 74%);
   pointer-events: none;
+  opacity: .92;
+  transition: opacity .55s var(--ease), transform .55s var(--ease);
 }
 /* 展台陰影：封面組下方一道貼地的柔和暗影，讓卡片像「立」在台面上而不是飄著。
    放在 .ld-stage 的偽元素上，跟著舞台寬度走，不隨卡片位移抖動。 */
@@ -1872,14 +2203,50 @@ html { scroll-padding-bottom: 96px; }
   filter: blur(6px);
   pointer-events: none;
 }
-.ld-groups { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; }
+/* 不再 preserve-3d：同 .hero-art 的實測說明（3D 脈絡會吃掉后排卡片的命中）。
+   縱深改由 .ld-group 自己的 perspective() 函式提供。 */
+.ld-groups {
+  list-style: none; margin: 0; padding: 0;
+  position: absolute; inset: 0;
+}
+/* 卡片的完整姿態：橫向位移（--x，自身寬的百分比）、懸停抬升（--yh）、
+   縱深（--tz，緊跟在 perspective() 之後才吃得到透視）、側轉（--ry 基準 +
+   --rh 懸停附加角）、俯仰（--rxh）、縮放（--s × --hg 懸停乘數）。
+   `perspective(1400px)` 寫在位移**之後**：橫向格位維持不受透視二次收縮，
+   卡片自身的旋轉與縱深才走透視——這也讓「幾何安全值」那條計算仍然成立。 */
 .ld-group {
   position: absolute; top: 50%; left: 50%;
   width: var(--ld-cover); height: var(--ld-cover);
   margin: calc(var(--ld-cover) / -2) 0 0 calc(var(--ld-cover) / -2);
-  transform: translateX(var(--x, 0%)) scale(var(--s, 1)) rotateY(var(--ry, 0deg));
+  transform:
+    translate3d(var(--x, 0%), var(--yh, 0%), 0)
+    perspective(1400px)
+    translateZ(var(--tz, 0px))
+    rotateY(calc(var(--ry, 0deg) + var(--rh, 0deg)))
+    rotateX(var(--rxh, 0deg))
+    scale(calc(var(--s, 1) * var(--hg, 1)));
   opacity: var(--o, 1); z-index: var(--z, 1);
   transition: transform .6s var(--ease), opacity .6s var(--ease);
+}
+/* 換位是 0.6s 的正式過渡，懸停是 0.2s 的即時回饋：
+   兩者共用 transform 這條通道時，靠 transition-delay 分流——
+   懸停時把 delay 歸零，回位時恢復（否則滑鼠移入仍要等整段 .6s 才回應）。 */
+@media (hover: hover) {
+  .ld-group:hover {
+    --yh: -2.8%; --hg: 1.045; z-index: 6;
+    transition-duration: .2s, .2s;
+  }
+  /* 側轉角度往觀者方向收回一點：卡片像被拿起來轉正，而不是平貼在牆上。
+     左右兩側的基準角符號相反，附加角也必須相反，否則會轉得更背。 */
+  .ld-group[data-off='-1']:hover { --rh: -7deg; }
+  .ld-group[data-off='1']:hover { --rh: 7deg; }
+  .ld-group[data-off='-2']:hover { --rh: -9deg; --o: .92; }
+  .ld-group[data-off='2']:hover { --rh: 9deg; --o: .92; }
+}
+/* 焦點也要有同樣的回饋（鍵盤使用者）：:focus-visible 與 :hover 同型態 */
+.ld-group:focus-within {
+  --yh: -2.8%; --hg: 1.045; z-index: 6;
+  transition-duration: .2s, .2s;
 }
 .ld-group[hidden] { display: none; }
 /* 位移取「設計值」與「幾何安全值」較小者，任何視口都不越界。
@@ -1890,12 +2257,17 @@ html { scroll-padding-bottom: 96px; }
    再用 min() 與設計值（百分比）比大小。min() 可混用 px 與 %，
    而 % 的基準正是 transform 的參考框（即 --ld-cover），兩者同量綱。
    先前的 bug：800–1300 視口那段（860 檔與桌面檔之間）沿用了 ±128%，
-   而該區間上限只有 92–114%，最外封面被推出畫面（實測 left −227px）。 */
-.ld-group[data-off='0'] { --x: 0%; --s: 1; --ry: 0deg; --o: 1; --z: 5; }
-.ld-group[data-off='-1'] { --x: max(-66%, calc(0px - (50vw - var(--ld-cover) * 0.42 - 12px))); --s: .84; --ry: 21deg; --o: 1; --z: 4; }
-.ld-group[data-off='1'] { --x: min(66%, calc(50vw - var(--ld-cover) * 0.42 - 12px)); --s: .84; --ry: -21deg; --o: 1; --z: 4; }
-.ld-group[data-off='-2'] { --x: max(-128%, calc(0px - (50vw - var(--ld-cover) * 0.36 - 12px))); --s: .72; --ry: 27deg; --o: .48; --z: 3; }
-.ld-group[data-off='2'] { --x: min(128%, calc(50vw - var(--ld-cover) * 0.36 - 12px)); --s: .72; --ry: -27deg; --o: .48; --z: 3; }
+   而該區間上限只有 92–114%，最外封面被推出畫面（實測 left −227px）。
+
+   縱深值：中央 0、相鄰 −64px、遠端 −140px（透視 1400px 下分別再收
+   0.956 與 0.909 倍），遠端因此比只看 --s 時更小、更靠中心，
+   這正是「同一排貼圖」與「空間裡的一疊唱片」的差別。
+   透視收縮讓扇形整體略窄，安全值只會更寬鬆，不會越界。 */
+.ld-group[data-off='0'] { --x: 0%; --s: 1; --ry: 0deg; --o: 1; --z: 5; --tz: 0px; }
+.ld-group[data-off='-1'] { --x: max(-66%, calc(0px - (50vw - var(--ld-cover) * 0.42 - 12px))); --s: .84; --ry: 21deg; --o: 1; --z: 4; --tz: -64px; }
+.ld-group[data-off='1'] { --x: min(66%, calc(50vw - var(--ld-cover) * 0.42 - 12px)); --s: .84; --ry: -21deg; --o: 1; --z: 4; --tz: -64px; }
+.ld-group[data-off='-2'] { --x: max(-128%, calc(0px - (50vw - var(--ld-cover) * 0.36 - 12px))); --s: .72; --ry: 27deg; --o: .58; --z: 3; --tz: -140px; }
+.ld-group[data-off='2'] { --x: min(128%, calc(50vw - var(--ld-cover) * 0.36 - 12px)); --s: .72; --ry: -27deg; --o: .58; --z: 3; --tz: -140px; }
 
 .ld-gbtn {
   position: relative; display: block; width: 100%; height: 100%;
@@ -1930,6 +2302,31 @@ html { scroll-padding-bottom: 96px; }
   .ld-group:hover .ld-gbtn::after { opacity: 1; }
 }
 .ld-gstack { position: absolute; inset: 0; display: block; }
+/* 表面高光掃過：與展櫃、主視覺同一道斜向柔光帶（@keyframes sleeve-sheen）。
+   這一張卡片沒有 overflow 可以裁——封面堆疊刻意讓後兩張露出邊角，
+   所以不能用 overflow: hidden。改成把掃光層放大後再用 clip-path 裁回卡片框：
+   放大值是 inset -14%/-40%（寬 180%、高 128%），卡片框在其中佔
+   20/128 至 108/128 的縱向、40/180 至 140/180 的橫向，
+   換算成 inset() 就是上下 10.94%、左右 22.22%。改放大值時這兩組要一起改。
+   round var(--r) 讓裁切的圓角與封面一致。 */
+.ld-gstack::after {
+  content: ''; position: absolute; inset: -14% -40%; z-index: 5;
+  pointer-events: none; opacity: 0;
+  clip-path: inset(10.94% 22.22% round var(--r));
+  background: linear-gradient(
+    102deg,
+    rgba(255, 255, 255, 0) 41%,
+    rgba(255, 255, 255, .09) 47%,
+    rgba(255, 255, 255, .20) 51%,
+    rgba(255, 255, 255, .09) 55%,
+    rgba(255, 255, 255, 0) 61%
+  );
+  transform: translate3d(-70%, 0, 0);
+}
+@media (hover: hover) {
+  .ld-group:hover .ld-gstack::after { opacity: 1; animation: sleeve-sheen 1.1s var(--ease) both; }
+}
+.ld-group:focus-within .ld-gstack::after { opacity: 1; animation: sleeve-sheen 1.1s var(--ease) both; }
 .ld-gstack img {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; border-radius: var(--r);
@@ -1946,42 +2343,79 @@ html { scroll-padding-bottom: 96px; }
   background: #191A1E; border: 1px solid var(--line-2);
 }
 
-.ld-info { margin-top: clamp(6px, 1.4vh, 16px); text-align: center; }
+/* 檔案標籤（資訊層）：名字底下原本只有統計與年份兩行，空得多餘。
+   按博物館說明牌的層級重排：拉丁名 → 中文名 → 年份軸 → 作品數 → 一句簡介。
+   拉丁名與作品數用拉丁展示體（--f-display）大字距；
+   年份改成一把小尺（兩端年份夾一條帶端點的細線），時間感由形狀承擔，
+   不再只是一行數字。全部內容都由資料填，JS 不寫樣式。 */
+.ld-info { margin-top: clamp(8px, 1.6vh, 18px); text-align: center; }
 .ld-en {
-  margin: 0; font-family: var(--f-num); font-size: .78rem;
-  letter-spacing: .2em; text-transform: uppercase; color: var(--paper-3);
+  margin: 0; font-family: var(--f-display); font-weight: 500;
+  font-size: .84rem; letter-spacing: .34em; text-transform: uppercase;
+  color: var(--paper-2);
 }
 .ld-name {
-  margin: .14em 0 0; font-family: var(--f-serif);
-  font-size: clamp(1.7rem, 3.2vw, 2.6rem);
-  letter-spacing: .06em; color: var(--paper);
+  margin: .12em 0 0; font-family: var(--f-serif); font-weight: 600;
+  font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+  letter-spacing: .08em; color: var(--paper);
 }
-.ld-stats {
-  margin: .42em 0 0; font-family: var(--f-num); font-variant-numeric: tabular-nums;
-  font-size: .86rem; letter-spacing: .06em; color: var(--paper-2);
-}
-/* 年份區間：展品標籤上的「年代」那一行。用拉丁字體與大寫間距，
-   與上面的統計行分開層級；內容由 landing.js 從 stats 填入。 */
+/* 年份軸：1997 ●——————● 2025。端點是強調色圓點，線用兩端淡出的漸層，
+   避免變成第三條硬直線。線長用 clamp：手機縮短、桌面拉長。 */
 .ld-span {
-  margin: .5em 0 0; font-family: var(--f-num);
-  font-size: .78rem; letter-spacing: .26em; color: var(--paper-3);
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(12px, 1.8vw, 22px);
+  margin: .66em 0 0; font-family: var(--f-num);
+  font-size: clamp(1.02rem, 1.4vw, 1.26rem);
+  letter-spacing: .1em; color: var(--paper-2);
   font-variant-numeric: tabular-nums;
 }
-.ld-span:empty { display: none; }
-/* 統計行與年份行之間一道短分隔線，讓資訊段落有呼吸（展品標籤的做法） */
-.ld-span::before {
-  content: ''; display: block; width: 28px; height: 1px;
-  margin: 0 auto .72em; background: var(--line-2);
+.ld-sp-line {
+  position: relative; flex: none;
+  width: clamp(132px, 22vw, 300px); height: 1px;
+  background: linear-gradient(90deg, var(--line), var(--line-3) 22%, var(--line-3) 78%, var(--line));
 }
-.ld-span:empty::before { display: none; }
+.ld-sp-line::before,
+.ld-sp-line::after {
+  content: ''; position: absolute; top: 50%; width: 5px; height: 5px; margin-top: -2.5px;
+  border-radius: 50%; background: var(--accent);
+}
+.ld-sp-line::before { left: 0; }
+.ld-sp-line::after { right: 0; }
+.ld-stats {
+  margin: .6em 0 0; font-family: var(--f-display); font-weight: 500;
+  font-size: .8rem; letter-spacing: .26em; text-transform: uppercase;
+  color: var(--paper-3); font-variant-numeric: tabular-nums;
+}
+/* 一句簡介：由 landing.js 取該歌手 intro 的末句（資料既有文案，不新增手寫內容）。
+   限寬同樣用 rem 不用 ch：ch 以 CJK 字體解析時只有半個漢字寬（見 .ha-note） */
+.ld-note {
+  margin: .95em auto 0; max-width: min(100%, 30rem);
+  font-family: var(--f-serif); font-size: clamp(.88rem, 1vw, .96rem);
+  line-height: 1.9; letter-spacing: .06em; color: var(--paper-2);
+}
+.ld-note:empty { display: none; }
+/* 文字型按鈕：進入檔案 →。不再是膠囊色塊；底線由 hover 從左長出來，
+   箭頭往右讓開。焦點圈回到強調色（沒有色塊底，不必再翻成紙白）。 */
 .ld-cta {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-height: 46px; margin-top: clamp(10px, 1.8vh, 18px); padding: 0 28px;
-  border-radius: var(--r-pill); background: var(--accent); color: var(--accent-on);
-  font-size: .92rem; letter-spacing: .12em;
-  transition: filter .18s var(--ease);
+  position: relative;
+  display: inline-flex; align-items: center; gap: .55em;
+  min-height: 44px; margin-top: clamp(14px, 2vh, 24px); padding: 0 2px 10px;
+  font-size: .95rem; letter-spacing: .16em; color: var(--paper);
 }
-.ld-cta:hover, .ld-cta:focus-visible { filter: brightness(1.08); }
+.ld-cta::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 8px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .34s var(--ease);
+}
+.ld-cta:hover::after,
+.ld-cta:focus-visible::after { transform: scaleX(1); }
+.ld-cta-arrow {
+  font-family: var(--f-sans); color: var(--accent);
+  transition: transform .34s var(--ease);
+}
+.ld-cta:hover .ld-cta-arrow,
+.ld-cta:focus-visible .ld-cta-arrow { transform: translateX(5px); }
+.ld-cta:focus-visible { outline-color: var(--accent); }
 
 .ld-controls {
   display: flex; align-items: center; justify-content: center;
@@ -1993,15 +2427,21 @@ html { scroll-padding-bottom: 96px; }
 .ld-tabs {
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-  gap: 4px clamp(10px, 1.6vw, 22px);
 }
+.ld-tabs > li { display: flex; }
+/* 歌手索引讀成一排「展品編目」的欄位，而不是居中導航列：
+   欄與欄之間一道細線，選中態是欄位底部一條 1px 強調色。
+   八個名字排成置中導航是整頁最像普通網頁的一處（獨立評審指出的 B-1）。 */
+.ld-tabs > li + li { border-left: 1px solid var(--line); }
 .ld-tab {
-  position: relative; min-height: 44px; padding: 0 4px;
-  font-size: .95rem; letter-spacing: .06em; color: var(--paper-3);
+  position: relative; min-height: 44px; padding: 0 clamp(10px, 1.1vw, 18px);
+  font-size: .82rem; letter-spacing: .18em; color: var(--paper-3);
   transition: color .18s var(--ease);
 }
 .ld-tab::after {
-  content: ''; position: absolute; left: 4px; right: 4px; bottom: 6px; height: 2px;
+  content: ''; position: absolute;
+  left: clamp(10px, 1.1vw, 18px); right: clamp(10px, 1.1vw, 18px);
+  bottom: 0; height: 1px;
   background: var(--accent); transform: scaleX(0); transform-origin: left;
   transition: transform .24s var(--ease);
 }
@@ -2023,6 +2463,71 @@ html { scroll-padding-bottom: 96px; }
   padding: clamp(40px, 8vh, 90px) var(--gutter);
   font-size: .95rem; color: var(--paper-2);
 }
+
+/* ── 入口的三階段入場 ──────────────────────────────────────────────────────
+   展館開門的節奏：先亮館名，再開展台，最後才上說明牌。
+   全部由 CSS 的 animation-delay 排程，JS 只切類（見 landing.js 的 settle）：
+   序列跑完（BOOT_MS = 3400ms）才移除 html.ld-booting、加上 is-ready，
+   基礎態接管；因此每個 @keyframes 的結束值必須等於基礎態，
+   否則移類的那一瞬間會跳一下。腳本失敗時 ld-booting 仍在，
+   但所有動畫 fill 都是 both、且結束值即基礎態，畫面仍完整可見。
+
+   排程（累計）：
+     0.12s  品牌銘牌與語言鈕
+     0.70s  舞台整體浮起（位移＋縮放，一條動畫管整台）
+     0.90s  環境光暈綻開
+     0.95s  遠端封面 → 1.15s 相鄰 → 1.35s 中央（錯峰，由外而內）
+     2.00s  說明牌逐行（每行 +70ms）
+     2.40s  年份軸由左畫出
+     2.75s  歌手切換列與提示
+   中央封面最後出現——視線先看到整個展台，最後落在那一張上。 */
+@keyframes ld-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ld-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ld-stage-in {
+  from { opacity: 0; transform: translateY(3.2%) scale(.972); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ld-bloom {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
+  to { opacity: .92; transform: translate(-50%, -50%); }
+}
+/* 只動 opacity：封面卡片的 transform 要留給懸停與換位，
+   入場動畫一旦接管 transform，整段入場期間懸停就沒有反應。 */
+@keyframes ld-cover-in { from { opacity: 0; } to { opacity: var(--o, 1); } }
+@keyframes ld-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+html.ld-booting .ld-brand,
+html.ld-booting .ld-lang { opacity: 0; animation: ld-fade .9s var(--ease) .12s both; }
+
+html.ld-booting .ld-stage { opacity: 0; animation: ld-stage-in 1.5s var(--ease) .7s both; }
+html.ld-booting .ld-glow { opacity: 0; animation: ld-bloom 1.9s var(--ease) .9s both; }
+html.ld-booting .ld-group { opacity: 0; animation: ld-cover-in 1.05s var(--ease) both; }
+html.ld-booting .ld-group[data-off='-2'],
+html.ld-booting .ld-group[data-off='2'] { animation-delay: .95s; }
+html.ld-booting .ld-group[data-off='-1'],
+html.ld-booting .ld-group[data-off='1'] { animation-delay: 1.15s; }
+html.ld-booting .ld-group[data-off='0'] { animation-delay: 1.35s; }
+
+html.ld-booting .ld-info > * { opacity: 0; animation: ld-rise .95s var(--ease) both; }
+html.ld-booting .ld-info > :nth-child(1) { animation-delay: 2s; }
+html.ld-booting .ld-info > :nth-child(2) { animation-delay: 2.07s; }
+html.ld-booting .ld-info > :nth-child(3) { animation-delay: 2.14s; }
+html.ld-booting .ld-info > :nth-child(4) { animation-delay: 2.21s; }
+html.ld-booting .ld-info > :nth-child(5) { animation-delay: 2.28s; }
+html.ld-booting .ld-info > :nth-child(6) { animation-delay: 2.35s; }
+/* 年份軸另外畫一次：從左端長到右端，兩個端點圓點跟著掃進來 */
+html.ld-booting .ld-sp-line {
+  transform-origin: left;
+  animation: ld-line .8s var(--ease) 2.45s both;
+}
+html.ld-booting .ld-controls { opacity: 0; animation: ld-fade .9s var(--ease) 2.75s both; }
+html.ld-booting .ld-hint { opacity: 0; animation: ld-fade .9s var(--ease) 2.9s both; }
 
 .ld-foot { border-top: 1px solid var(--line); }
 .ld-foot .ld-inner { padding: 26px var(--gutter); }
@@ -2248,7 +2753,18 @@ html.has-lyrics .player { z-index: 95; }
   .sheet-sect { margin-top: 6px; }
   /* landing: 封面組縮到可用寬度的 55% 至 65%，姓名列容許兩三行，箭頭不覆蓋姓名 */
   .ld-hero { --ld-cover: clamp(168px, 58vw, 238px); }
-  .ld-brandsub { display: none; }
+  /* 入口銘牌在窄屏：三行都留（起始年是品牌感的一部分，實測 390px 下
+     印章＋銘牌 208px、語言鈕 72px、間距 16px 共 296px，仍在 350px 內），
+     只把行距與字距收一階 */
+  .ld-brand { gap: 11px; }
+  .ld-mark { gap: 2px; padding-left: 10px; }
+  .ld-brandname { font-size: 1rem; letter-spacing: .18em; }
+  .ld-branden { font-size: .75rem; letter-spacing: .24em; }
+  .ld-est { font-size: .75rem; letter-spacing: .2em; }
+  /* 一句簡介在窄屏收一階字號即可；**不要**在這裡另給 ch 限寬——
+     ch 以 CJK 字體解析只有半個漢字寬，30ch 會把一句話擠成三行
+     （實測 391px 下 229.9px／3 行；沿用基礎態的 30rem 才是 2 行） */
+  .ld-note { font-size: .86rem; }
   .ld-tabs { gap: 2px 12px; }
   .ld-hint { font-size: .75rem; }
   .artist-switch { position: static; }
@@ -2283,7 +2799,12 @@ html.has-lyrics .player { z-index: 95; }
   *, *::before, *::after {
     animation-duration: .001ms !important;
     animation-iteration-count: 1 !important;
+    /* 延遲也必須歸零：本頁的入場排程靠 animation-delay 撐開（最深 2.9s），
+       只把 duration 壓成 0 而留著 delay，元素會停在起始態（opacity: 0）
+       將近三秒才出現——那是「減少動效」下最糟的結果 */
+    animation-delay: 0ms !important;
     transition-duration: .001ms !important;
+    transition-delay: 0ms !important;
   }
   .grain { animation: none; }
   .marquee-track { transform: none !important; }
@@ -2293,9 +2814,23 @@ html.has-lyrics .player { z-index: 95; }
   .fan-card { opacity: 1; }
   .album-card { opacity: 1; }
   .fan { transform: none !important; }
-  /* 唱片架：位置切換立即完成，取消側轉與光暈過渡 */
-  .ld-stage { perspective: none; }
-  .ld-group { transform: translateX(var(--x, 0%)) scale(var(--s, 1)); }
+  /* 唱片架：位置切換立即完成，取消側轉與縱深。
+     這一條整體換掉 transform，所以卡片自帶的 perspective() 與 translateZ
+     在減少動效下一併消失——沒有移動，就沒有需要縱深的地方。 */
+  .ld-group {
+    transform: translateX(var(--x, 0%)) scale(var(--s, 1));
+    opacity: var(--o, 1);
+  }
+  /* 掃光帶（三處封面卡共用同一道 @keyframes）在減少動效下不播放：
+     它是純裝飾的位移，沒有它資訊一點也不少，留著反而是一次多餘的閃光 */
+  .fan-sheen,
+  .album-plate::before,
+  .wt-plate::before,
+  .ld-gstack::after { display: none; }
+  /* 卡片微傾與上浮在減少動效下改為只留邊緣亮線與提亮（見上方的覆蓋物規則） */
+  .album-card:hover { transform: none; }
+  .wall-tile:hover, .wall-tile:focus-visible { transform: none; }
+  .album-plate, .wt-plate { transform: none; }
   /* 卡片柔光只做 opacity 淡入，全域的 transition-duration:.001ms 已讓它即時切換，
      所以這裡不必再關掉——留著才有懸停回饋（全域區塊見本節開頭） */
   /* rings appear already drawn, and the chart bars are full height */

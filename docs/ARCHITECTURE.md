@@ -49,8 +49,15 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 
 ### 版面
 
-- 兩個圓角檔位：控制項用膠囊 `--r-pill`，面與圖用 `--r: 6px`
-- 三套字體各司一職：`--f-serif` 標題、`--f-sans` 正文、`--f-num` 數字
+- 兩個圓角檔位：控制項用膠囊 `--r-pill`，面與圖用 `--r: 6px`。明列例外：入口的
+  `.ld-cta` 與歌手頁 `.hero-cta` 內的按鈕是**文字型按鈕**（透明底、無圓角、hover 時
+  底部長出 1px 強調色細線，`.ld-cta` 的箭頭是文字符號 `→` 而非 svg），
+  因為展廳入口不是膠囊按鈕；其餘圖示型控制項（頂欄、展櫃箭頭、播放列、抽屜）仍用 `--r-pill`
+- 四套字體各司一職：`--f-serif` 中文標題（Noto Serif SC）、`--f-display` 拉丁銘牌
+  （Cormorant Garamond，自託管 latin + latin-ext 的 400／500）、`--f-num` 數字與年份
+  （Bodoni Moda）、`--f-sans` 正文與控制項（Noto Sans SC）。`--f-display` 只給那一類
+  拉丁銘牌（歌手拉丁名、`SOUND ARCHIVE`、`EST. 1997`、檔案標籤），字組裡墊 Noto Serif SC，
+  混排的漢字才不會掉到系統預設襯線
 - 橫向展櫃是原生橫向捲動（`overflow-x: auto` 的 `.rack-viewport` + 拖曳 + 左右箭頭）；
   頁面縱向捲動不被劫持。曾用 sticky 釘住 + `translate3d` 把捲動換成橫向位移，
   等於十張專輯要一萬多像素的捲動預算才走得完，維護者反映「一定要把所有專輯翻完
@@ -77,7 +84,26 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 全部動效由使用者互動或捲動驅動，無自動循環播放（WCAG 2.2.2）
 - 捲動與指標事件以 rAF 節流，熱路徑不讀版面
 - 指標效果寫入 CSS 自訂屬性，不在 JS 內逐幀設定樣式
-- `prefers-reduced-motion` 下：年輪直接就位、區塊全部可見、不做捲動位移
+- `prefers-reduced-motion` 下：年輪直接就位、區塊全部可見、不做捲動位移；
+  降級要連 `animation-delay` 一起歸零（只壓 duration 而留著 delay，分階段入場的元素
+  會停在起始態 `opacity: 0` 近三秒）
+
+### 主視覺換片：兩階段狀態機
+
+換片不是直接改索引再重繪——那只得一次橫向滑動，沒有「闔上再翻開」的分段。
+
+- `.is-shifting`（舊片退場，`FAN_OUT = 340ms`）：群組 `transform: scale(.972)`，
+  暗度下放到每一張卡（`opacity: calc(var(--fo, 1) * .26)`）。
+  暗度不能掛在群組上：群組 `opacity < 1` 會壓平整個 3D 子樹，外側封面會在頭尾各跳一次
+- 到期才換 `fanIdx` 並重繪，然後 `.is-arriving`（新片進場，`FAN_IN = 620ms`）
+  ＋ `.hero-art.is-lit`（環境光補亮一次）＋ `--amb` 換成新專輯的封面主色
+- 鍵盤連按不掉步：`delta` 先累積在 `fanPending`，`fanShiftBusy` 期間只累加、不重啟計時器
+- 入場錯峰（`transition-delay: calc(--i * 95ms + 240ms)` 配 1.15s 時長）不得騎在換位上：
+  舊片否則要 1458–2263ms 才停穩；`.is-shifting`／`.is-arriving` 期間該延遲與時長都要歸零
+- 換歌手時 `resetFanShift()` 收回全部狀態（兩個計時器、`pending`、`busy`、`is-lit`）：
+  留著的計時器會在新資料上補跑一次 `fanPaint()`，把新歌手的輪播多推一格
+- 縱深由**每張卡自己的** `perspective(1400px)` 提供，不是祖先的 `perspective`
+  （理由見「防錯清單」的透視命中條）
 
 ## 防錯清單
 
@@ -89,8 +115,15 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 切換歌手是就地在同一份文件內換資料（`applyArtist()`），不整頁重載：
   播放中的 `<audio>` 是獨立節點，重繪展示面時不得替換或重建它。
   重繪前必須清掉 `appendChild` 型宿主與模組級 `index`，否則畫面會悄悄疊加
-- 入場的隱藏態只掛在明確要走開場流程的頁面（根元素 `is-booting`）；
-  基礎態必須可見，否則腳本失敗或換頁遺漏會讓文字永久透明
+- 入場的隱藏態只掛在明確要走開場流程的頁面（入口頁根元素 `ld-booting`）；
+  基礎態 `is-ready` 必須可見，否則腳本失敗會讓文字永久透明
+- 重疊封面堆（歌手頁 `.fan-card`、入口頁 `.ld-group`）的縱深只能用每張卡自己的
+  `perspective()`：祖先 `perspective` ＋ 子層 `transform-style: preserve-3d` 會建立
+  真正的 3D 脈絡，被 `translateZ` 推遠的卡片在真實指標下命中不到自己，而
+  `document.elementsFromPoint` 仍回報它——**DOM 斷言驗不出這條回歸**。
+  驗收一律用真實指標事件（`page.mouse.click`）與命中取樣，輔助函式不得在真實點擊失敗時
+  靜默回退成 `element.click()`。見 [.agents/notes/](../.agents/notes/)
+- `prefers-reduced-motion` 的降級要連 `animation-delay` 一起歸零
 - 小字下限 12px：標籤與元資訊一律 `.75rem` 起，不低於此值
 - 目錄三視圖（展櫃／封面牆／年表）共用一批資料，切換而非連續重複；
   切回展櫃要重新測量（`measureRack`），隱藏狀態下測量會得到 0（`scrollWidth` 也是 0），
@@ -132,6 +165,18 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 入口頁的歌手色寫在舞台容器 `.ld-hero` 的 `--accent` / `--accent-on`，
   只點綴印章、選中態、主按鈕與低強度光暈；換歌手即換色
 
+作品層打光與歌手強調色是兩條互斥的通道：
+
+- `--accent` 是**歌手層**，管身分：印章、選中態、焦點、裝飾
+- `--amb` 是**作品層打光**，取當前專輯封面的構建期平均色 `sourceAvg`
+  （入口頁取該歌手第一張封面所屬專輯，歌手頁取輪播中央那張），以 `"r, g, b"` 字串寫進容器，
+  CSS 端只以 `rgba(var(--amb), α)` 畫柔光（`.ld-glow`、`.hero-art::before` / `::after`）
+- 打光不承載狀態、不畫文字、不進邊框：它是展台的燈，不是第二強調色。
+  專輯層的抽屜色（`--accent` 覆寫）仍照舊，兩者不互相取代
+
+理由：先前只有單一強調色的兩圈暈，切歌手時背景不跟著唱片換色，一張紅封面與一張藍封面
+看起來是同一個展台；而把打光做成「第二強調色」會讓同一頁出現兩個爭奪注意力的色源。
+
 理由：個性來自數據（封面、歌風、文案），而不是為每位歌手複製一份樣式；
 主題機制的自由度分層供給，越靠近內容的層越具體。
 
@@ -166,6 +211,11 @@ _data/artists/<id>/meta.mjs ─────────┘                      
   改過 `js/` 或 `css/` 就重跑一次 `npm run stamp`
 - 動態寫入一律經 `setText` / `setAttr` 記錄繁體原文：切換歌手後再切語言時，
   WeakMap 快取才不會把上一位歌手的文字還原回來
+- 入口的三階段入場是**類別契約**（品牌 → 唱片架 → 資訊區）：初始 `html.ld-booting`
+  由 `index.html` 帶上，各行由 CSS 的 `animation-delay` 排程；序列跑完
+  （`BOOT_MS = 3400ms`）JS 只切類——移除 `ld-booting`、加上 `is-ready`，
+  基礎態完全可見。每個 `@keyframes` 的結束值必須等於基礎態，否則移類那一瞬間會跳一下；
+  `prefers-reduced-motion: reduce` 下立即收斂，不讓人等 3.4 秒
 - 空數與單數：0 位歌手顯示可讀空狀態並收起唱片架；1 位停用左右切換；
   缺封面以佔位呈現，姓名與進入連結仍可用
 
@@ -188,8 +238,11 @@ _data/artists/<id>/meta.mjs ─────────┘                      
   `.fan-card` 的 `width`（封面大小）、`FAN_SPEC.x`（扇形張角）。
   五張的橫向跨度約為單張寬的 1.9 倍，放大封面必然外溢容器並吃掉與左欄標題的間隙；
   容器高度依內容收（`aspect-ratio: 1 / .82`），因為五張的豎向跨度只有卡片高的約 1.0 倍
-- 沒有 `perspective` 與 `preserve-3d`：那兩條只為滑鼠視差服務，而視差是整頁最貴的一段
-  （改一次 `transform` 要為整棵子樹重算 3D 矩陣，單次約 1.4ms）。層級靠 `--z` 與陰影表達
+- 縱深由**每張卡自己的** `perspective(1400px)` 函式提供，不是祖先的 `perspective`
+  屬性：兩者對單一元素的視覺等價，但後者配上子層 `transform-style: preserve-3d`
+  會建立真正的 3D 脈絡，被 `translateZ` 推遠的卡片在真實指標下命中不到自己
+  （實測命中率 72.3%，`click.target` 穿到宿主 `div.fan`）。展櫃與封面牆不重疊、
+  不受影響，仍保留 `preserve-3d`
 
 ## 契約
 

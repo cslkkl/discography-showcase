@@ -27,6 +27,8 @@
     return v < a ? a : v > b ? b : v;
   };
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)');
+  /* 主視覺容器：入場、環境光與換片都要在它身上掛狀態類，先取一次共用 */
+  var heroArt = document.getElementById('heroArt');
 
   /* ── language layer ─────────────────────────────────────────────────── */
   var SKIP = { SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, TEXTAREA: 1 };
@@ -301,7 +303,12 @@
      |off| <= 2 留在台上，其餘不掛圖、不收焦點。
 
      x 是「卡片自身寬度的百分比」；r 是 rotateY 角度，符號與入口頁一致
-     （右側那張負角、左側正角，等於往後倒向同一個消失點）。
+     （右側那張負角、左側正角，等於往後倒向同一個消失點）；
+     tz 是 translateZ 的像素值（負數＝往後退），配合 .fan 的 preserve-3d 與
+     .hero-art 的 1400px 透視，讓遠近由「真的退到後面」表達，而不是只把同一
+     平面上的圖縮小。透視會把退後的卡片再收縮一次（tz=-170 時
+     1400/(1400+170) ≈ 0.89），x 的位移也一併被往中心收，扇形因此比先前略窄，
+     這正是縱深感的來源。z 仍是層級用的 z-index，兩者不可混用。
 
      位移上限是實測反解出來的，不是抄入口頁也不是算 cos 投影：
      3D 透視會把往後轉的外側封面再放大一點，投影寬比 cos 估算更大。
@@ -312,14 +319,15 @@
      27° 時外側那張只剩一條邊（截圖可辨識度不足）。
      18°／14° 保留縱深又能看清封面。 */
   var FAN_SPEC = {
-    '-2': { r: 18, x: -58, y: 8, s: 0.72, z: 1, o: 0.48 },
-    '-1': { r: 14, x: -42, y: 3, s: 0.84, z: 2, o: 0.82 },
-    0: { r: 0, x: 0, y: 0, s: 1, z: 6, o: 1 },
-    1: { r: -14, x: 42, y: 3, s: 0.84, z: 2, o: 0.82 },
-    2: { r: -18, x: 58, y: 8, s: 0.72, z: 1, o: 0.48 }
+    '-2': { r: 18, x: -58, y: 8, s: 0.72, tz: -170, z: 1, o: 0.48 },
+    '-1': { r: 14, x: -42, y: 3, s: 0.84, tz: -78, z: 2, o: 0.82 },
+    0: { r: 0, x: 0, y: 0, s: 1, tz: 0, z: 6, o: 1 },
+    1: { r: -14, x: 42, y: 3, s: 0.84, tz: -78, z: 2, o: 0.82 },
+    2: { r: -18, x: 58, y: 8, s: 0.72, tz: -170, z: 1, o: 0.48 }
   };
   var fanIdx = 0;
   var fanCards = [];
+  var fanEl = null;
 
   function fanOffset(i) {
     var n = ALBUMS.length;
@@ -352,6 +360,7 @@
       }
       card.style.setProperty('--fx', sp.x + '%');
       card.style.setProperty('--fy', sp.y + '%');
+      card.style.setProperty('--fz', sp.tz + 'px');
       card.style.setProperty('--fr', sp.r + 'deg');
       card.style.setProperty('--fs', sp.s);
       card.style.setProperty('--fo', sp.o);
@@ -363,13 +372,78 @@
       /* 中央那張要進專輯，其餘是把它翻過來 */
       card.setAttribute('aria-current', center ? 'true' : 'false');
     });
+    setAmbient(ALBUMS[fanIdx] && ALBUMS[fanIdx].sourceAvg);
   }
+
+  /* 動態環境光：當前專輯封面的平均色寫進 --amb，CSS 以 rgba(var(--amb), α) 疊光。
+     背景不再是固定的一層紅，而是隨唱片換色——Apple Music 的年鑑就是這個做法。
+     只寫一個自訂屬性，不動版面、不讀版面。 */
+  function setAmbient(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || ''));
+    if (!m) return;
+    var v = parseInt(m[1], 16);
+    var hero = $('#hero');
+    if (hero)
+      hero.style.setProperty(
+        '--amb',
+        ((v >> 16) & 255) + ', ' + ((v >> 8) & 255) + ', ' + (v & 255)
+      );
+  }
+
+  /* 換片：舊片先退場，短暫過渡，新片再放大出現、光線增強一次。
+     直接改索引只會得到一次橫向滑動，看不到「闔上再翻開」的分段。
+     全程 340 + 620ms，鍵盤連按不會掉步（delta 先累積在 pending）。
+     路徑：.is-shifting（整台微暗微縮）→ 換位 → .is-arriving ＋ --amb 換色 ＋
+     .hero-art.is-lit（環境光補亮）。 */
+  var fanPending = 0;
+  var fanShiftBusy = false;
+  var fanShiftTimer = 0;
+  var fanArriveTimer = 0;
+  var FAN_OUT = 340;
+  var FAN_IN = 620;
 
   function fanGo(delta) {
     var n = ALBUMS.length;
     if (!n) return;
-    fanIdx = (((fanIdx + delta) % n) + n) % n;
-    fanPaint();
+    if (REDUCED.matches || !fanEl) {
+      fanIdx = (((fanIdx + delta) % n) + n) % n;
+      fanPaint();
+      return;
+    }
+    fanPending += delta;
+    if (fanShiftBusy) return;
+    fanShiftBusy = true;
+    fanEl.classList.remove('is-arriving');
+    fanEl.classList.add('is-shifting');
+    fanShiftTimer = setTimeout(function () {
+      fanIdx = (((fanIdx + fanPending) % n) + n) % n;
+      fanPending = 0;
+      fanPaint();
+      fanEl.classList.remove('is-shifting');
+      /* 這行只為「連按」時重播進場動畫：remove 與 add 分屬不同任務，
+         中間一定經過一次樣式重算，不必再強制回流。 */
+      fanEl.classList.add('is-arriving');
+      heroArt.classList.add('is-lit');
+      fanArriveTimer = setTimeout(function () {
+        fanShiftBusy = false;
+        fanEl.classList.remove('is-arriving');
+        heroArt.classList.remove('is-lit');
+      }, FAN_IN);
+    }, FAN_OUT);
+  }
+
+  /* 換歌手時把換片狀態機一起收乾淨。這兩個計時器句柄之所以要留著（而不是
+     直接 setTimeout 不接），就是為了在這裡清掉：上一位歌手留下的計時器
+     會在新資料上補跑一次 fanPaint()，把新歌手的輪播多推一格；
+     留在 .hero-art 上的 is-lit 也會讓新歌手的環境光一直亮著。 */
+  function resetFanShift() {
+    if (fanShiftTimer) clearTimeout(fanShiftTimer);
+    if (fanArriveTimer) clearTimeout(fanArriveTimer);
+    fanShiftTimer = 0;
+    fanArriveTimer = 0;
+    fanPending = 0;
+    fanShiftBusy = false;
+    if (heroArt) heroArt.classList.remove('is-lit');
   }
 
   /* 懸停避讓：指到的那張跳出來，其餘往外讓開，讓這張完整可見。
@@ -394,7 +468,7 @@
   }
 
   function renderFan() {
-    var host = $('#heroArt');
+    var host = heroArt || $('#heroArt');
     if (!host) return;
     var fan = el('div', 'fan');
     fan.setAttribute('role', 'group');
@@ -408,6 +482,12 @@
       img.decoding = 'async';
       img.loading = i === 0 ? 'eager' : 'lazy';
       card.appendChild(img);
+      /* 表面高光掃過的載體。放在按鈕內、圖片之上，靠 CSS 的斜向漸層
+         與 transform 掠過；用獨立節點而不是偽元素，是因為 ::before 已經
+         是壓暗／描邊、::after 是邊緣亮線，兩者都被佔用。 */
+      var sheen = el('span', 'fan-sheen');
+      sheen.setAttribute('aria-hidden', 'true');
+      card.appendChild(sheen);
       card.addEventListener('click', function () {
         var off = fanOffset(i);
         if (off === 0) openSheet(a.id);
@@ -430,6 +510,7 @@
       fanCards.push(card);
     });
     host.appendChild(fan);
+    fanEl = fan;
     host.removeAttribute('aria-hidden');
     fanIdx = 0;
     fanPaint();
@@ -2314,15 +2395,107 @@
     var curName = $('#artistCurName');
     if (curName) curName.textContent = JC.name;
 
-    /* 题名已是歌手名，副题不再重复它，只留英文名（若与中文名不同）与类别 */
+    /* 題名已是歌手名，副題不再重複它。拉丁名改由底下的檔案層（.ha-en）
+       以銘牌字體呈現，這裡只留類別——否則同一個拉丁名會在首屏出現兩次 */
     var eyebrow = $('#heroEyebrow');
-    if (eyebrow)
-      eyebrow.textContent = (JC.en && JC.en !== JC.name ? JC.en + ' · ' : '') + JC.tagline;
+    if (eyebrow) eyebrow.textContent = JC.tagline;
 
     var line = $('#heroLine');
     if (line)
       line.textContent =
         '從 ' + JC.stats.from + ' 到 ' + JC.stats.to + '，' + JC.stats.albums + ' 張錄音室專輯。';
+
+    /* ── 歌手檔案：說明牌的資訊層 ─────────────────────────────────────────
+       名字底下原本只有副題與兩顆按鈕，其後是一片空白。按博物館說明牌的順序
+       補上：拉丁名 → 年代與作品數 → 一句簡介。
+       全部取自既有資料，不新增手寫欄位：
+         en     meta.mjs 的拉丁名
+         stats  構建期由曲目資料算出（張數、曲數、起訖年）
+         intro  meta.mjs 的介紹，**只取末句**當那句簡介——intro 原本只餵
+                meta description，頁面上看不見，這裡是既有文案的再利用。 */
+    function lastSentence(text) {
+      var parts = String(text || '').split('。');
+      for (var i = parts.length - 1; i >= 0; i--) {
+        var seg = parts[i].trim();
+        if (seg) return seg;
+      }
+      return '';
+    }
+
+    var haEn = $('#haEn');
+    if (haEn) haEn.textContent = JC.en || JC.name;
+    var haMeta = $('#haMeta');
+    if (haMeta)
+      haMeta.textContent =
+        JC.stats.from +
+        ' 至 ' +
+        JC.stats.to +
+        ' · ' +
+        JC.stats.albums +
+        ' ALBUMS · ' +
+        JC.stats.tracks +
+        ' WORKS';
+    var haNote = $('#haNote');
+    if (haNote) haNote.textContent = lastSentence(JC.intro);
+
+    /* 作品年表軸：把整個目錄壓成一把尺——橫向細軌、每張專輯一道刻痕、
+       每個階段起點一顆圓點與年份。位置 = (year − from) / (to − from)，
+       由這裡算好寫進 --p，CSS 只負責畫（不在樣式表裡做年份運算）。
+       首尾兩段的標籤要往內收才不會溢出軸外，由 is-first／is-last 標記。
+       刻痕與圓點對讀屏是噪音，整條軸用 aria-label 交代。 */
+    var axis = $('#heroAxis');
+    if (axis) {
+      var from = JC.stats.from;
+      var to = JC.stats.to;
+      var spanY = Math.max(1, to - from);
+      var at = function (y) {
+        return (((y - from) / spanY) * 100).toFixed(2) + '%';
+      };
+      var axisHTML = '';
+      ALBUMS.forEach(function (a) {
+        axisHTML += '<li class="ha-alb" style="--p:' + at(a.year) + '" aria-hidden="true"></li>';
+      });
+      JC.eras.forEach(function (e, i) {
+        var cls = i === 0 ? ' is-first' : '';
+        axisHTML +=
+          '<li class="ha-era' +
+          cls +
+          '" style="--p:' +
+          at(e.from) +
+          '">' +
+          '<span class="ha-dot" aria-hidden="true"></span>' +
+          '<span class="ha-year">' +
+          e.from +
+          '</span>' +
+          '<span class="ha-title">' +
+          esc(e.title) +
+          '</span></li>';
+      });
+      /* 最後一個階段的結束年：只有當它與該階段起點不同年時才另立一個標記，
+         否則會與該階段自己的標籤疊在同一個位置上 */
+      var lastEra = JC.eras[JC.eras.length - 1];
+      if (lastEra && lastEra.to > lastEra.from) {
+        axisHTML +=
+          '<li class="ha-era is-last" style="--p:100%">' +
+          '<span class="ha-dot" aria-hidden="true"></span>' +
+          '<span class="ha-year">' +
+          lastEra.to +
+          '</span></li>';
+      }
+      axis.innerHTML = axisHTML;
+      axis.setAttribute(
+        'aria-label',
+        '作品年表軸：' +
+          from +
+          ' 至 ' +
+          to +
+          '，' +
+          ALBUMS.length +
+          ' 張專輯分為 ' +
+          JC.eras.length +
+          ' 個階段'
+      );
+    }
 
     var ogTitle = $('meta[property="og:title"]');
     if (ogTitle) ogTitle.setAttribute('content', document.title);
@@ -2886,36 +3059,58 @@
 
     /* Pointer-tracked sheen on the sleeves, and a 6px magnetic pull on the
        primary CTA. Both write custom properties inside a rAF so no layout is
-       read on the hot path. */
+       read on the hot path.
+
+       封面懸停：同一條 rAF 兼管展櫃（.album-hit）與封面牆（.wall-tile），
+       一次只會有一處被掠過，所以共用一個排程與一組座標即可。
+       寫入三個自訂屬性：
+         --px / --py 聚光位置（既有契約，兩處封面共用）
+         --rx / --ry 微傾角度，上限 2.2deg——再大就從「拿起唱片」變成「翻牌」
+       角度用「指標偏向哪一側，那一側就往前抬」的規則：
+       游標在左半（fx < .5）時卡片右緣往後退，等於左緣朝觀者抬起。
+       熱路徑只讀一次 getBoundingClientRect，其餘都是算術。 */
     var spotRaf = 0,
-      spotEvt = null;
-    rackTrack.addEventListener(
-      'pointermove',
-      function (e) {
-        if (REDUCED.matches || e.pointerType === 'touch') return;
-        spotEvt = e;
-        if (spotRaf) return;
-        spotRaf = requestAnimationFrame(function () {
-          spotRaf = 0;
-          var ev = spotEvt;
-          if (!ev) return;
-          var hit = ev.target.closest ? ev.target.closest('.album-hit') : null;
-          if (!hit) return;
-          var plate = $('.album-plate', hit);
-          if (!plate) return;
-          var r = plate.getBoundingClientRect();
-          plate.style.setProperty(
-            '--px',
-            (((ev.clientX - r.left) / r.width) * 100).toFixed(1) + '%'
-          );
-          plate.style.setProperty(
-            '--py',
-            (((ev.clientY - r.top) / r.height) * 100).toFixed(1) + '%'
-          );
+      spotEvt = null,
+      TILT = 2.2;
+    function bindSleeve(host) {
+      if (!host) return;
+      host.addEventListener(
+        'pointermove',
+        function (e) {
+          if (REDUCED.matches || e.pointerType === 'touch') return;
+          spotEvt = e;
+          if (spotRaf) return;
+          spotRaf = requestAnimationFrame(function () {
+            spotRaf = 0;
+            var ev = spotEvt;
+            if (!ev) return;
+            var t = ev.target;
+            var tile = t && t.closest ? t.closest('.album-hit, .wall-tile') : null;
+            if (!tile) return;
+            var plate = $('.album-plate', tile) || $('.wt-plate', tile);
+            if (!plate) return;
+            var r = plate.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            var fx = (ev.clientX - r.left) / r.width;
+            var fy = (ev.clientY - r.top) / r.height;
+            plate.style.setProperty('--px', (fx * 100).toFixed(1) + '%');
+            plate.style.setProperty('--py', (fy * 100).toFixed(1) + '%');
+            plate.style.setProperty('--ry', ((0.5 - fx) * 2 * TILT).toFixed(2) + 'deg');
+            plate.style.setProperty('--rx', ((fy - 0.5) * 2 * TILT).toFixed(2) + 'deg');
+          });
+        },
+        { passive: true }
+      );
+      /* 離開整片區域要回正：不清自訂屬性，卡片會停在最後那個角度 */
+      host.addEventListener('pointerleave', function () {
+        $$('.album-plate, .wt-plate', host).forEach(function (p) {
+          p.style.removeProperty('--rx');
+          p.style.removeProperty('--ry');
         });
-      },
-      { passive: true }
-    );
+      });
+    }
+    bindSleeve(rackTrack);
+    bindSleeve($('#wallGrid'));
 
     magnetize($('.hero-cta .btn-accent'), 6);
 
@@ -3029,6 +3224,8 @@
     legendNodes = [];
     ringsLive = -1; /* 讓 setRingLive(0) 不被去重守衛擋掉 */
     marqueeRoom = 0;
+    /* 換片狀態機也要收：見 resetFanShift 的說明 */
+    resetFanShift();
   }
 
   /* 就地換歌手：只換資料與畫面，**不動 <audio>**，所以換歌手時正在播的歌不會中斷。

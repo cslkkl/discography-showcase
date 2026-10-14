@@ -39,15 +39,16 @@
 | 繁簡 | `walkText` `walkEl` `localize` `setLang` |
 | 建構工具 | `el` `esc` `srcset` `frag` `iconPaths` `playBtn` |
 | 開場 | `runBoot` `finishBoot` |
-| 主視覺輪播 | `renderFan` `fanPaint` `fanGo` `fanOffset` `fanHover`（走完 `albums`，點兩側翻、點中央開抽屜、方向鍵／Home／End；懸停或聚焦時該張跳出來、其餘照視覺方向讓開） |
+| 主視覺輪播 | `renderFan` `fanPaint` `fanGo` `fanOffset` `fanHover` `resetFanShift`（走完 `albums`，點兩側翻、點中央開抽屜、方向鍵／Home／End；懸停或聚焦時該張跳出來、其餘照視覺方向讓開；換片是 `is-shifting` → 換位 → `is-arriving` 的兩階段狀態機） |
+| 環境光 | `setAmbient`（把當前專輯的 `sourceAvg` 以 `"r, g, b"` 寫進 `#hero` 的 `--amb`，CSS 端以 `rgba(var(--amb), α)` 消費） |
 | 各展示面 | `renderAll` `resetHosts` `renderFigures` `renderMarquee` `renderRings` `renderRack` `renderChrono` `renderEras` `renderWall` `renderGrowth` `renderGaps` `renderBars` `renderFacts` `renderRanks` `renderCollab` `renderPicks` `renderChapters` |
 | 展櫃捲動 | `measureRack` `paintRackFromScroll` `rackStepBy`（原生橫向捲動；拖曳、左右箭頭、←→／Home／End 共用一條路徑） |
 | 曲目總表 | `buildIndex` `renderCat` `renderCatBase` |
 | 抽屜 | `openSheet` `closeSheet` `stepSheet` `trapFocus` |
 | 播放 | `trackOf` `syncPlayingRows` `plPaint` `plLoad` `plSelect` `plStep` `plClose` `setMediaSession` `initAudio` `syncRangeFill` |
-| 歌手外觀 | `applyArtistChrome` `bindArtistSwitch` `applyArtist` |
+| 歌手外觀 | `applyArtistChrome`（品牌、題名、眉題，以及檔案層 `#haEn`／`#haMeta`／`#haNote` 與年表軸 `#heroAxis` 的渲染都在這裡） `bindArtistSwitch` `applyArtist` |
 | 揭示 | `observeReveals` |
-| 其他 | `toast` `magnetize` `bindChrome` `bind` `init` |
+| 其他 | `toast` `magnetize` `bindChrome`（內含 `bindSleeve`） `bind` `init` |
 
 就地在歌手間切換：
 
@@ -57,6 +58,24 @@
 - `resetHosts()` 清的是 `appendChild` 型宿主（`APPEND_HOSTS`）與模組級 `index`／`fanCards`／
   `cards`／`ringNodes`／`legendNodes`／`ringsLive`；`buildIndex()` 自己也清 `index`
 - 換歌手用 `history.pushState` 更新 `?a=`，`popstate` 就地套用，不觸發整頁導航
+- `resetFanShift()` 在換歌手時收回換片狀態機的全部狀態（兩個計時器、`fanPending`、
+  `fanShiftBusy`、`heroArt` 上的 `is-lit`）。留著上一位歌手的計時器，它會在新資料上
+  補跑一次 `fanPaint()`，把新歌手的輪播多推一格
+
+歌手頁的檔案層與年表軸（都在 `applyArtistChrome()` 內）：
+
+- 檔案層 `.hero-archive`：`#haEn` 取 `JC.en`（缺就退回 `JC.name`）；
+  `#haMeta` 由 `stats` 拼成「2000 至 2026 · 16 ALBUMS · 175 WORKS」；
+  `#haNote` 取 `lastSentence(JC.intro)`，即 `intro` 的**末句**，不新增手寫文案。
+  `#heroEyebrow` 只留 `tagline`，不再重複拉丁名（同一個拉丁名曾在首屏出現兩次）
+- 年表軸 `#heroAxis`：每張專輯一道 `.ha-alb` 刻痕、每個階段起點一顆 `.ha-dot` 圓點與
+  `.ha-year`、階段名 `.ha-title`；位置 = `(year − from) / (to − from)` 寫進 `--p`
+  （年份運算在 JS，CSS 只負責畫）。末階段 `to > from` 時另立一個 `--p: 100%` 的端點標記，
+  否則端點會與該階段自己的標籤疊在同一個位置。刻痕與圓點 `aria-hidden`，
+  整條軸以 `aria-label` 交代。實測林志炫 14 個子項、周杰倫 5 個年份標籤（2000/2005/2010/2022/2026）
+- `bindSleeve(host)`：展櫃與封面牆共用的指標追蹤，同一條 rAF 內寫 `--px`／`--py`
+  （聚光位置）與 `--rx`／`--ry`（微傾，上限 2.2deg）；`pointerleave` 時清掉角度。
+  熱路徑只讀一次 `getBoundingClientRect`，`pointerType === 'touch'` 與減少動效下不介入
 
 ### `lyrics.js`（歌手頁全屏歌詞，手寫，IIFE，無依賴）
 
@@ -95,6 +114,20 @@
   由它們記住繁體原文；切歌手後再切語言才不會還原成上一位歌手
 - 語言選擇與歌手頁共用同一個 localStorage 鍵 `jc-lang`
 
+主要函式：
+
+| 函式 | 職責 |
+|---|---|
+| `statsText` | 拉丁式統計「9 ALBUMS · 131 WORKS」，數字全取 `stats`，不寫死 |
+| `noteText` | 取 `intro` 的**末句**（以「。」切分、去空白）；不得自創文案，資料缺 `intro` 時留白 |
+| `ambientOf` | 環境光色：`covers[0]` 所屬專輯的 `sourceAvg` → `"r, g, b"`；找不到或色值不合法時退回 `theme.accent`，兩者皆無則交還 CSS 預設 |
+| `flashSwitch` | 真正切位時給 `.ld-hero` 加 `is-switching`，`SWITCH_MS = 400` 後移除；減少動效下不加 |
+| `select` / `step` / `paint` | 切位、位移與整台重繪；動態文字一律走 `setText`／`setAttr` 記繁體原文 |
+| `settle` | 三階段入場的收尾：移除 `html.ld-booting`、加上 `is-ready`；`BOOT_MS = 3400`，減少動效下立即呼叫 |
+
+三階段入場（品牌 → 唱片架 → 資訊區）由 CSS 的 `animation-delay` 排程，JS 只切類。
+先前的雙 rAF 立即收斂已移除：那等於把整段動畫截斷在起點。
+
 ## 變更影響路由
 
 改這裡 → 必跑：
@@ -121,6 +154,14 @@
   一致；姓名直選、點封面選中、點空白處進退一位、拖曳與滑動（未達 40px 不切換）、
   方向鍵與 Home／End、連點不失焦；
   0／1／2／6 位歌手與缺封面的 fixture；停用儲存時仍可瀏覽
+- 三階段入場 / `settle` → 額外實測：`BOOT_MS`（3400ms）到期後同時移除 `ld-booting`
+  並加上 `is-ready`，基礎態完全可見；`prefers-reduced-motion` 下**立即**收斂、不等待
+- 環境光 / `ambientOf` → 額外實測：`--amb` 隨歌手變化，且等於該歌手 `covers[0]`
+  所屬專輯的 `sourceAvg`（八位歌手逐一比對）；找不到專輯時退回 `theme.accent`
+- 檔案層 / 年表軸 → 額外實測：八位歌手的 `#haEn` 與 `#haMeta` 皆為該歌手正確值；
+  年表軸子項數 = 專輯數 ＋ 階段數（＋末階段端點 1），`--p` 落在 0–100% 之間
+- 主視覺的縱深 → 額外實測用**真實指標**（`page.mouse.click`）與命中取樣，
+  不能只用 DOM 斷言：`document.elementsFromPoint` 會回報被遮住的卡片
 - 新增頂層函式 → 同步更新上表
 
 ## 已知坑

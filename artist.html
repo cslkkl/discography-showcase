@@ -12,9 +12,9 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/favicon.svg">
-<link rel="stylesheet" href="assets/fonts/fonts.css">
-<link rel="stylesheet" href="css/style.css?v=e29c6ec9">
-<link rel="stylesheet" href="css/motifs.css?v=e29c6ec9">
+<link rel="stylesheet" href="assets/fonts/fonts.css?v=cc4611c1">
+<link rel="stylesheet" href="css/style.css?v=cc4611c1">
+<link rel="stylesheet" href="css/motifs.css?v=cc4611c1">
 </head>
 <body>
 
@@ -42,7 +42,7 @@
       <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central"></text></svg>
     </span>
     <span class="brand-text">
-      <b>聲之年輪</b>
+      <span class="bt-top"><b>聲之年輪</b><i class="bt-en">SOUND ARCHIVE</i></span>
       <i id="brandEn"></i>
     </span>
   </a>
@@ -97,6 +97,17 @@
           </a>
           <a class="btn btn-ghost btn-lg" href="#tracks">瀏覽曲目</a>
         </div>
+        <!-- 歌手檔案：說明牌的層級（拉丁名／年代／作品數／一句簡介）。
+             內容全部由 app.js 的 applyArtistChrome() 從資料填，
+             這裡不留任何寫死的歌手資訊 -->
+        <div class="hero-archive" id="heroArchive">
+          <p class="ha-en" id="haEn"></p>
+          <p class="ha-meta" id="haMeta"></p>
+          <p class="ha-note" id="haNote"></p>
+        </div>
+        <!-- 作品年表軸：每個階段起點一顆圓點與年份，每張專輯一道刻痕。
+             位置由 app.js 依年份算好寫進 --p，這裡只放容器 -->
+        <ol class="hero-axis" id="heroAxis"></ol>
       </div>
       <div class="hero-art" id="heroArt" aria-hidden="true"></div>
     </div>
@@ -398,8 +409,8 @@
   </div>
 </noscript>
 
-<script src="js/data.js?v=e29c6ec9"></script>
-<script src="js/lyrics.js?v=e29c6ec9"></script>
-<script src="js/app.js?v=e29c6ec9"></script>
+<script src="js/data.js?v=cc4611c1"></script>
+<script src="js/lyrics.js?v=cc4611c1"></script>
+<script src="js/app.js?v=cc4611c1"></script>
 </body>
 </html>

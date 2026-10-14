@@ -33,7 +33,8 @@
 | 23 | 代表曲 |
 | 24 | 播放（曲目控制項與底部播放列，含圖示的懸停說明） |
 | 25 | 響應式（1100 / 860 / 620 三檔） |
-| 26 | 入口頁（立體唱片架） |
+| 26 | 入口頁（立體唱片架、三階段入場、檔案標籤與年份軸） |
+| 27 | 全屏歌詞舞台 |
 | 末 | `prefers-reduced-motion` 降級 |
 
 另有 `motifs.css`：每位歌手的專屬裝飾（母題），鉤子是根元素 `data-motif`，
@@ -50,10 +51,16 @@
 標籤取自桌面導覽）與目錄三視圖切換 `.cat-views`（窄屏可橫向滾動）。
 「瀏覽」與「試聽」分成兩顆控制項：`.album-play`（展櫃卡片）與 `.wt-play`（封面牆角落）。
 
-入口頁的舞台尺度由 `.ld-hero` 的 `--ld-cover` 決定（桌面 253px 至 328px，
-窄屏為可用寬度的 58vw 並以 clamp 收斂）；封面組的位置用 `data-off` 對應
-`--x` / `--s` / `--ry` / `--o` / `--z` 五個自訂屬性，位移以自身封面寬的百分比計算，
-不依賴每次切換量測版面。歌手色由 JS 寫在 `.ld-hero` 的 `--accent` / `--accent-on`，
+入口頁的舞台尺度由 `.ld-hero` 的 `--ld-cover` 決定：
+`clamp(196px, min(62vw, 40vh), 400px)`，另在 ≤860px 收成 `clamp(196px, min(62vw, 40vh), 300px)`、
+≤620px 收成 `clamp(168px, 58vw, 238px)`。實測中央封面 1440×900 → **360px**、
+1366×768 → **307px**、390×844 → **226px**（舊文件寫的「桌面 253px 至 328px」已過時）。
+封面組的位置用 `data-off` 對應
+`--x` / `--yh` / `--s` / `--ry` / `--rh` / `--rxh` / `--hg` / `--tz` / `--o` / `--z` 等自訂屬性，
+位移以自身封面寬的百分比計算，不依賴每次切換量測版面。
+**縱深由每張卡自己的 `perspective(1400px)` 提供**（`--tz`：中央 0、相鄰 −64px、遠端 −140px），
+不是祖先 `perspective` ＋ 子層 `preserve-3d`——後者會吃掉后排卡片的指標命中，見下方變更影響路由。
+歌手色由 JS 寫在 `.ld-hero` 的 `--accent` / `--accent-on`，
 只點綴印章、選中態、主按鈕與低強度光暈。
 
 ## 設計權杖
@@ -61,8 +68,22 @@
 - 墨與紙：`--ink-0` `#08080A`、`--paper` `#F3F0EA`、`--paper-2` `#A9A59D`、`--paper-3` `#8A867E`
 - 描邊三檔：`--line` `--line-2` `--line-3`，`--line-2` 是 3:1 非文字下限
 - 強調：`--accent` `#E0412B`、其上文字 `--accent-on` `#0A0A0B`
-- 圓角：`--r` 6px、`--r-pill` 999px
-- 字體：`--f-serif` 標題、`--f-sans` 正文、`--f-num` 數字
+- 圓角：`--r` 6px、`--r-pill` 999px。**明列例外**：入口的 `.ld-cta` 與歌手頁
+  `.hero-cta` 內的按鈕是**文字型按鈕**（透明底、無圓角，hover 時底部長出 1px 強調色細線；
+  `.ld-cta` 的箭頭是文字符號 `→` 而非 svg）。其餘圖示型控制項（頂欄、展櫃箭頭、播放列、抽屜）
+  仍一律 `--r-pill`——這是刻意例外，不是遺漏
+- 字體四族，一職一族：`--f-serif` 中文標題（Noto Serif SC）、
+  `--f-display` 拉丁銘牌（Cormorant Garamond）、`--f-num` 數字與年份（Bodoni Moda）、
+  `--f-sans` 正文與控制項（Noto Sans SC）
+- `--f-display: 'Cormorant Garamond', 'Bodoni Moda', 'Noto Serif SC', 'Songti SC', serif;`
+  消費點：`.ld-en` `.ld-branden` `.ld-est` `.ld-stats` `.ha-en` `.brand-text .bt-en`
+  （歌手拉丁名、`SOUND ARCHIVE`、`EST. 1997`、檔案標籤）。字組裡墊 Noto Serif SC，
+  混排的漢字才不會掉到系統預設襯線
+- 拉丁展示體自託管：latin 與 latin-ext 子集、字重 400／500，新增 2 個 woff2
+  （37,640 B latin、33,736 B latin-ext，合計 71,376 B），授權 OFL 見
+  [../assets/fonts/licenses/OFL-CormorantGaramond.txt](../assets/fonts/licenses/OFL-CormorantGaramond.txt)，
+  抓取腳本 `_data/fetch-display-font.ps1`（純 ASCII、冪等：重跑輸出 `downloaded=0 reused=4`
+  且字體表 SHA256 不變）
 - 尺度：`--gutter` `--page` 1440px `--nav-h` `--sect`
 
 ## 變更影響路由
@@ -82,17 +103,44 @@
   （扇形張角＝橫向跨度）。五張的橫向跨度約是單張寬的 1.9 倍，
   所以放大封面必然外溢容器、吃掉與左欄標題的間隙——三者要一起調，
   並實測「與左欄標題的間隙」仍 ≥ 40px、豎向填充率不再空掉一半
+- 6 節主視覺的**縱深** → 重疊封面堆（`.fan-card`）只能用每張卡自己的 `perspective(1400px)`，
+  **不得**改回祖先 `perspective` ＋ 子層 `transform-style: preserve-3d`：那會形成真正的
+  3D 脈絡，被 `translateZ` 推遠的卡片在真實指標下命中不到自己（實測命中率 72.3%，
+  439 點穿透到宿主 `div.fan`，`click.target` 是 `DIV.fan`），而 `document.elementsFromPoint`
+  仍回報該卡，所以 DOM 斷言驗不出這條回歸。驗收一律用真實指標（`page.mouse.click`）與
+  命中取樣，且輔助函式不得在真實點擊失敗時靜默回退成 `element.click()`。
+  不重疊的展櫃（`.album-card`）／封面牆（`.wall-tile`）仍保留 `preserve-3d`（實測點擊正常）
 - 4 節頂欄 → 額外確認歌手切換器開合與 `Esc` 關閉；390px 下頂欄無溢出
 - 10 節展櫃 → 額外確認 `.rack-viewport` 的 `scrollWidth > clientWidth`（先切到展櫃分頁再量）、
   拖曳與箭頭都可捲、`.rack-step` 到端 disabled
 - 24 節播放 → 額外確認強調色底上的圖示用 `--accent-on`；
   圖示提示用 `::after` + `content: attr(aria-label)`，`.pl-btns` 首尾兩顆要往內對齊，
   否則貼著視窗邊緣會被裁掉
-- 25 節與末節 → 額外跑 380px 與 `prefers-reduced-motion` 兩種模式
+- 25 節與末節 → 額外跑 380px 與 `prefers-reduced-motion` 兩種模式。
+  末節的降級要**連 `animation-delay` 一起歸零**：只把 duration 壓成 0 而留著 delay，
+  分階段入場的元素會停在起始態（`opacity: 0`）近三秒才出現
 - 26 節入口 → 額外確認：封面組位置由 `data-off` 決定且遠端組帶 `hidden`；
   `.ld-stage` 保留 `overflow: clip` 與 44px 觸控目標；減少動效下取消側轉；
   首屏四要素（品牌、中央封面、當前資訊、主操作）在 1366×768 與 390×844 都在折線以上。
-  入口頁的 `.ld-title`／`.ld-headrow`（「選一位歌手」那一行）已移除，不要再加回來
+  入口頁的 `.ld-title`／`.ld-headrow`（「選一位歌手」那一行）已移除，不要再加回來。
+  **三階段入場只由類驅動**：`html.ld-booting`（序列跑完，`BOOT_MS = 3400`）→ 基礎態
+  `is-ready`，JS 只切類；每個 `@keyframes` 的結束值必須等於基礎態，否則移類時會跳一下；
+  `prefers-reduced-motion` 下必須立即收斂（不得讓人等 3.4 秒）。
+  排程的**權威**是 CSS 的 `animation-delay`（品牌 .12s；舞台 .7s；光暈 .9s；
+  遠端／相鄰／中央封面 .95 / 1.15 / 1.35s；說明牌 2.0–2.35s；年份軸 2.45s；
+  切換列 2.75s；提示 2.9s）。
+  牆鐘實測另有約 250–350ms 的固定起算延遲（樣式表解析與首次樣式計算），
+  所以絕對毫秒會比宣告值晚一截，但**間隔逐段吻合**：遠端→中央 204ms（宣告 200ms）、
+  中央→說明牌 613ms（650ms）、說明牌→切換列 710ms（750ms）、
+  `ld-booting` 於 3567ms 移除（`BOOT_MS` 3400 + 計時器）。要用毫秒對帳時先講清楚基準。
+  折線實測三檔：1440×900 品牌／舞台／CTA 底緣 84 / 510 / 810，
+  1366×768 → 80 / 442 / 735，390×844 → 78 / 349 / 636
+
+**6 節與 26 節的透視改動要驗真實指標命中**：這兩節的重疊封面堆用的是每張卡自己的
+`perspective()`，不是祖先 `perspective` ＋ 子層 `preserve-3d`。改動後必須用
+`page.mouse.click()` 真實事件（不可用 `element.click()`）確認「點側封面會把該張翻到中央／
+選中該歌手」，並用 `el.matches(':hover')` 做命中取樣——`document.elementsFromPoint`
+會回報被遮住的卡片，DOM 斷言驗不出這類回歸。詳見根 [AGENTS.md](../AGENTS.md) 的活躍坑。
 
 ## 刻意保留的格式
 

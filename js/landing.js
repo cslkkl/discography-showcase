@@ -35,6 +35,11 @@
     lang = 's';
   }
 
+  /* 動效偏好：入場與歌手過場都由 CSS 承擔，這裡只決定要不要排隊等待 */
+  var reduceMotion = !!(
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+
   function conv(text) {
     return lang === 's' ? D.toSimplified(text) : text;
   }
@@ -97,6 +102,8 @@
   var nameEl = $('#ldName');
   var statsEl = $('#ldStats');
   var spanEl = $('#ldSpan');
+  var noteEl = $('#ldNote');
+  var estEl = $('.ld-est');
   var ctaEl = $('#ldCta');
   var liveEl = $('#ldLive');
   var langBtn = $('#ldLang');
@@ -108,24 +115,66 @@
   var enNode = document.createTextNode('');
   var nameNode = document.createTextNode('');
   var statsNode = document.createTextNode('');
-  var spanNode = document.createTextNode('');
+  var noteNode = document.createTextNode('');
+  var estNode = document.createTextNode('');
   var ctaNode = document.createTextNode('');
   enEl.appendChild(enNode);
   nameEl.appendChild(nameNode);
   statsEl.appendChild(statsNode);
-  if (spanEl) spanEl.appendChild(spanNode);
-  ctaEl.appendChild(ctaNode);
+  if (noteEl) noteEl.appendChild(noteNode);
+  if (estEl) estEl.appendChild(estNode);
+  /* 年代區間的兩個年份節點：中間那條細線由 CSS 畫，節點本身留空 */
+  var spanNodes = [];
+  if (spanEl) {
+    Array.prototype.slice.call(spanEl.querySelectorAll('.ld-sp-y')).forEach(function (y) {
+      var yNode = document.createTextNode('');
+      y.appendChild(yNode);
+      spanNodes.push(yNode);
+    });
+  }
+  /* 文字型按鈕：文案是第一個子節點，箭頭 span 留在 HTML 裡不動 */
+  ctaEl.insertBefore(ctaNode, ctaEl.firstChild);
 
-  /* 展品標籤的兩行資訊：上行是年代，下行是數量。
-     先前擠成一行（「1997 至 2020 · 10 張專輯 · 126 首作品」），
-     年代與數量混在一起、層級不分；拆開後年代獨立成行，
-     用拉丁字體與大字距呈現，並由 CSS 加一道短分隔線。 */
-  function spanText(a) {
-    return a.stats.from + ' — ' + a.stats.to;
+  /* 展品標籤的資訊：統計行改為拉丁式（「9 ALBUMS · 131 WORKS」），
+     數字一律取自資料的 stats，不寫死；年代區間改由兩個年份節點夾一條 CSS 細線，
+     JS 只填年分，線的長短與樣式歸 CSS。 */
+  function statsText(a) {
+    return a.stats.albums + ' ALBUMS · ' + a.stats.tracks + ' WORKS';
   }
 
-  function statsText(a) {
-    return a.stats.albums + ' 張專輯 · ' + a.stats.tracks + ' 首作品';
+  /* 一句簡介：只取資料裡 intro 的最後一句（以「。」斷句，去掉空白）。
+     這裡不得自創文案，intro 是唯一來源；資料缺 intro 時留白。 */
+  function noteText(a) {
+    var parts = String(a.intro || '').split('。');
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var s = parts[i].trim();
+      if (s) return s;
+    }
+    return '';
+  }
+
+  /* 環境光色：當前歌手首張封面所屬專輯的平均色（構建期算好的 sourceAvg），
+     找不到該專輯或色值不合法時退回歌手強調色。輸出格式固定為 "r, g, b"，
+     讓 CSS 端能以 rgba(var(--amb), α) 取用；兩者皆無則不寫，交還 CSS 預設值。 */
+  function toRgb(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '').trim());
+    if (!m) return '';
+    var v = parseInt(m[1], 16);
+    return (v >> 16) + ', ' + ((v >> 8) & 255) + ', ' + (v & 255);
+  }
+
+  function ambientOf(a) {
+    var covers = a.covers || [];
+    var id = covers.length ? covers[0].id : '';
+    var albums = a.albums || [];
+    var avg = '';
+    for (var i = 0; i < albums.length; i++) {
+      if (albums[i].id === id) {
+        avg = albums[i].sourceAvg;
+        break;
+      }
+    }
+    return toRgb(avg) || toRgb(a.theme && a.theme.accent);
   }
 
   /* ---------- 建構：每位歌手一組封面、一顆封面鈕與一顆姓名鈕 ---------- */
@@ -244,17 +293,41 @@
     enEl.hidden = !a.en || a.en === a.name;
     setText(nameNode, a.name);
     setText(statsNode, statsText(a));
-    if (spanEl) setText(spanNode, spanText(a));
-    setText(ctaNode, '進入專輯');
+    /* 年份以字串寫入：setText 的原文快取會經過 localize()，數字要先轉字串 */
+    if (spanNodes.length >= 2) {
+      setText(spanNodes[0], String(a.stats.from));
+      setText(spanNodes[1], String(a.stats.to));
+    }
+    if (noteEl) setText(noteNode, noteText(a));
+    setText(ctaNode, '進入檔案');
     setAttr(ctaEl, 'aria-label', '進入 ' + a.name + ' 的唱片目錄');
     ctaEl.setAttribute('href', 'artist.html?a=' + encodeURIComponent(a.id));
 
     if (hero) {
       hero.style.setProperty('--accent', (a.theme && a.theme.accent) || '');
       hero.style.setProperty('--accent-on', (a.theme && a.theme.accentOn) || '');
+      var amb = ambientOf(a);
+      if (amb) hero.style.setProperty('--amb', amb);
+      else hero.style.removeProperty('--amb');
     }
 
     if (withAnnounce) announce();
+  }
+
+  /* 換歌手的過場：真正切位時在 .ld-hero 上閃一次 is-switching，動畫交給 CSS。
+     reduced-motion 下不加；連續切換時重設計時器，
+     免得前一次收尾把後一次剛開始的過場提前關掉。 */
+  var SWITCH_MS = 400;
+  var switchTimer = 0;
+
+  function flashSwitch() {
+    if (!hero || reduceMotion) return;
+    hero.classList.add('is-switching');
+    if (switchTimer) clearTimeout(switchTimer);
+    switchTimer = setTimeout(function () {
+      switchTimer = 0;
+      hero.classList.remove('is-switching');
+    }, SWITCH_MS);
   }
 
   function select(i, withAnnounce) {
@@ -262,7 +335,10 @@
     var changed = i !== curIndex;
     curIndex = i;
     paint(withAnnounce && changed);
-    if (changed) remember();
+    if (changed) {
+      remember();
+      flashSwitch();
+    }
   }
 
   function step(d) {
@@ -415,20 +491,29 @@
   if (langBtn) langBtn.addEventListener('click', toggle);
 
   /* ---------- 起點 ---------- */
+  /* 銘牌上的起始年不得寫死：取全站最早的統計年份（當前資料為 1997） */
+  var estYear = 0;
+  D.order.forEach(function (id) {
+    var from = (D.artists[id].stats || {}).from;
+    if (from && (!estYear || from < estYear)) estYear = from;
+  });
+  setText(estNode, estYear ? 'EST. ' + estYear : 'EST.');
+
   curIndex = restore();
   document.documentElement.setAttribute('data-lang', lang);
   paint(false);
   paintLang();
   walk(document.body);
 
-  /* 入口的短入場：動畫由 CSS 自完成（.ld-booting），這裡只負責收尾，
-     去掉類名後由基礎態接管，腳本失敗也不會讓標題停在透明 */
+  /* 入口的三階段入場（品牌 → 唱片架 → 資訊區）由 CSS 以 animation-delay 排程，
+     JS 只切類：序列跑完才移除 ld-booting、加上 is-ready，讓基礎態接管。
+     先前用雙 rAF 立刻 settle，等於把整段動畫截斷在起點；
+     reduced-motion 直接收斂，不讓使用者等。 */
+  var BOOT_MS = 3400;
   var settle = function () {
     document.documentElement.classList.remove('ld-booting');
     document.documentElement.classList.add('is-ready');
   };
-  requestAnimationFrame(function () {
-    requestAnimationFrame(settle);
-  });
-  setTimeout(settle, 1400);
+  if (reduceMotion) settle();
+  else setTimeout(settle, BOOT_MS);
 })();

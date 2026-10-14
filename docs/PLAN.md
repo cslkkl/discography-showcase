@@ -18,7 +18,7 @@
 
 - [ ] 文档语言统一：当前繁简混用（`css/AGENTS.md` 繁体，`js/AGENTS.md` 简体）。
       方向待维护者拍板（建议统一简体：维护者阅读语言，运行时默认显示也是简体）
-- [ ] `assets/fonts/` 210 个子集是否按需化（体积 10.9 MB）
+- [ ] `assets/fonts/` 212 个子集是否按需化（体积 10.9 MB）
 - [ ] 母题只做了氛围层（墨晕/光带/星点/弧线/涟漪/沟槽/棱镜/网点）；按歌手逐个细修
 - [ ] `js/data.js` 792 KB；继续扩充歌手时考虑按歌手拆档
 
@@ -60,6 +60,35 @@
       切換只靠點封面、點舞台空白處與拖曳；桌面正好一屏，無需捲動
 - [x] 縮短開場動畫：首次進入 900ms，同會話切換歌手直接呈現（sessionStorage 標記）
 - [x] 調整入口說明：開發說明移入 README（新增歌手一節）
+
+### 第四階段：視覺與交互高級化（完成）
+
+2026-10-14 执行，资源版本戳 `?v=cc1914a3`。方向是「博物馆档案馆」：纵深、环境光、铭牌字体、时间轴。
+
+- [x] 主视觉纵深改用每张卡自己的 `perspective(1400px)`：祖先 `perspective` ＋ 子层 `preserve-3d`
+      会让退到后面的封面在真实指针下命中不到自己（实测命中率 72.3%，439 点穿透到 `div.fan`，
+      `click.target` 是 `DIV.fan`），改用每元素透视后回到 100%（独立复现 68/68 点、12×8 网格、
+      jay-chou、CSS 1440；另一轮 1622/1622，林志炫）
+- [x] 新增 `--f-display` 与自托管 Cormorant Garamond（latin + latin-ext，400／500，2 档共 71,376 B）：
+      拉丁铭牌（歌手拉丁名、`SOUND ARCHIVE`、`EST. 1997`）不再借用数字体 Bodoni；字体锁由三族变四族
+- [x] 入口页三阶段入场（`html.ld-booting` → `is-ready`，`BOOT_MS = 3400`）与换歌手的电影感过渡
+      （`.ld-hero.is-switching`，400ms）；`prefers-reduced-motion` 下 52ms 内收敛
+- [x] 入口页档案标签：品牌铭牌（`.ld-mark`）、拉丁式统计、年份轴（两端 5px 圆点夹一条
+      `clamp(132px, 22vw, 300px)` 细线）、`intro` 末句简介、文字型 CTA「进入档案 →」
+- [x] 环境光改取封面主色：`--amb` 由各歌手 `covers[0]` 所属专辑的 `sourceAvg` 填入
+      （八位各自：16, 64, 138／121, 76, 105／114, 97, 91／161, 126, 150／171, 165, 159／
+      203, 191, 175／87, 21, 30／142, 162, 188），CSS 以 `rgba(var(--amb), α)` 消费
+- [x] 歌手页档案层与年表轴（`#haEn` / `#haMeta` / `#haNote` / `#heroAxis`）；`#heroEyebrow`
+      不再重复拉丁名；`main > section` 仍为 10
+- [x] 展柜与封面墙的立体悬停（上浮 6/7px、微倾上限 2.2deg、斜向柔光 `sleeve-sheen`）；
+      三处封面卡共用同一道 `@keyframes`
+- [x] 形状锁明列例外：`.ld-cta` 与 `.hero-cta` 内的按钮改文字型（hover 底部长出 1px 强调色细线），
+      其余图标型控件仍 `--r-pill`
+- [x] 字体表纳入版本戳：`_data/stamp-assets.mjs` 的刷版本范围加入 `assets/fonts/fonts.css`
+
+门禁：`eslint .` 0 问题、`prettier --check .` 全通过、`check:eol` 2464 档 0 不一致、
+`check:ps1` 6 档全 ASCII、`check:docs` 29 档 81 链接 0 错误；`npm run stamp` → `?v=cc1914a3`（重跑 0 变动）。
+尚未提交：`assets/fonts/` 新增的 2 个 woff2 与 OFL 授权说明仍是未追踪状态，提交时要一并纳入。
 
 ## 復查待辦：原三階段 UI
 
