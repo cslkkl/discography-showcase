@@ -139,7 +139,11 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 選擇記在 sessionStorage `discography-selected-artist`；記錄失效、被封鎖或
   id 已移除時回退 `order[0]`，不阻止瀏覽
 - 操作與其邊界：箭頭首尾循環；拖曳與滑動的位移至少 40px 且大於垂直位移 1.3 倍；
+  點封面選中該歌手，點舞台上的空白處則左半退一位、右半進一位；
   方向鍵與 Home／End 只在唱片架容器內攔截；`touch-action: pan-y` 保留原生縱向捲動
+- 拖曳的指標捕獲必須**延後到確認是拖曳**（位移超過 8px）才做：`pointerdown` 就
+  `setPointerCapture` 會讓瀏覽器把 `click` 派發給舞台而非底下的封面鈕，
+  點封面永遠不會選中（`click` 的 target 實測是 `ld-stage`）
 - 動態寫入一律經 `setText` / `setAttr` 記錄繁體原文：切換歌手後再切語言時，
   WeakMap 快取才不會把上一位歌手的文字還原回來
 - 空數與單數：0 位歌手顯示可讀空狀態並收起唱片架；1 位停用左右切換；

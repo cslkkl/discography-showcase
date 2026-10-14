@@ -5,6 +5,9 @@ package-lock.json
 assets/
 screenshots/
 
+# 发布包：由 _data/pack-public.mjs 从源头复制，格式化它毫无意义
+dist/
+
 # 生成物：源头是 _data/build.mjs，改它无意义
 js/data.js
 

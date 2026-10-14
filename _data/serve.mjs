@@ -4,8 +4,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const port = Number(process.argv[2] || 8099);
+/* --root <dir>：改服務別的目錄。預覽 `dist/`（pack-public 的發布包）時要用，
+   否則根目錄固定在倉庫根，發布包裡的相對路徑就對不上。 */
+const argv = process.argv.slice(2);
+const opt = (name) => {
+  const i = argv.indexOf('--' + name);
+  return i >= 0 && i + 1 < argv.length ? argv[i + 1] : null;
+};
+const positional = argv.filter(
+  (a, i) => !a.startsWith('--') && !(i > 0 && argv[i - 1] === '--root')
+);
+const root = opt('root')
+  ? path.resolve(opt('root'))
+  : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const port = Number(positional[0] || 8099);
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',

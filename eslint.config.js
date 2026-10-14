@@ -4,7 +4,15 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['node_modules/**', 'assets/**', 'screenshots/**', 'js/data.js', '_data/TS*.js']
+    /* dist/ 是 pack-public 生成的发布包（原始檔的複本），不重複檢查 */
+    ignores: [
+      'node_modules/**',
+      'assets/**',
+      'screenshots/**',
+      'dist/**',
+      'js/data.js',
+      '_data/TS*.js'
+    ]
   },
 
   js.configs.recommended,

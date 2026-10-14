@@ -311,39 +311,61 @@
 
   /* 拖曳與滑動：熱路徑只讀指標座標，不讀版面 */
   var dragging = false;
+  var captured = false;
+  var pointerId = -1;
   var startX = 0;
   var startY = 0;
   var dx = 0;
   var dy = 0;
 
+  /* 抓取要「延後到確認是拖曳」才做。
+     先前在 pointerdown 就 setPointerCapture，指標一被 stage 捕獲，
+     瀏覽器就把 click 派發給 stage 而不是底下的封面鈕——於是點封面永遠不會選中
+     （實測 click 的 target 是 ld-stage，封面鈕的處理器從未執行）。
+     現在改成位移超過門檻才抓取：純點擊不抓，拖曳即時接管。 */
+  var CAPTURE_AT = 8;
+
   stage.addEventListener('pointerdown', function (e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     dragging = true;
+    captured = false;
+    pointerId = e.pointerId;
     startX = e.clientX;
     startY = e.clientY;
     dx = 0;
     dy = 0;
-    try {
-      stage.setPointerCapture(e.pointerId);
-    } catch {
-      /* 不支援指標捕獲時仍可拖曳 */
-    }
   });
 
   stage.addEventListener('pointermove', function (e) {
     if (!dragging) return;
     dx = e.clientX - startX;
     dy = e.clientY - startY;
+    if (!captured && Math.abs(dx) >= CAPTURE_AT && Math.abs(dx) > Math.abs(dy)) {
+      try {
+        stage.setPointerCapture(pointerId);
+        captured = true;
+      } catch {
+        /* 不支援指標捕獲時仍可拖曳 */
+      }
+    }
   });
 
   function endDrag(e) {
     if (!dragging) return;
     dragging = false;
-    try {
-      stage.releasePointerCapture(e.pointerId);
-    } catch {
-      /* 已釋放或未捕獲 */
+    /* 已超過抓取門檻＝這是一次拖曳，不是點擊。
+       後續的 click 必須抑制：否則 30px 這種「拖了但沒到切換門檻」的手勢
+       會落進舞台的空白點擊處理，反而退了一位（實測 0 跳到 6）。 */
+    var wasDrag = captured;
+    if (captured) {
+      try {
+        stage.releasePointerCapture(e.pointerId);
+      } catch {
+        /* 已釋放或未捕獲 */
+      }
+      captured = false;
     }
+    if (wasDrag) dragEndAt = performance.now();
     var ax = Math.abs(dx);
     var ay = Math.abs(dy);
     if (ax >= 40 && ax > ay * 1.3) {
@@ -355,10 +377,22 @@
   }
 
   stage.addEventListener('pointerup', endDrag);
+  /* 沒有捕獲時指標可能在舞台外放開，補一層保險（endDrag 自帶重入守衛） */
+  window.addEventListener('pointerup', endDrag);
   stage.addEventListener('pointercancel', function () {
     dragging = false;
+    captured = false;
     dx = 0;
     dy = 0;
+  });
+
+  /* 點封面以外的空白處：左半退一位、右半進一位。
+     封面本身是 <button>，由各自的 click 處理器負責選中，這裡不搶。 */
+  stage.addEventListener('click', function (e) {
+    if (performance.now() - dragEndAt < 350) return;
+    if (e.target.closest && e.target.closest('button')) return;
+    var r = stage.getBoundingClientRect();
+    step(e.clientX < r.left + r.width / 2 ? -1 : 1);
   });
 
   /* ---------- 繁簡 ---------- */
