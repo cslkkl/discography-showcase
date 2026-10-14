@@ -18,6 +18,12 @@
   同一歌手頁內只有一個強調色；入口頁中性底，以各歌手的強調色作點綴
 - 母題裝飾寫進 `css/motifs.css`，鉤子是根元素 `data-motif`；只做氛圍，不改版式、
   不動正文對比度，裝飾色一律取 `var(--accent)`
+- 圓角兩個檔位：控制項 `--r-pill`、面與圖 `--r`。**明列例外**是入口的 `.ld-cta`
+  與歌手頁 `.hero-cta` 內的按鈕：它們是**文字型按鈕**（透明底、無圓角、hover 時底部
+  長出 1px 強調色細線，`.ld-cta` 的箭頭是文字符號 `→` 而非 svg），
+  其餘圖示型控制項（頂欄、展櫃箭頭、播放列、抽屜）仍一律 `--r-pill`
+- 字體四族各司一職：Noto Serif SC（中文標題）、Cormorant Garamond（拉丁銘牌，自託管）、
+  Bodoni Moda（數字與年份）、Noto Sans SC（正文與控制項）
 - 可見文案禁用 emoji 與破折號
 
 ## 常用指令
@@ -61,8 +67,9 @@ npm run hooks:install  # 啟用 .githooks（新複製倉庫後跑一次）
 CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂移先報告再改。
 
 - 歌手 8 位：david-tao（9 專輯/131 曲）、gem（6/70）、jay-chou（16/175）、jj-lin（14/169）、khalil-fong（10/128）、taylor-swift（12/174）、terry-lin（10/126）、xue-zhiqian（13/131），共 1104 曲全部可試聽
-- 自有音檔：1104 曲中 972 首可整首播放（88.0%）、885 首有歌詞；其餘只有官方 30 秒試聽
-  （陶喆 131 曲尚未落盤；Taylor Swift 的 8 秒口白 outro 來源目錄也沒有這個檔）。
+- 自有音檔：1104 曲中 1098 首可整首播放（99.5%）、885 首有歌詞；其餘只有官方 30 秒試聽
+  （陶喆缺 5 首：不一樣、今天晚間新聞、桂冠英雄、沙灘 (Acappella Version)、沙灘 (Guitar Version)；
+  Taylor Swift 的 8 秒口白 outro 來源目錄也沒有這個檔）。
   同名不同錄音的槽位已逐首核對時長，
   含林志炫〈Miss Mama〉（4:31 與 3:46 兩版）與〈有些女人不能碰〉（4:47 與 5:02 兩版）；
   音檔與歌詞都是 gitignored 的 sidecar
@@ -79,7 +86,13 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   點兩側翻到中央、點中央開啟該專輯抽屜、方向鍵與 Home／End 可操作；
   實測點右鄰封面後中央由《散了吧》變成《蒙娜麗莎的眼淚》，再點中央開出 12 首的抽屜。
   滑鼠停在任一張（或鍵盤聚焦）時該張放大跳出來，其餘照**視覺方向**往外讓開
-  （實測最右那張被指到時，其餘四張寬度不變、位置全部左移 40–55px；移出即精確回位）
+  （實測最右那張被指到時，其餘四張位置全部左移 40–55px；移出即精確回位。
+  注意「其餘四張大小不變」要判在縮放 `--fs` 上：讓開是橫向位移，
+  而卡片帶著 `perspective` 投影，**投影寬度會漂 3–4px**，按 ±1px 嚴判會誤報）
+- 主視覺的縱深是**每張卡自己的 `perspective(1400px)`**，不是祖先 `perspective` ＋ 子層
+  `preserve-3d`：實測真實命中率 100%（獨立複現 68/68 點、12×8 網格、jay-chou、CSS 1440；
+  另一輪為 1622/1622，林志炫，五張投影寬 376 / 291 / 230 / 243 / 299、與左欄文字間隙 58–70px）；
+  換片停穩 ~1042ms。真實點右鄰後 `click.target` 為 `IMG`，中央由《Jay》變《范特西，開啟專輯》、**未誤開抽屜**
 - 歌手頁「展櫃」是原生橫向捲動：頁面縱向捲動不被劫持，卡片要橫看再自己拖／按箭頭。
   實測 1440 寬下 `scrollWidth` 3778 / `clientWidth` 1906，拖曳 0→368（一張卡），
   右箭頭 0→368→736，左箭頭回 368，`End` 1872、`Home` 0，拖曳不誤開抽屜
@@ -88,30 +101,69 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   且每次切片後曲目數／年輪／卷宗／年表／年代／封面牆／精選皆為該歌手正確值、零累積
 - 歌手頁 `main` 下 10 個 `<section>`（三視圖合併後實測八位歌手一致）；展示面由 `renderAll()` 一次列全，
   就地換歌手與首次載入共用同一條路徑，無合作者標注的歌手（薛之謙）該區自動收起
+  （檔案層與年表軸都放在既有的 `.hero-copy` 內，未新增 `<section>`）
 - 播放列圖示（連續播放整張／全屏歌詞／關閉播放列等）滑鼠移上或鍵盤聚焦時顯示說明，
   文字直接取 `aria-label`（實測 12px、`::after` 的 opacity 由 0 變 1），翻譯與狀態變化自動跟上
 - `eslint .` 0 問題；`prettier --check .` 全通過
-- `check-line-endings.py` 2460 檔 0 不一致；`check-markdown-links.py` 29 檔 81 連結 0 錯誤
+- `check-line-endings.py` 2593 檔 0 不一致；`check-markdown-links.py` 32 檔 92 連結 0 錯誤；
+  `check-ps1-ascii.mjs` 6 檔全 ASCII
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用
   （2026-10-14 以 `file://` 逐位實測八位歌手：封面載入、曲目數與年輪數正確、`paused` 皆為 false）
-- 全站小字下限 12px（實測 <12px 為 0）；歌手頁首屏露出下一段 23–36px
+- 全站小字下限 12px（實測 <12px 為 0）；歌手頁首屏露出下一段 23–36px。
+  這一條的口徑是 `vh − nextTop`（hero 與 figures 之間 **gap = 0**，
+  所以寫成 `nextTop − heroBottom` 會恆為 0）；`verify` 獨立複現 1440×900 → 36px、
+  1366×768 → 31px，390×844 的 hero 高於視口，此檔不適用
 - 全屏歌詞舞台：175 首周杰倫曲目全數登記到 sidecar `.lrc`（16 張專輯零缺失）；
   解析器濾掉標題頭行與製作人員行、保留副歌重複歌名；播放中掃光隨時間推進；
   `build:local` 才寫入歌詞欄位（公開產物逐位元組不含該欄位）
 - 官方深鏈：專輯抽屜列出該歌手的官方入口（平台清單由 `meta.mjs` 的 `listen` 宣告）；
   Apple 用目錄自帶的 `collectionId` 直達專輯（90/90 張都有），其餘平台為搜尋連結
-- 入口頁是單一舞台：中央封面組 + 兩側相鄰與遠端，桌面中央封面 253–297px，
-  窄屏為可用寬度的 65%；首屏四要素（品牌、中央封面、當前資訊、主操作）
-  在 1366×768 與 390×844 都在折線以上
+- 入口頁是單一舞台：中央封面組 + 兩側相鄰與遠端，中央封面 `--ld-cover` 為
+  `clamp(196px, min(62vw, 40vh), 400px)`；實測 1440×900 → 360px、1366×768 → 307px、
+  390×844 → 226px（舊記錄的「桌面 253–297px、窄屏 65%」已過時）。
+  首屏四要素（品牌、中央封面、當前資訊、主操作）
+  在 1366×768 與 390×844 都在折線以上。
+  實測三檔折線（品牌底緣／舞台底緣／CTA 底緣，全部在折線以上、`overflowX = 0`）：
+  1440×900 → 84 / 510 / 810；1366×768 → 80 / 442 / 735；390×844 → 78 / 349 / 636。
+  獨立複現（`verify`，獨立進程 + 真實指標）另量 hero 底緣到視口底：1440×900 → 36px、
+  1366×768 → 31px；390×844 的 hero 高 959 > 視口 844，「露出下一段」此檔不適用，
+  只承諾四要素在折線以上（PASS）
+- 入口頁年份軸線寬：桌面 300px、390px 下 132px；歌手編目條（8 個 `.ld-tab`）高度
+  桌面 61px、390px 152px（兩列）
+- 入口頁真實點命中（`verify`，獨立進程 + `page.mouse.click`）：自首位點右一
+  david-tao → gem（+1）；自首位點右二 david-tao → jay-chou（**+2**，`click.target` 為 `IMG`）。
+  修好前點右二只前進一位、`target` 是 `UL.ld-groups`
+- 入口頁 `--amb` 八位（各自等於該歌手 `covers[0]` 所屬專輯的 `sourceAvg`）：
+  16, 64, 138／121, 76, 105／114, 97, 91／161, 126, 150／171, 165, 159／203, 191, 175／
+  87, 21, 30／142, 162, 188
+- 8 位歌手檔案層實測（`#haEn` / `#haMeta`）：陶喆 David Tao／1997 至 2025 · 9 ALBUMS · 131 WORKS；
+  鄧紫棋 G.E.M.／2009 至 2022 · 6 ALBUMS · 70 WORKS；周杰倫 Jay Chou／2000 至 2026 · 16 ALBUMS · 175 WORKS；
+  林俊傑 JJ Lin／2003 至 2023 · 14 ALBUMS · 169 WORKS；方大同 Khalil Fong／2005 至 2024 · 10 ALBUMS · 128 WORKS；
+  Taylor Swift／2006 至 2025 · 12 ALBUMS · 174 WORKS；林志炫 Terry Lin／1997 至 2020 · 10 ALBUMS · 126 WORKS；
+  薛之謙 Joker Xue／2006 至 2024 · 13 ALBUMS · 131 WORKS
+- 減少動效（`prefers-reduced-motion: reduce`）：入口頁 52ms 內即無 `ld-booting`、
+  資訊區與切換列 `opacity` 為 1、`.ld-group` 的 transform 為 `matrix(1, 0, 0, 1, 0, 0)`；
+  歌手頁 `.fan-sheen` 與 `.album-plate` 為 `display: none` / `transform: none`，
+  檔案層與年表軸仍 `opacity` 1
 - 開場動畫只在首次載入跑；就地在歌手間切換不重播開場，也不重新載入頁面
-- 站點截圖 19 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`
+- 站點截圖 19 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`。
+  2026-10-14 視覺升級後**重拍了 5 張**（README 直接引用的那幾張）：
+  `18-landing` 1366×820、`01-desktop-hero` 1600×1000、`19-mobile-landing` 390×844、
+  `03-mobile-hero` 300×700、`10-cover-wall` 1440×900——1:1 CSS 像素，
+  用獨立 `chromium.launch()` 拍攝（共用 MCP 瀏覽器視窗帶縮放，用它拍不到 1:1）。
+  其餘 14 張仍是升級前的擷取，頂欄品牌已多一個 `SOUND ARCHIVE`，
+  需要時再按同口徑重拍
 
 ## 待辦
 
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
-- [ ] 決定是否把 `assets/fonts/` 210 個 subset 改為按需子集化
+- [ ] 決定是否把 `assets/fonts/` 212 個 subset 改為按需子集化
 - [ ] 母題只做氛圍層；八套母題（halftone/prism/ink/ripple/groove/midnight/aria/neon）可再按人細修
 - [ ] `js/data.js` 已達 792 KB（八歌手）；若繼續擴充考慮按歌手拆檔或壓縮
+- [ ] 窄屏（≤620px）入口舞台的遠端封面（`data-off=±2`）是純死重：被相鄰封面 100% 包住，
+      真實 `:hover` 命中 0／5016 點（幾何命中卻有 4980，DOM 斷言會假綠），且仍會下載封面。
+      既有行為、非回歸；清理方向是窄屏把 `|off|=2` 一併標 `hidden`。
+      窄屏選歌手走底部編目條，真實指標實測 8/8 全中
 
 ## 活躍坑
 
@@ -124,6 +176,38 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   因為它們不經過那顆按鈕）。捕獲要延後到位移超過 8px、確認是拖曳時才做；且只要超過
   抓取門檻就視為拖曳、必須抑制隨後的 click，否則「拖了但沒到 40px 切換門檻」的手勢
   會落進空白處點擊而誤切一位。實測 `click` 的 target 一直是 `ld-stage` 即可斷定是這個原因
+- **祖先 `perspective` ＋ 子層 `preserve-3d` 會吃掉「退到後面」那張封面的命中**：
+  兩者合起來形成真正的 3D 脈絡，被 `translateZ` 推遠的卡片在真實指標下命中不到自己。
+  歌手頁主視覺實測：在 `.fan` 子樹內以 64×44 網格取樣、只看落在卡片幾何範圍內的 1586 點，
+  439 點（27.7%）穿透到宿主 `div.fan`，命中率只有 72.3%，真實點擊的 `click.target` 是
+  `DIV.fan`；入口頁同因，點右二封面只前進一位、`click.target` 是 `UL.ld-groups`。
+  修法是**每張卡自己的 `perspective(1400px)` 函式**（父層不掛透視、不掛 `preserve-3d`），
+  命中率回到 100%，遠端封面投影寬只由 241px 變 235px。
+  需要真縱深的重疊封面堆（`.fan-card`、`.ld-group`）都走這條；不重疊的展櫃／封面牆
+  仍保留 `preserve-3d`（實測點擊正常、開啟抽屜成功）
+- **`document.elementsFromPoint` 不是命中真相**：它會回報被遮住的卡片。實測對右鄰那張，
+  DOM 命中測試回報是它，真實點擊卻落在中央那張、還誤開了抽屜。要判斷「某點是否真的
+  能點到某元素」得用瀏覽器自己的 `el.matches(':hover')` 挑點，再用 `page.mouse.click()` 驗；
+  測試輔助函式**不得**在真實點擊失敗時靜默回退成 `element.click()`，那會直接掩蓋這類回歸。
+  統一句話：3D 相關的交互改動，驗收必須用真實指標事件與命中取樣，不能只用 DOM 斷言
+- **群組 `opacity` 會壓平 3D 子樹**：`.fan.is-shifting` 原本用群組 `opacity: .26` 壓暗，
+  外側封面在換片頭尾各跳一次（寬度 241 → 257.7 → 241，7.2%）。暗度要下放到每一張卡
+  （`opacity: calc(var(--fo, 1) * .26)`），群組只留 `transform: scale(.972)`
+- **入場錯峰不得騎在換位上**：`.fan-card` 的 `transition-delay: calc(--i * 95ms + 240ms)`
+  配上 1.15s 入場時長，會讓一次換片要 1458–2263ms 才停穩。
+  `.fan.is-shifting .fan-card, .fan.is-arriving .fan-card { transition-delay: 0ms; transition-duration: .62s; }`
+  之後停穩 ~1042ms
+- **CJK 的 `ch` 單位陷阱**：`ch` 以 CJK 字體解析只有半個漢字寬，`30ch` 會把中文句子
+  切成兩三行（實測 391px 下 229.9px／3 行）。`.ha-note` 與 `.ld-note` 都改用
+  `max-width: min(100%, 30rem)`
+- **減少動效要連 `animation-delay` 一起歸零**：只把 duration 壓成 0 而留著 delay，
+  分階段入場的元素會停在起始態（`opacity: 0`）近三秒才出現。末節已加
+  `animation-delay: 0ms !important` 與 `transition-delay: 0ms !important`
+- **別把 `setViewportSize()` 的請求值當成 CSS 視口**：共用 MCP 瀏覽器視窗可能帶非 1 的
+  縮放（本專案就遇過視窗被縮到 75%，`1440×900` 的請求實際得到 CSS `1920×1200`）。
+  任何版面數字都要以頁面內讀到的 `innerWidth` 自證；`viewport` 參數本身是 CSS 像素，
+  用獨立進程 `chromium.launch()` 時請求值即所得（實測 `1440×900` → `innerWidth 1440`、
+  `dpr = 1`）。**不要把「乘 0.75」寫進測試輔助函式**
 
 - 去重守衛的自訂量初值必須是「未選中」：年輪讀數的 `ringsLive` 初值為 0，
   導致首次 `setRingLive(0)` 被 `if (i === ringsLive) return` 擋掉，讀數永不填充（初值改 -1）
