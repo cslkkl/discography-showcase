@@ -441,33 +441,12 @@
       }
     });
 
-    // pointer parallax, driven straight off a custom property in a rAF loop
-    var host2 = host;
-    var mx = 0,
-      my = 0,
-      tx = 0,
-      ty = 0,
-      raf = 0;
-    function tick() {
-      mx += (tx - mx) * 0.08;
-      my += (ty - my) * 0.08;
-      fan.style.setProperty('--mx', mx.toFixed(3));
-      fan.style.setProperty('--my', my.toFixed(3));
-      if (Math.abs(tx - mx) > 0.001 || Math.abs(ty - my) > 0.001) raf = requestAnimationFrame(tick);
-      else raf = 0;
-    }
-    host2.addEventListener('pointermove', function (e) {
-      if (REDUCED.matches) return;
-      var r = host2.getBoundingClientRect();
-      tx = clamp(((e.clientX - r.left) / r.width - 0.5) * 2, -1, 1);
-      ty = clamp(((e.clientY - r.top) / r.height - 0.5) * 2, -1, 1);
-      if (!raf) raf = requestAnimationFrame(tick);
-    });
-    host2.addEventListener('pointerleave', function () {
-      tx = 0;
-      ty = 0;
-      if (!raf) raf = requestAnimationFrame(tick);
-    });
+    /* 主視覺的滑鼠視差已移除。它是整頁最貴的一段：隔離實測（CDP 主線程，
+       同一頁、同樣指標事件數）滑鼠掠過主視覺 5.3 秒會吃掉樣式重算 1798.7ms／1246 次、
+       主線程 3159ms；把視差停掉只剩 259.1ms／405 次／823ms（降 73%）。
+       代價來自 .hero-art 的 1500px 透視 + .fan 的 preserve-3d：
+       改一次 transform 就要為整棵子樹重算 3D 矩陣（單次 1.44ms，每秒上百次）。
+       效果上它只是輕微傾斜，卻讓懸停避讓整體發澀；維護者選擇只保留避讓。 */
   }
 
   /* ── figures band ───────────────────────────────────────────────────── */

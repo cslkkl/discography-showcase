@@ -419,14 +419,16 @@ html.ld-booting .ht-line span {
   position: relative;
   aspect-ratio: 1 / 1.06;
   max-height: min(66vh, 620px);
-  perspective: 1500px;
   justify-self: center; width: 100%;
 }
 .fan {
   position: absolute; inset: 0;
-  transform-style: preserve-3d;
-  transform: rotateY(calc(var(--mx, 0) * 9deg)) rotateX(calc(var(--my, 0) * -7deg));
-  transition: transform .9s var(--ease);
+  /* 不再有 transform-style: preserve-3d 與父層 perspective: 1500px。
+     那兩條只為滑鼠視差服務，而視差是整頁最貴的一段——隔離實測
+     （CDP 主線程，同頁同指標事件數）掠過主視覺 5.3 秒吃掉樣式重算
+     1798.7ms／1246 次、主線程 3159ms；停用視差後剩 259.1ms／405 次、823ms。
+     preserve-3d 下改一次 transform 要為整棵子樹重算 3D 矩陣（單次 1.44ms），
+     而它換來的只是輕微傾斜。層級靠 --z 與 box-shadow 表達即可。 */
 }
 .fan-card {
   position: absolute; top: 50%; left: 50%;
@@ -440,22 +442,21 @@ html.ld-booting .ht-line span {
   transform: translate(-50%, -50%) rotate(0deg) scale(.86);
   box-shadow: 0 34px 82px rgba(0, 0, 0, .64), 0 0 0 1px rgba(255, 255, 255, .07);
   /* 入場與懸停各走各的通道：opacity／transform 只服務入場（1s／1.15s ＋ --i 錯峰），
-     懸停避讓走 translate／scale 兩條獨立通道（200ms、零 delay）。
-     兩者若共用同一條屬性，移出時的回位就會被入場的錯峰 delay 拖住。 */
+     懸停避讓走 translate／scale 兩條獨立通道（零 delay）。
+     兩條都是合成器屬性，逐幀不必重新點陣化。
+     刻意**不**過渡 filter 與 box-shadow：它們是繪製屬性，每一幀都要把 300px 的
+     封面連同 82px 的陰影重畫一次，正是先前卡頓的主因；改為狀態切換時一次到位。 */
   transition:
     opacity 1s var(--ease) calc(var(--i, 0) * 95ms + 240ms),
     transform 1.15s var(--ease) calc(var(--i, 0) * 95ms + 240ms),
-    translate .2s var(--ease),
-    scale .2s var(--ease),
-    filter .2s var(--ease),
-    box-shadow .2s var(--ease);
+    translate .17s var(--ease),
+    scale .17s var(--ease);
 }
 /* 主視覺是專輯輪播：兩側的封面翻到中央，中央那張開啟該張專輯。
    懸停回饋要短，不能沿用入場那條 1.15s 的過渡，否則滑鼠上去要等很久才有反應。 */
 .fan-card:hover,
 .fan-card:focus-visible {
   transition-delay: 0ms;
-  box-shadow: 0 34px 82px rgba(0, 0, 0, .64), 0 0 0 2px var(--accent);
 }
 .fan-card:focus-visible { outline: none; }
 .fan-card[hidden] { display: none; }
@@ -487,11 +488,9 @@ html.ld-booting .ht-line span {
    避讓走獨立的 translate／scale 通道，才不會吃到入場那條 1.15s ＋ --i 錯峰。 */
 /* 讓開的鄰居：位移量由 js/app.js 依**視覺方向**算好寫進 --hx
    （輪播是環形的，DOM 順序與視覺左右在頭尾會反過來，
-   純姊妹選擇器或逐格列 [style*=...] 都會判錯方向或根本贏不了行內值）。
-   這裡只負責把它接到一條獨立通道上，並壓暗讓視線集中。 */
+   純姊妹選擇器或逐格列 [style*=...] 都會判錯方向或根本贏不了行內值）。 */
 .fan-card.is-yield {
   translate: var(--hx, 0%) 0;
-  filter: brightness(.62);
 }
 /* 被指到／聚焦那張：放大、微抬、抬到最上層（中央那張的 --z 是 6）。
    只設 --hs／--hy，實際的 translate／scale 由上面 `.is-ready .fan-card` 那條
@@ -502,11 +501,25 @@ html.ld-booting .ht-line span {
   --hs: 1.14;
   --hy: -3%;
   z-index: 9;
-  box-shadow: 0 40px 92px rgba(0, 0, 0, .72), 0 0 0 2px var(--accent);
 }
 /* 中央那張本身就是主角：hover 只輕微放大，避免與「點它開專輯」的提示打架 */
 .fan-card.is-live.is-hover { --hs: 1.04; }
 .fan-card img { width: 100%; height: 100%; object-fit: cover; }
+/* 壓暗與描邊都用一層覆蓋物，靠 opacity 過渡——合成器屬性，不觸發重繪。
+   先前用 filter: brightness() 與過渡 box-shadow，兩者每幀都要重畫整張封面
+   （含 82px 的陰影），是滑過主視覺時掉幀的來源。
+   覆蓋物同時承擔「讓開時壓暗」與「被指到時描邊」，所以它常駐但不吃事件。 */
+.fan-card::before {
+  content: ''; position: absolute; inset: 0; z-index: 2;
+  pointer-events: none; border-radius: inherit;
+  background: rgba(6, 6, 9, .38);
+  box-shadow: inset 0 0 0 2px var(--accent);
+  opacity: 0;
+  transition: opacity .17s var(--ease);
+}
+.is-ready .fan-card::before { opacity: var(--veil, 0); }
+.is-ready .fan-card.is-yield::before { opacity: .62; }
+.is-ready .fan-card.is-hover::before { opacity: 1; }
 .fan-card::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, .34));
@@ -1951,7 +1964,13 @@ html { scroll-padding-bottom: 96px; }
   justify-items: center;
   gap: clamp(10px, 2.2vh, 26px);
   text-align: center;
-  max-width: 22ch;
+  /* 行長約束只能用絕對值：ch 按「宣告該屬性的元素自身」的字體解析，
+     這裡是繼承來的 16px，所以 22ch 只有 195px，而裡面那行是 74px，
+     一行只放得下約 2.6 個中文字（實測 6 行才排完 13 字，舊寫法是壞的）。
+     容器上限必須大於 .ls-cur 自己的 20ch（74px 下約 851px），
+     否則容器會反過來蓋掉子元素刻意宣告的量度——這正是原本的病因。
+     上限只負責不讓整行在超寬視窗拉到讀不下去。 */
+  max-width: min(100%, 56rem);
   margin: 0 auto;
 }
 .ls-prev,
