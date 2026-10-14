@@ -473,13 +473,40 @@
     marqueeEl = $('.marquee');
     marqueeTrack = host;
     marqueeRoom = 0;
+    /* 滑鼠在帶子上左右移動時把整條往該側推：指標靠右就往右、
+       靠左就往左，最大位移 MARQ_PAN。觸控裝置沒有 hover，不接。 */
+    var hoverable = !window.matchMedia('(hover: none)').matches;
+    if (marqueeEl && hoverable) {
+      marqueeEl.addEventListener('pointermove', function (e) {
+        if (REDUCED.matches) return;
+        var r = marqueeEl.getBoundingClientRect();
+        marqueeHoverNTarget = clamp(((e.clientX - r.left) / (r.width || 1) - 0.5) * 2, -1, 1);
+        if (!marqueeRaf) marqueeRaf = requestAnimationFrame(marqueeHoverTick);
+      });
+      marqueeEl.addEventListener('pointerleave', function () {
+        marqueeHoverNTarget = 0;
+        if (!marqueeRaf) marqueeRaf = requestAnimationFrame(marqueeHoverTick);
+      });
+    }
   }
 
   /* The band drifts as the page scrolls: a slow parallax response rather than a
-     timed loop, so nothing animates unattended and no pause control is needed. */
+     timed loop, so nothing animates unattended and no pause control is needed.
+     指標位置也決定方向：指帶子右側整條往右推、指左側往左推，像用手撥。
+     帶子左緣沒有空白可露，所以基準先向左墊一個幅度，指到最右時剛好回到起點。 */
   var marqueeEl,
     marqueeTrack,
     marqueeRoom = 0;
+  var MARQ_PAN = 150;
+  var marqueeHoverN = 0; /* 平滑後的指標位置，-1（最左）到 1（最右） */
+  var marqueeHoverNTarget = 0;
+  var marqueeRaf = 0;
+
+  function marqueeAmp() {
+    /* 幅度取內容可位移量的一部分，窄清單不會被一次推到底 */
+    return Math.min(MARQ_PAN, marqueeRoom * 0.34);
+  }
+
   function marqueePan() {
     if (!marqueeTrack || REDUCED.matches) return;
     if (!marqueeRoom) {
@@ -491,7 +518,21 @@
     var p = clamp((vh - r.top) / (vh + r.height), 0, 1);
     // ~1.15x the scroll delta, so it reads as depth rather than a race
     var travel = Math.min((vh + r.height) * 1.15, marqueeRoom);
-    marqueeTrack.style.transform = 'translate3d(' + (-p * travel).toFixed(1) + 'px,0,0)';
+    var amp = marqueeAmp();
+    var x = clamp(amp + p * travel - marqueeHoverN * amp, 0, marqueeRoom);
+    marqueeTrack.style.transform = 'translate3d(' + (-x).toFixed(1) + 'px,0,0)';
+  }
+
+  /* 指標平移要平滑，否則會跟著每一則 pointermove 抖；用 rAF 收斂到目標值 */
+  function marqueeHoverTick() {
+    marqueeHoverN += (marqueeHoverNTarget - marqueeHoverN) * 0.14;
+    if (Math.abs(marqueeHoverNTarget - marqueeHoverN) > 0.004)
+      marqueeRaf = requestAnimationFrame(marqueeHoverTick);
+    else {
+      marqueeHoverN = marqueeHoverNTarget;
+      marqueeRaf = 0;
+    }
+    marqueePan();
   }
 
   /* ── album rack ─────────────────────────────────────────────────────── */
