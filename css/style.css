@@ -1902,38 +1902,32 @@ html { scroll-padding-bottom: 96px; }
   padding: 0; border: 0; background: none; border-radius: var(--r);
   cursor: pointer;
 }
-/* 卡片質感：一道掠過的高光 + 邊緣亮線。純 CSS，不寫逐字腳本、不做逐幀跟隨，
-   所以不吃主線程（展櫃的 .album-plate::after 是同一個做法）。
-   ::before 是高光帶（斜向 linear-gradient，進場時由左掃到右），
-   ::after 是邊緣亮線（inset 陰影，只在被指到時浮現）。 */
+/* 卡片質感：頂部柔光 + 邊緣亮線。純 CSS、無逐幀腳本，
+   而且**不做位移**——掠過式高光試過兩輪（104deg／112deg）都失敗：
+   linear-gradient 的色帶垂直於漸變軸，112deg 的軸得到的是近乎垂直的色帶，
+   在方形封面上掃起來就是一道生硬的白豎條（截圖可見），不像反光。
+   改成固定角度的柔光淡入：像展台自上而下的打光，只動 opacity。 */
 .ld-gbtn::before,
 .ld-gbtn::after {
   content: ''; position: absolute; inset: 0; z-index: 4;
   pointer-events: none; border-radius: inherit;
   opacity: 0;
-  transition: opacity .45s var(--ease), transform .75s var(--ease);
+  transition: opacity .45s var(--ease);
 }
 .ld-gbtn::before {
   background: linear-gradient(
-    104deg,
-    rgba(255, 255, 255, 0) 38%,
-    rgba(255, 255, 255, .16) 47%,
-    rgba(255, 255, 255, .30) 50%,
-    rgba(255, 255, 255, .16) 53%,
-    rgba(255, 255, 255, 0) 62%
+    to bottom,
+    rgba(255, 255, 255, .13),
+    rgba(255, 255, 255, .035) 26%,
+    rgba(255, 255, 255, 0) 54%
   );
-  transform: translateX(-62%);
 }
 .ld-gbtn::after {
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .34);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
 }
-.ld-group[data-off='0'] .ld-gbtn::before {
-  opacity: .85; transform: translateX(62%);
-}
-.ld-group[data-off='0'] .ld-gbtn::after { opacity: .55; }
 @media (hover: hover) {
-  .ld-group:hover .ld-gbtn::before { opacity: .9; transform: translateX(58%); }
-  .ld-group:hover .ld-gbtn::after { opacity: .5; }
+  .ld-group:hover .ld-gbtn::before { opacity: 1; }
+  .ld-group:hover .ld-gbtn::after { opacity: 1; }
 }
 .ld-gstack { position: absolute; inset: 0; display: block; }
 .ld-gstack img {
@@ -2302,6 +2296,8 @@ html.has-lyrics .player { z-index: 95; }
   /* 唱片架：位置切換立即完成，取消側轉與光暈過渡 */
   .ld-stage { perspective: none; }
   .ld-group { transform: translateX(var(--x, 0%)) scale(var(--s, 1)); }
+  /* 卡片柔光只做 opacity 淡入，全域的 transition-duration:.001ms 已讓它即時切換，
+     所以這裡不必再關掉——留著才有懸停回饋（全域區塊見本節開頭） */
   /* rings appear already drawn, and the chart bars are full height */
   .ring-path { stroke-dashoffset: 0 !important; opacity: .8; }
 
