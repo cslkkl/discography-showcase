@@ -427,6 +427,10 @@ html.ld-booting .ht-line span {
   aspect-ratio: 1 / .82;
   max-height: min(64vh, 560px);
   justify-self: center; width: 100%;
+  /* 立體唱片架的透視基準，與入口頁 `.ld-stage` 同源（1400px）。
+     透視寫在這一層即可：.fan 本身不改 transform，旋轉在 .fan-card 上，
+     所以不需要 preserve-3d 中轉（入口頁三層也都是 flat，實測 rotateY 仍生效）。 */
+  perspective: 1400px;
 }
 .fan {
   position: absolute; inset: 0;
@@ -449,7 +453,9 @@ html.ld-booting .ht-line span {
   cursor: pointer;
   z-index: var(--z, 1);
   opacity: 0;
-  transform: translate(-50%, -50%) rotate(0deg) scale(.86);
+  /* 入場起始態要與 `.is-ready .fan-card` 的結束態同型（都用 rotateY），
+     否則兩態之間的 transform 函式清單不一致，過渡會直接跳而不是轉。 */
+  transform: translate(-50%, -50%) rotateY(0deg) scale(.86);
   box-shadow: 0 34px 82px rgba(0, 0, 0, .64), 0 0 0 1px rgba(255, 255, 255, .07);
   /* 入場與懸停各走各的通道：opacity／transform 只服務入場（1s／1.15s ＋ --i 錯峰），
      懸停避讓走 translate／scale 兩條獨立通道（零 delay）。
@@ -473,11 +479,14 @@ html.ld-booting .ht-line span {
 .is-ready .fan-card {
   opacity: var(--fo, 1);
   /* 入場的完整姿態留在 transform 這條鏈上（1.15s ＋ --i 錯峰，與原本一致）：
-     格位 --fx/--fy、旋轉 --fr、基準縮放 --fs 都由行內給。 */
+     格位 --fx/--fy、旋轉 --fr、基準縮放 --fs 都由行內給。
+     --fr 是 **rotateY** 角度（立體唱片架，同入口頁 .ld-group）；
+     寫成平面 rotate 的話角度只會被當斜切，看不到三維縱深。
+     注意 translate 要在 rotateY 之**後**才不會被透視連座標一起推歪。 */
   transform:
     translate(-50%, -50%)
     translate(var(--fx, 0%), var(--fy, 0%))
-    rotate(var(--fr, 0deg))
+    rotateY(var(--fr, 0deg))
     scale(var(--fs, 1));
   /* 懸停避讓走兩條獨立的個別屬性（不在上面那條鏈裡，所以不吃入場的 1.15s 與錯峰）：
      --hx/--hy 是額外讓開的位移，--hs 是懸停放大乘數。
