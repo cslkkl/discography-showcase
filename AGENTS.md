@@ -118,7 +118,7 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   （已 `--exclude "*/stage/vendored"`：那是 Folia 上游逐字複本，不屬本站文檔網絡，
   它內部的相對連結指向沒被複製過來的上游文件）；
   `check-ps1-ascii.mjs` 6 檔全 ASCII
-- Task 04 舞台：`stage/dist/lyric-stage.js` 311480 bytes ＋ `assets/lyric-stage.css` 199560 bytes；
+- Task 04 舞台：`stage/dist/lyric-stage.js` 311480 bytes ＋ `stage/dist/assets/lyric-stage.css` 199560 bytes；
   上游基準 Folia 0.7.18、commit `9a01e788…`、1798 檔 / 18872422 bytes（`stage/vendored/`，gitignored 可重建）。
   站點側實測（本機態，MCP chromium，`innerWidth` 自證）：三條歌詞入口都以真實指標開得起來；
   14 模式逐一以真實 `<select>` 切換後 `data-stage-mode` 等於所選值、播放不中斷、`audio` 恆為 1；
