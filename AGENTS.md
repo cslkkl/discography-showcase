@@ -472,8 +472,8 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 首頁立體唱片架執行規劃 → [docs/artist-selector-plan.md](docs/artist-selector-plan.md)
 - 早期歌詞舞台勘察（當前範圍見 Task 04） → [docs/lyric-stage-plan.md](docs/lyric-stage-plan.md)
 - 決策與依據記錄 → [.agents/notes/](.agents/notes/)
-- Task 04 舞台模組手冊 → [stage/README.md](stage/README.md)
-- Task 04 兩層分析工具手冊 → [tools/README.md](tools/README.md)
+- Task 04 舞台模組手冊 → `stage/README.md`（模組原始碼不入庫，故不設連結）
+- Task 04 兩層分析工具手冊 → `tools/README.md`（工具原始碼不入庫，故不設連結）
 - Task 04 模式與 AI 實測證據 → [docs/evidence/](docs/evidence/)
 - 樣式手冊 → [css/README.md](css/README.md)
 - 腳本手冊 → [js/README.md](js/README.md)
@@ -482,6 +482,6 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 校驗腳本手冊 → [scripts/README.md](scripts/README.md)
 - CI 說明 → [.github/workflows/README.md](.github/workflows/README.md)
 - 使用者入口 → [README.md](README.md)
-- 本輪升級的交付說明（交付物、啟動、改動清單、驗收、未完成項） → [DELIVERY.md](DELIVERY.md)
+- 本輪升級的交付說明（交付物、啟動、改動清單、驗收、未完成項） → `DELIVERY.md`（一次性交付文件，不隨專案入庫，故不設連結）
 
 各目錄的規則層見同目錄 `AGENTS.md`。
