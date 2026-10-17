@@ -2689,7 +2689,11 @@
      precedence via _data/local-audio.json and the preview becomes fallback. */
   var plAudio = null,
     plBar = null;
-  var plState = { album: null, n: null, queue: [], qi: -1, loop: false, scrubbing: false };
+  /* 播放模式：seq＝順序（到尾接回開頭）、shuffle＝隨機（以「這首歌真正的歌手」為池邊界）。
+     預設順序；不寫 localStorage（本專案既有的偏好只有語言與目錄視圖，播放模式不新增持久化）。 */
+  var PL_MODE_SEQ = 'seq';
+  var PL_MODE_SHUFFLE = 'shuffle';
+  var plState = { album: null, n: null, queue: [], qi: -1, mode: PL_MODE_SEQ, scrubbing: false };
 
   function clock(sec) {
     if (!isFinite(sec) || sec < 0) sec = 0;
@@ -2821,6 +2825,88 @@
     syncPlayingRows();
   }
 
+  /* ── 播放模式（順序／隨機）─────────────────────────────────────────────
+     兩個模式共用同一個按鈕 #plLoop：圖示、aria-label 與狀態標籤都由 syncPlayModeUI()
+     從 plState.mode 單一推導（沿用原本「aria-pressed 只有一個來源」的規則）。
+     切換模式只改狀態與按鈕，不動 <audio>：當前曲不中斷、進度與歌詞舞台都不重來。 */
+
+  /* 兩態圖示（Phosphor 風格、256 視框、fill: currentColor）：
+     順序＝三條橫線（清單），隨機＝兩支交叉箭頭。只換 path 的 d，不加節點、不改 CSS。 */
+  var PL_ICO = {
+    seq: 'M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z',
+    shuffle:
+      'M237.66,181.66l-32,32a8,8,0,0,1-11.32-11.32L212.69,184H204a84.09,84.09,0,0,1-62.78-28.13L96,104.21A68,68,0,0,0,44,84H32a8,8,0,0,1,0-16H44a84.09,84.09,0,0,1,62.78,28.13l45.22,51.66A68,68,0,0,0,204,168h8.69l-18.35-18.34a8,8,0,0,1,11.32-11.32l32,32A8,8,0,0,1,237.66,181.66ZM44,172H32a8,8,0,0,0,0,16H44a84.09,84.09,0,0,0,62.78-28.13l10.55-12.05-10.64-12.15L93.11,152.17A68,68,0,0,1,44,172ZM216.87,61.66a8,8,0,0,0-11.32,11.32L224,92H204a84.36,84.36,0,0,0-42.5,11.55l10.9,12.45A68.13,68.13,0,0,1,204,108h8.69l-18.34,18.34a8,8,0,0,0,11.31,11.32l32-32a8,8,0,0,0,0-11.32Z'
+  };
+
+  /* 隨機池：{artist, list}。artist 用**物件參照**比對（artistIndex 是單例），
+     換歌手就整個重建——嚴禁沿用上一位歌手的池。 */
+  var plPool = { artist: null, list: [] };
+  var plShufHist = []; /* 隨機模式走過的位置，供「上一首」回退 */
+  var plShufLast = null; /* 剛剛播過的那一首（key），避免連續兩次同一首 */
+
+  /* 有效曲池＝該歌手**全部專輯**裡有音源（track.audio）的曲目。
+     邊界取「這首歌真正所屬的歌手」（ownerOfAlbum），不是目前瀏覽的歌手：
+     播放列本來就能跨歌手續播，用瀏覽中的歌手建池會把別人的歌算進來。 */
+  function artistPool(albumId) {
+    var own = ownerOfAlbum(albumId);
+    if (!own) return [];
+    var A = own.artist;
+    if (plPool.artist === A) return plPool.list;
+    var list = [];
+    A.albums.forEach(function (a) {
+      a.tracks.forEach(function (t) {
+        if (t.audio) list.push({ albumId: a.id, n: t.n });
+      });
+    });
+    plPool = { artist: A, list: list };
+    plShufHist = []; /* 換歌手＝換池，歷史不得沿用 */
+    return list;
+  }
+
+  /* 抽下一首。d>0 前進、d<0 上一首（走歷史，沒有歷史就照樣抽一首）。
+     池只有一首時直接回它——不做「排除剛播過」的循環，否則單曲歌手會死循環。 */
+  function plShufflePick(d) {
+    var pool = artistPool(plState.album);
+    if (!pool.length) return null;
+    if (pool.length === 1) return pool[0];
+    if (d < 0 && plShufHist.length) return plShufHist.pop();
+    var cur = plState.album + ':' + plState.n;
+    for (var tries = 0; tries < 24; tries++) {
+      var c = pool[Math.floor(Math.random() * pool.length)];
+      var key = c.albumId + ':' + c.n;
+      if (key !== cur && key !== plShufLast) return c;
+    }
+    /* 池只有兩三首且剛好都被排除：退一步只排除「正在播的這首」 */
+    for (var i = 0; i < pool.length; i++) {
+      var k = pool[i].albumId + ':' + pool[i].n;
+      if (k !== cur) return pool[i];
+    }
+    return pool[0];
+  }
+
+  function syncPlayModeUI() {
+    var b = $('#plLoop');
+    var shuf = plState.mode === PL_MODE_SHUFFLE;
+    if (b) {
+      /* aria-label 同時是無障礙名稱與 ::after 提示的唯一來源；寫之前先清本地化快取 */
+      dropAttr(b, 'aria-label');
+      b.setAttribute('aria-pressed', String(shuf));
+      b.setAttribute(
+        'aria-label',
+        shuf ? '當前：隨機播放，點擊切換順序播放' : '當前：順序播放，點擊切換隨機播放'
+      );
+      var p = b.querySelector('.pl-ico path');
+      if (p) p.setAttribute('d', shuf ? PL_ICO.shuffle : PL_ICO.seq);
+    }
+    if (plBar) plBar.classList.toggle('is-looping', shuf);
+    var tag = $('#plLoopTag');
+    if (tag) {
+      tag.textContent = shuf ? '隨機播放' : '順序播放';
+      dropText(tag);
+    }
+    return b;
+  }
+
   function plPaint(a, t) {
     var cov = $('#plCover');
     if (cov) {
@@ -2877,6 +2963,7 @@
     }
     plState.album = ref.albumId;
     plState.n = ref.n;
+    plShufLast = ref.albumId + ':' + ref.n; /* 隨機抽籤要排除「剛剛播的這首」 */
     plAudio.src = hit.track.audio;
     plAttrSrc = hit.track.audio; /* 這一首的來源；舊歌的延遲事件靠它擋掉 */
     plWaiting = false;
@@ -2946,24 +3033,20 @@
   }
 
   function plStep(d) {
-    if (!plState.queue.length || !plAudio) return;
+    if (!plAudio) return;
+    if (plState.mode === PL_MODE_SHUFFLE) {
+      var pick = plShufflePick(d);
+      if (!pick) return; /* 資料還沒好：安全回退，不報錯、不動當前曲 */
+      if (d > 0 && plState.album) plShufHist.push({ albumId: plState.album, n: plState.n });
+      plLoad(pick, true);
+      return;
+    }
+    if (!plState.queue.length) return;
     var qi = plState.qi + d;
-    if (qi < 0) {
-      if (!plState.loop) {
-        plAudio.currentTime = 0;
-        plPlay();
-        return;
-      }
-      qi = plState.queue.length - 1;
-    }
-    if (qi >= plState.queue.length) {
-      if (!plState.loop) {
-        plAudio.pause();
-        plAudio.currentTime = 0;
-        return;
-      }
-      qi = 0;
-    }
+    /* 順序播放：走到結尾接回開頭、開頭往回繞到結尾（使用者指定的預設行為，
+       取代原本 loop=false 時「到底就停」的語意） */
+    if (qi < 0) qi = plState.queue.length - 1;
+    if (qi >= plState.queue.length) qi = 0;
     plState.qi = qi;
     plLoad(plState.queue[qi], true);
   }
@@ -2981,7 +3064,11 @@
     if (window.JCLyrics && window.JCLyrics.isOpen()) window.JCLyrics.close();
     /* 當前曲目清空＝卡片沒有指涉的對象了，一起淡出（見 mini song bar 一節） */
     msbHide();
-    plState = { album: null, n: null, queue: [], qi: -1, loop: false, scrubbing: false };
+    plState = { album: null, n: null, queue: [], qi: -1, mode: PL_MODE_SEQ, scrubbing: false };
+    /* 關播放列＝回到預設（順序），隨機池與歷史一起清掉，避免下次開台沿用舊歌手的池 */
+    plPool = { artist: null, list: [] };
+    plShufHist = [];
+    plShufLast = null;
     /* 狀態重設了，鏡射的 UI 也要一起重新推導：模式鈕的 aria-pressed／圖示／標籤與播放列
        狀態都從 plState／<audio> 現況算出來，不能只改一半（實測前者會殘留 true）。 */
     plAttrSrc = null;
@@ -2991,6 +3078,7 @@
       var el2 = $(s);
       if (el2) el2.disabled = true;
     });
+    syncPlayModeUI();
     applyPlayerState();
     if ('mediaSession' in navigator) {
       try {
@@ -3161,10 +3249,17 @@
     $('#plNext').addEventListener('click', function () {
       plStep(1);
     });
+    /* 播放模式切換：只改狀態與按鈕，**不動 <audio>** —— 當前曲不中斷、進度不重置、
+       歌詞與舞台不重來；新模式從「下一首」開始生效。 */
     $('#plLoop').addEventListener('click', function () {
-      plState.loop = !plState.loop;
-      this.setAttribute('aria-pressed', String(plState.loop));
-      plBar.classList.toggle('is-looping', plState.loop);
+      plState.mode = plState.mode === PL_MODE_SHUFFLE ? PL_MODE_SEQ : PL_MODE_SHUFFLE;
+      if (plState.mode === PL_MODE_SHUFFLE) {
+        plShufHist = [];
+        /* 先建池（順帶處理換歌手清歷史），再把「剛剛播的這首」釘成不可立即重複的那一首 */
+        if (plState.album) artistPool(plState.album);
+        plShufLast = plKey();
+      }
+      syncPlayModeUI();
     });
     $('#plClose').addEventListener('click', plClose);
 
@@ -3247,6 +3342,9 @@
     });
     /* 一開頁就給出明確狀態（idle），不讓 data-pl-state 留空 */
     applyPlayerState();
+    /* 模式鈕也一開頁就推導一次：預設順序，按鈕的圖示／aria-label／標籤全部由
+       plState.mode 決定（HTML 上的舊字「連續播放整張專輯」不再代表現行語意） */
+    syncPlayModeUI();
   }
 
   /* ── mini song bar ──────────────────────────────────────────────────────
