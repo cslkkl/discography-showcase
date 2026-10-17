@@ -63,9 +63,16 @@
     pendolo: '鐘擺',
     sonnet: '十四行',
     tempera: '蛋彩',
-    lumiere: '繪光',
-    still: '靜止'
+    lumiere: '繪光'
   };
+  /* 不提供給使用者的模式：`still`（靜止／字幕居中不動）。
+     為什麼是「白名單式隱藏」而不是從清單刪掉：上游的 BUILTIN_VISUALIZER_MODES
+     （stage/vendored/folia/src/types/visualizerModes.ts）是逐字複本、不得修改，
+     而且它在 registry 初始化時會斷言「清單 ≡ 各模式的 entry 目錄」——只刪清單項
+     會當場拋錯。所以站點側在**建選單與選值時**把它濾掉：使用者選不到、下拉裡不存在，
+     舞台內部仍認得這個 id（auto 若回報它，由 syncFromState／掛載處回退到 monet）。
+     注意：`stillCovered`（滾動鎖定那段）是英文副詞，與此無關，別一起改。 */
+  var MODE_HIDDEN = { still: 1 };
   var BG_LABEL = {
     common: '素底',
     latent: '潛像',
@@ -92,7 +99,6 @@
        sonnet   大字海報分鏡，鏡頭追著正在唱的那個字（sonnet/sonnetCameraTracking.ts）
        tempera  網點版畫拼貼，每隔幾秒換一幅構圖（tempera/temperaCompositions.ts）
        lumiere  近黑底上的體積光束與煙塵，被光掃到的字才亮（lumiere/light/rig.ts）
-       still    只留靜態字幕，當前一句居中放大（still/VisualizerStill.tsx）
      一律只講使用者看得到的東西；不寫 WebGL／shader／particle 一類的實作詞。 */
   var MODE_DESC = {
     classic: '逐字點亮',
@@ -107,8 +113,7 @@
     pendolo: '擺錘環形走字',
     sonnet: '海報字版運鏡',
     tempera: '版畫拼貼換景',
-    lumiere: '光束穿透煙霧',
-    still: '字幕居中不動'
+    lumiere: '光束穿透煙霧'
   };
   var INTENSITY_LABEL = { calm: '收斂', normal: '一般', chaotic: '奔放' };
 
@@ -137,6 +142,12 @@
      用來保證新一輪不會被永遠拖住（見 waitForUnmount）。 */
   var UNMOUNT_WAIT_MS = 1500;
   var activeMode = null; /* 舞台實際在跑的那個模式（選單要反映它，不是選單自己的第一項） */
+  /* 已經為哪個「不提供的模式」送過回退命令：同一個 id 只送一次，
+     免得 auto 持續回報 still 時每幀都下命令（回報↔回退互踢）。 */
+  var modeFallbackSent = '';
+  /* 站點預設模式：與 js/stage-themes.js 的 DEFAULT_MODE 對齊。
+     這裡另存一份是因為「隱藏模式的回退」屬選單層，不該依賴主題模組先載入。 */
+  var DEFAULT_MODE = (window.JCStageThemes && window.JCStageThemes.DEFAULT_MODE) || 'monet';
   var bridge = null;
   var analyser = null;
   var shellReady = false;
@@ -702,11 +713,13 @@
     }
   }
 
-  /** 依 14 個選項建立清單；名稱與一句效果都寫在每一列（收合後按鈕顯示選中那一列）。 */
+  /** 依可用模式建立清單；名稱與一句效果都寫在每一列（收合後按鈕顯示選中那一列）。
+      傳進來的 ids 是舞台的完整清單，這裡先濾掉 MODE_HIDDEN：**選單與選值都不得出現**。 */
   function fillModeMenu(ids) {
     if (!sfMode || !sfModeList) return;
     sfModeList.textContent = '';
-    ids.forEach(function (id) {
+    (ids || []).forEach(function (id) {
+      if (MODE_HIDDEN[id]) return;
       var li = document.createElement('li');
       li.className = 'sf-menu-item';
       li.id = 'sfModeOpt-' + id;
@@ -1049,10 +1062,23 @@
         activeMode =
           (reported && reported.mode) ||
           (payload.mode && ids.indexOf(payload.mode) !== -1 ? payload.mode : defaultMode);
+        /* 舞台回報的模式若是不提供的那一個（例如 auto 選到 still，或舊偏好／外部注入），
+           掛載時就回退到站點預設模式，而且只做一次：選單、按鈕、data-stage-mode 三者
+           必須一致，也不能在這裡進入「回報 → 回退 → 又回報」的迴圈。
+           lock:false 是刻意的——這是替 auto 收拾，不是替使用者鎖定。 */
+        if (MODE_HIDDEN[activeMode]) {
+          activeMode = DEFAULT_MODE;
+          try {
+            h.setMode(DEFAULT_MODE, { lock: false });
+          } catch {
+            /* 換模式失敗不影響舞台已成立的畫面：下面 syncFromState 會再校正 */
+          }
+        }
         fillModeMenu(ids);
         fillSelect(sfBg, bgs, BG_LABEL);
         fillThemeSelect();
-        if (activeMode && ids.indexOf(activeMode) !== -1) setModeValue(activeMode);
+        if (activeMode && ids.indexOf(activeMode) !== -1 && !MODE_HIDDEN[activeMode])
+          setModeValue(activeMode);
         /* 清單與三個 <select> 的選項都在上面填好了：請站點把這一整批新節點
            一次轉成目前語言（setModeValue 命中時也會派，這裡補沒命中的情況）。 */
         notifyStageText();
@@ -1247,9 +1273,30 @@
     lastStageState = state;
     if (sfAuto) sfAuto.setAttribute('aria-pressed', state.auto ? 'true' : 'false');
     if (sfMode && state.mode) {
-      /* setModeValue 內部已經處理「游標與 aria-selected」，也會一併更新說明文字 */
-      setModeValue(state.mode);
-      activeMode = state.mode;
+      if (MODE_HIDDEN[state.mode] && handle) {
+        /* 遲到的回報仍指向不提供的模式（最可能是 auto 自己選到 still）。
+           只回退一次、不鎖定，而且**先記下目標**再送命令：
+           否則狀態列／按鈕會停在一個選單裡不存在的值，與舞台不一致。
+           已回退過就只更新 activeMode，不再重複下命令（避免回報↔回退互踢）。 */
+        activeMode = DEFAULT_MODE;
+        /* 按鈕與 aria-selected 也要立刻切到回退後的那一項：這裡**不能早退**，
+           否則後面的背景／強度／降級同步整段跳過，界面會停在舊值。
+           回退分支只多做一件事（把選單值改成 DEFAULT_MODE），流程照樣往下走。 */
+        setModeValue(DEFAULT_MODE);
+        if (modeFallbackSent !== state.mode) {
+          modeFallbackSent = state.mode;
+          try {
+            handle.setMode(DEFAULT_MODE, { lock: false });
+          } catch {
+            /* 回退失敗不影響畫面：舞台仍以自己的模式跑，這裡只是不顯示它 */
+          }
+        }
+      } else {
+        /* setModeValue 內部已經處理「游標與 aria-selected」，也會一併更新說明文字 */
+        setModeValue(state.mode);
+        activeMode = state.mode;
+        modeFallbackSent = '';
+      }
     }
     if (sfBg && state.background) sfBg.value = state.background;
     if (sfIntensity && state.intensity) sfIntensity.value = state.intensity;
