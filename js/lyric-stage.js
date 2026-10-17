@@ -1290,6 +1290,22 @@
     return parts.join(' ');
   }
 
+  /* ── 站點頭部與舞台自身的重複標題 ──────────────────────────────────────
+     `#sfTitle`／`#sfMeta` 是站點畫在舞台上方覆蓋層（`.sf-bar`，absolute，
+     不佔布局流）裡的歌名與「歌手 · 專輯 · 年份」。它與舞台內容同處 0 起，
+     所以舞台若在左上角也畫標題，兩者會疊在同一高度上（實測 1440×901：
+     站點歌名 45–90、meta 94–115，monet 左列歌手名 74–113，重疊 170×16 與 170×19）。
+     monet 自己在左列就畫了「歌手／歌名／專輯」三件套，站點那兩行是**重複資訊**，
+     所以只在 monet 時把站點那兩行收起來；其餘 12 個模式不畫標題，站點那兩行
+     是唯一來源，一律保留。`LYRIC STAGE` 小標與關閉鍵任何模式都保留。
+     判定用「舞台實際生效的模式」而不是選單值：無 WebGL 時 monet 會被換成 classic，
+     那時站點標題要回來（classic 自己不畫標題）。 */
+  var DUP_TITLE_MODES = { monet: 1 };
+  function syncDuplicatedTitle(mode) {
+    if (!stageEl) return;
+    stageEl.classList.toggle('is-title-duplicated', !!DUP_TITLE_MODES[mode]);
+  }
+
   /* 把舞台回報的狀態同步到控制列。aria-pressed 雙向同步的唯一入口：
      手動選模式／調強度 → 舞台回報 auto=false；按恢復自動 → 回報 auto=true。 */
   function syncFromState(state) {
@@ -1322,6 +1338,7 @@
         modeFallbackSent = '';
       }
     }
+    syncDuplicatedTitle(state.mode || activeMode);
     if (sfBg && state.background) sfBg.value = state.background;
     if (sfIntensity && state.intensity) sfIntensity.value = state.intensity;
     var deg = degradedLine(state);
@@ -1547,6 +1564,7 @@
     closeModeMenu(true);
     if (stageEl) {
       stageEl.classList.remove('is-open');
+      stageEl.classList.remove('is-title-duplicated');
       stageEl.hidden = true;
     }
     document.documentElement.classList.remove('has-stage');
