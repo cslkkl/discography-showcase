@@ -10,8 +10,9 @@
 <meta property="og:title" content="聲之年輪 · 歌手唱片陳列">
 <meta property="og:description" id="ogDescription" content="錄音室專輯的完整陳列。">
 <meta property="og:type" content="website">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/favicon.svg">
+<link rel="icon" href="assets/favicon.ico" sizes="16x16 32x32 48x48">
+<link rel="icon" href="assets/icon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/fonts/fonts.css?v=db5c3213">
 <link rel="stylesheet" href="css/style.css?v=db5c3213">
 <link rel="stylesheet" href="css/motifs.css?v=db5c3213">
@@ -39,7 +40,10 @@
 <header class="topbar" id="topbar">
   <a class="brand" href="#top" aria-label="聲之年輪，回到頂端">
     <span class="brand-seal" aria-hidden="true">
-      <svg viewBox="0 0 100 100" role="presentation"><text class="seal-char" x="50" y="52" text-anchor="middle" dominant-baseline="central"></text></svg>
+      <!-- 站徽：母版 assets/brand-mark.png 的 64px 派生（同一张图，未改设计）。
+           先前这里是当前歌手的印章字（周杰倫就是「周」），那是歌手层的身分；
+           平台标志不该随歌手换，歌手印章仍出现在开场幕与页脚。 -->
+      <img src="assets/icon-64.png" alt="" width="64" height="64">
     </span>
     <span class="brand-text">
       <span class="bt-top"><b>聲之年輪</b><i class="bt-en">SOUND ARCHIVE</i></span>
@@ -483,7 +487,7 @@
      音源優先取自有音檔（整首），其次為 Apple 目錄隨附的官方 30 秒試聽片段 -->
 <div class="player" id="player">
   <div class="pl-inner">
-    <img class="pl-cover" id="plCover" src="assets/favicon.svg" alt="" width="46" height="46">
+    <img class="pl-cover" id="plCover" src="assets/icon-64.png" alt="" width="46" height="46">
     <div class="pl-info">
       <span class="pl-title" id="plTitle">尚未選擇曲目</span>
       <span class="pl-meta" id="plMeta">按曲目左側的播放鍵開始試聽</span>

@@ -11,6 +11,10 @@
                        lighting only*: it is the album's own averaged cover
                        colour mixed 78% toward the ink base, and it is never
                        used for text, borders, buttons or state.
+                       The site mark is a bitmap (assets/brand-mark.png and its
+                       derived sizes), not a CSS-coloured glyph: its cream star
+                       and red core come from the artwork itself, so the mark
+                       adds no colour to the token set at all.
    Shape lock ........ Radii: --r-pill for interactive controls, --r for
                        surfaces and images. Documented exception: the two
                        museum CTAs (`.ld-cta` on the entrance, `.hero-cta` on
@@ -220,15 +224,16 @@ a, button, input, [role="button"] { touch-action: manipulation; }
 }
 
 .brand { display: flex; align-items: center; gap: 11px; flex: none; }
+/* 站徽：母版 assets/brand-mark.png 的派生位图（同图不同尺寸，不自绘）。
+   圆角与红心都在图里，所以这里不再给背景、描边或圆角，只负责 30×30 的盒子
+   与 hover 的轻微旋转；盒子尺寸与改动前一致，版式零位移。 */
 .brand-seal {
   width: 30px; height: 30px; flex: none;
-  background: var(--accent); color: var(--accent-on);
-  border-radius: 4px; display: grid; place-items: center;
+  display: grid; place-items: center;
   transition: transform .6s var(--ease);
 }
 .brand:hover .brand-seal { transform: rotate(-8deg) scale(1.06); }
-.brand-seal svg { width: 76%; height: 76%; fill: currentColor; }
-.brand-seal text { font-family: var(--f-serif); font-size: 60px; font-weight: 700; }
+.brand-seal img { width: 100%; height: 100%; display: block; }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; gap: 1px; }
 /* 站名與英文題名並排：博物館的銘牌一定是「中文館名 + 拉丁題名」成對出現。
    選擇器要寫成 .brand-text .bt-en（而不是 .bt-en）——
@@ -2207,13 +2212,15 @@ html { scroll-padding-bottom: 96px; }
   display: inline-flex; align-items: center; gap: 14px;
   margin: 0; min-width: 0;
 }
+/* 入口的站徽与顶栏是同一张图（母版 assets/brand-mark.png 的 64px 派生）。
+   先前这里是一枚圆形朱砂印章、里面写「聲」字；改成品牌图形后，站徽在全站
+   只有一种形状，而**歌手自己的印章**仍在开场幕（.boot-seal）与页脚
+   （.foot-seal）里按当前歌手出现——那是歌手层的身分，不是平台标志。 */
 .ld-seal {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 32px; height: 32px;
   display: grid; place-items: center; flex: none;
-  border: 1px solid var(--accent);
 }
-.ld-seal svg { width: 100%; height: 100%; }
-.ld-seal text { font-family: var(--f-serif); font-size: 42px; fill: var(--accent); }
+.ld-seal img { width: 100%; height: 100%; display: block; }
 /* 品牌銘牌：印章 + 三行銘文（站名／英文題名／起始年），左側一道細線。
    先前只有「站名 —— 歌手唱片陳列」一行，像頁首標籤而不是館名；
    改成豎排銘牌後，站名、英文題名與起始年各自成行，讀起來像入口的銅牌。
