@@ -239,13 +239,20 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   繁簡切換時四項內容與兩顆 `aria-label` 一起轉；減少動效下不做 14px 位移、不等那 .36s；
   卡片內沒有任何播放控制（`#msb input/[data-play]` 皆 0）；
   既有結構零回歸（`main` 下 10 個 `<section>`、175 列曲目、展櫃仍可捲、`Esc` 分層不變）
-- 站點截圖 19 張，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`。
-  2026-10-14 視覺升級後**重拍了 5 張**（README 直接引用的那幾張）：
-  `18-landing` 1366×820、`01-desktop-hero` 1600×1000、`19-mobile-landing` 390×844、
-  `03-mobile-hero` 300×700、`10-cover-wall` 1440×900——1:1 CSS 像素，
-  用獨立 `chromium.launch()` 拍攝（共用 MCP 瀏覽器視窗帶縮放，用它拍不到 1:1）。
-  其餘 14 張仍是升級前的擷取，頂欄品牌已多一個 `SOUND ARCHIVE`，
-  需要時再按同口徑重拍
+- 站點截圖 **20 張**，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`。
+  一律 1:1 CSS 像素、獨立 `chromium.launch()` 拍攝（共用 MCP 瀏覽器視窗帶縮放，用它拍不到 1:1）。
+  **2026-10-17 重拍 3 張**（品牌圖示改版後，尺寸統一為 1440×901）：
+  `18-landing`、`01-desktop-hero`、新增 `20-lyric-stage`（歌詞舞台，monet／明亮／莫內背景）。
+  2026-10-14 視覺升級後重拍的 3 張仍在用：`19-mobile-landing` 390×844、
+  `03-mobile-hero` 300×700、`10-cover-wall` 1440×900。
+  其餘 14 張是 2026-10-12 至 10-14 期間的擷取，**早於品牌圖示改版**，
+  圖裡的入口與頂欄仍是舊的圓形「聲」印章；要更新就按同一口徑重拍，不要只換檔名
+- 截圖索引（`screenshots/`，檔名即主題，逐張對應）：入口 `18-landing`／`19-mobile-landing`；
+  歌手頁主視覺 `01-desktop-hero`／`03-mobile-hero`；陳列面 `02-album-detail`／`04-mobile-rack`／
+  `07-desktop-chronology`／`05-mobile-chronology`／`08-year-rings`／`09-eras`／`10-cover-wall`／
+  `11-data`／`12-ranks`／`13-collaborators`／`14-signature-picks`；播放 `15-player`／
+  `16-sheet-player`；離線 `06-offline-file-load`／`17-offline-audio`；歌詞舞台 `20-lyric-stage`；
+  概念稿 `concepts/artist-selector-{desktop,mobile}`
 
 ## 待辦
 

@@ -20,7 +20,9 @@
 
 ![年輪：十六圈同心環依年份由內而外，圈寬對應曲目數](screenshots/08-year-rings.png)
 
-完整 19 張（含移動端、播放列、數據面、離線）見 [screenshots/](screenshots/)。
+![全屏歌詞舞台：莫內模式左側歌詞滾動、明亮主題、莫內背景](screenshots/20-lyric-stage.png)
+
+完整 20 張（含移動端、播放列、數據面、離線）見 [screenshots/](screenshots/)。
 
 ## 能力
 
