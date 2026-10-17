@@ -243,8 +243,8 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   一律 1:1 CSS 像素、獨立 `chromium.launch()` 拍攝（共用 MCP 瀏覽器視窗帶縮放，用它拍不到 1:1）。
   **全部 20 張已於 2026-10-17 按當前實現重拍**（品牌圖示改版後），尺寸與舊圖一致：
   1440×901 有 3 張（`18-landing`、`01-desktop-hero`、`20-lyric-stage`，T34）、
-  1440×900 有 13 張（`02-album-detail`／`08-year-rings`／`09-eras`／`11-data`／`12-ranks`／
-  `13-collaborators`／`14-signature-picks`／`15-player`／`16-sheet-player`／`17-offline-audio`、
+  1440×900 有 11 張（`02-album-detail`／`08-year-rings`／`09-eras`／`11-data`／`12-ranks`／
+  `13-collaborators`／`14-signature-picks`／`15-player`／`16-sheet-player`／`17-offline-audio`／
   `10-cover-wall`，T37／T38）、`05-mobile-chronology` 300×700、`04-mobile-rack` 420×900、
   `06-offline-file-load` 1280×860、`07-desktop-chronology` 1600×1000、
   `03-mobile-hero` 300×700、`19-mobile-landing` 390×844。
