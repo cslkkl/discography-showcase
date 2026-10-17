@@ -20,7 +20,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check:docs": "python scripts/check-markdown-links.py . --fragments --refs",
+    "check:docs": "python scripts/check-markdown-links.py . --fragments --refs --exclude \"*/stage/vendored\" --exclude \"stage/vendored\"",
     "check:eol": "python scripts/check-line-endings.py .",
     "check:ps1": "node _data/check-ps1-ascii.mjs",
     "check:changed": "python scripts/classify-changed-files.py",
@@ -31,6 +31,7 @@
     "@eslint/js": "^9.0.0",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.37.5",
     "globals": "^15.0.0",
     "prettier": "^3.3.0"
   }

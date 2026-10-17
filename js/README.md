@@ -2,7 +2,11 @@
 
 - 職責：資料出口與全部檢視邏輯
 - 被誰依賴：入口頁 `index.html` 載入 `data.js` + `landing.js`；
-  歌手頁 `artist.html` 依序載入 `data.js`、`lyrics.js`、`app.js`
+  歌手頁 `artist.html` 依序載入 `data.js`、`lyrics.js`、`lyric-stage.js`、`cursor.js`、`app.js`
+- 跨模組契約：`app.js` 在 `window` 上放兩個入口給舞台與指針用——
+  `window.JCTracks`（`trackOf` / `albumAny` / `artistOfAlbum`，跨歌手解析一首歌）
+  與既有的 `window.JCLyrics`；`lyric-stage.js` 提供 `window.JCLyricStage`，
+  `cursor.js` 提供 `window.JCCursor`
 
 ## 檔案
 
@@ -211,6 +215,45 @@
   `albumId` 從未被使用，留著一個不讀的參數只會讓呼叫端多傳一個錯的位
   （`openFor` 一度就因此傳錯位，被當成「這首沒有本機歌詞」）
 
+### `lyric-stage.js`（歌手頁完整歌詞舞台的裝載器，手寫，IIFE，無依賴）
+
+- 職責：把站點既有的唯一音訊（`#plAudio`）接上 Task 04 的 Folia 舞台產物；
+  對外只暴露 `window.JCLyricStage`
+- 它**不渲染**：14 種模式在獨立子專案 `stage/` 裡建置成 `stage/dist/lyric-stage.js`，
+  樣式是 `stage/dist/assets/lyric-stage.css`。未進舞台前兩者都不載入
+- 三條歌詞入口（播放列 `#plLyrics`、歌曲檔案 `[data-sa-lyrics]`、狀態列 `#msbLyrics`）
+  全部收斂到 `open(albumId, n, onFail)`；`albumId + n` 是穩定身份，
+  用 `window.JCTracks.trackOf()` 跨歌手解析，**跟目前瀏覽哪一位歌手無關**
+- **樣式隔離**：舞台掛在 `#sfHost` 的 shadow root 裡。上游 CSS 是 Tailwind 產物
+  （199 KB，內含 `:root` 與 `html/body` 級選擇器），直接掛進文件會改到站點樣式。
+  注入前先補 `:host` 與 `.stage-full-root` 兩條（文件 CSS 進不了 shadow root，
+  少了它們包裝層高度是 0）
+- **路徑**：`stageUrl(file)` 以 `document.baseURI` 解成絕對 URL。
+  不能把相對字串直接丟給 `import()`——動態 import 相對「腳本自己的 URL」解析，
+  這支在 `js/` 底下會變成 `/js/stage/dist/…`（實測 404，整個舞台掛不上）
+- 開場順序：先掛舞台（封面派生主題＋無段落）→ 再問本機服務要整曲主題與段落 →
+  回來才覆蓋。**不等 AI 才顯示**；`openSeq` 序號讓換歌後才回來的回應一律作廢
+- 換歌：`follow(albumId, n, onFail)` 由 `js/app.js` 的 `plLoad` 呼叫；
+  舞台開著就換到新那一首，沒有本機歌詞則收起並就地說明（不掛著上一首的歌詞）
+- 降級：沒有本機歌詞 → 就地說明、不開空舞台；產物取不到或載入失敗 →
+  退回 `js/lyrics.js` 的基本舞台；沒有 AI 密鑰 → 封面派生主題＋「未接上段落分析」
+- 控制列：模式（14，手動選＝鎖定）、背景（6）、動效強度、恢復自動；
+  狀態行寫明主題來源、段落數、信心與「逐字時間為估算」
+- 隱私：只有歌詞文本與歌曲中繼資料送到 `127.0.0.1:8788`（`tools/theme-service.mjs`），
+  音檔不上傳；密鑰只在服務端讀
+
+### `cursor.js`（可選自訂指針，手寫，IIFE，無依賴）
+
+- 職責：Task 13 的可選指針裝飾，對外只暴露 `window.JCCursor`
+- **預設關閉**，偏好存 `localStorage` 的 `jc-cursor`；開關在歌手選單的「自訂指針」項
+- 只在展品互動區（`.fan`／`.ld-groups`／`.rack-track`／`.wall-grid`／`#catList`／
+  `#sheetScroll`／`#saScroll`／`#picksList`）顯示；**不設 `cursor: none`**，
+  輸入欄、捲動條、外部連結與可選文字一律保留原生指針
+- 兩層裝飾（`.cur-dot`／`.cur-ring`）都 `pointer-events: none`，不攔點擊
+- rAF 合併更新；`pointerleave` 與 `visibilitychange` 收掉裝飾並停迴圈
+- `(pointer: coarse)`／`(hover: none)`／`prefers-reduced-motion`／`forced-colors`
+  自動停用（CSS 與 JS 兩邊都擋），選單項在這些環境下標成不可用
+
 ### `landing.js`（入口頁，手寫，IIFE，無依賴）
 
 - 職責：渲染立體唱片架（當前歌手的封面組、姓名列、統計與進入入口），
@@ -256,8 +299,12 @@
   被指那張放大、移出即精確回位；鍵盤聚焦同效
 - 展櫃 → 額外實測（**先點「展櫃」分頁再量**）：`scrollWidth > clientWidth`、
   箭頭各捲一張且到端 disabled、拖曳可捲、拖曳不誤開抽屜、←→／Home／End、HUD 編號與進度條
-- 跑馬燈 → 額外實測：捲動時隨之平移；指標在帶子右半整條往右推、左半往左推，
-  移出後回位；`hover: none` 與 `prefers-reduced-motion` 下不做指標平移
+- 跑馬燈 → 額外實測：方向由**視口**左右半區決定（中線 ±6% 死區），指標只定方向、
+  不影響速度；常駐 rAF 以 `0.55px/幀 × dt/16.667`（約 33px/s）勻速跑，
+  x=900／1100／1300 實測同速；指標停住不動仍持續移動；按**真實佈局週期**回繞
+  （`tx=0` 與 `tx=−週期` 的文字落點差 0.002px，跨繞回那一幀的相位步進等於普通幀）；
+  上下捲動頁面不再產生任何橫向位移；指標離窗／視窗失焦／分頁轉背景歸零且不重置位移，
+  回窗按當前半區重判；`prefers-reduced-motion` 下不啟動 rAF
 - `lyrics.js` 或歌詞舞台 → 額外實測：解析器（標題頭行／製作人員行必須消失、
   副歌重複歌名必須保留）、播放中掃光隨時間推進、換曲自動重載、
   `Esc` 與關閉鈕、減少動效不逐字、無歌詞時就地說明不開空舞台
@@ -302,6 +349,18 @@
   繁簡切換時四項內容與兩顆 `aria-label` 一起轉；減少動效下不做位移與等待。
   **動效取樣一律在頁內用 rAF 逐幀讀 `getComputedStyle`**：在外面輪詢會被
   往返時間吃掉，抓不到換歌的最遠點（實測會誤判成 −0.11px）
+- `lyric-stage.js` / `window.JCLyricStage` → 額外實測（本機態，MCP chromium，`innerWidth` 自證）：
+  三條入口都以真實指標開得起來且對應同一首；14 模式逐項以真實 `<select>` 操作後
+  `data-stage-mode` 等於所選值、播放不中斷、`audio` 恆為 1；
+  shadow root 內尺寸 2560×1306（真實 CSS 1440×979）、畫布 1344×685、`data-stage-webgl="true"`；
+  換歌與 120ms 內連點兩次 `plNext` 都跟得上（不留上一首）；`data-stage-paused` 隨暫停／恢復切換；
+  連續開關 20 次後 `style`／`.stage-full-root`／`.stage-root`／`canvas`／`audio` 數量都不變；
+  無本機歌詞（陶喆全 131 首）→ 就地說明、不開空舞台；0 pageerror
+  （僅上游 `ResizeObserver loop completed with undelivered notifications`，警告級）
+- `cursor.js` / `window.JCCursor` → 額外實測：預設關且不建節點；`body`／`html` 的 `cursor` 仍為 `auto`；
+  真實指標移到 `.fan-card` → `cursor-on`／`cursor-hot`、`.cur-dot` `opacity 1`、環 40px；
+  移到頂欄控制項 → 裝飾收起；`pointerleave` → 收起；開關 `aria-checked` 與 `localStorage` 同步；
+  重新載入維持所選；兩層 `pointer-events: none`
 - 新增頂層函式 → 同步更新上表
 
 ## 已知坑

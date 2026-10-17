@@ -6,7 +6,10 @@
 
 ## 全局規則
 
-- 站點不得引入執行期依賴；新增依賴只允許進 `devDependencies`
+- 站點主體不得引入執行期依賴；新增依賴只允許進 `devDependencies`。
+  使用者於 2026-10-15 確認的 Task 04 完整 Folia 歌詞舞台是定向例外：
+  可在獨立、按需載入的舞台模組內使用必要執行期依賴與獨立建置，
+  不擴展到首頁及歌手頁主體；範圍與驗收見 [完整升級待辦](docs/upgrade-roadmap.md)。
 - `js/data.js` 是生成物，禁止手改；改資料一律改 `_data/artists/<id>/` 後重跑
 - 新增歌手 = 新增 `_data/artists/<id>/` 資料夾 + `npm run build`，不改 `build.mjs`
 - 不得自創名稱：歌手名用通行譯名（拉丁歌手直接用其英文名），
@@ -16,6 +19,9 @@
   歌手層（強調色、印章、題名、母題）由 `meta.mjs` 的 `theme` 聲明；
   專輯層（抽內強調色）由封面派生，構建期算好對比。
   同一歌手頁內只有一個強調色；入口頁中性底，以各歌手的強調色作點綴
+- Task 04 的全屏歌詞舞台可使用逐曲主題與原模式所需字體、光影；
+  此例外僅在舞台內生效，退出後恢復目前瀏覽內容的站點主題，詳見
+  [Task 04 規格](docs/task-04-folia-stage.md)
 - 母題裝飾寫進 `css/motifs.css`，鉤子是根元素 `data-motif`；只做氛圍，不改版式、
   不動正文對比度，裝飾色一律取 `var(--accent)`
 - 圓角兩個檔位：控制項 `--r-pill`、面與圖 `--r`。**明列例外**是入口的 `.ld-cta`
@@ -37,7 +43,7 @@ npm run pack           # 打包可公开发的 dist/（不含本机音档与歌�
 npm run stamp          # 给 HTML 的 js/css 引用刷版本号，防混版卡死
 npm run lint           # ESLint
 npm run format         # Prettier 寫入
-npm run check          # lint + format:check + check:docs + check:eol
+npm run check          # lint + format:check + check:docs + check:eol + check:ps1
 npm run hooks:install  # 啟用 .githooks（新複製倉庫後跑一次）
 ```
 
@@ -104,11 +110,53 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   （檔案層與年表軸都放在既有的 `.hero-copy` 內，未新增 `<section>`）
 - 播放列圖示（連續播放整張／全屏歌詞／關閉播放列等）滑鼠移上或鍵盤聚焦時顯示說明，
   文字直接取 `aria-label`（實測 12px、`::after` 的 opacity 由 0 變 1），翻譯與狀態變化自動跟上
-- `eslint .` 0 問題；`prettier --check .` 全通過
-- `check-line-endings.py` 2795 檔 0 不一致（這個數含 gitignored 的本機媒體與字體，
+- `eslint .` 0 問題；`prettier --check .` 全通過（2026-10-15 複驗：
+  `stage/**` 12 個檔補排版後才全綠；`stage/dev/evidence.json` 是機器產物，已列入 `.prettierignore`）
+- `check-line-endings.py` 4529 檔 0 不一致（這個數含 gitignored 的本機媒體與字體，
   會隨本機 sidecar 增減；口徑是「本機工作樹扣掉未追蹤的暫存檔」）；
-  `check-markdown-links.py` 36 檔 120 連結 0 錯誤；
+  `check-markdown-links.py` 48 檔 216 連結 0 錯誤
+  （已 `--exclude "*/stage/vendored"`：那是 Folia 上游逐字複本，不屬本站文檔網絡，
+  它內部的相對連結指向沒被複製過來的上游文件）；
   `check-ps1-ascii.mjs` 6 檔全 ASCII
+- Task 04 舞台：`stage/dist/lyric-stage.js` 311480 bytes ＋ `assets/lyric-stage.css` 199560 bytes；
+  上游基準 Folia 0.7.18、commit `9a01e788…`、1798 檔 / 18872422 bytes（`stage/vendored/`，gitignored 可重建）。
+  站點側實測（本機態，MCP chromium，`innerWidth` 自證）：三條歌詞入口都以真實指標開得起來；
+  14 模式逐一以真實 `<select>` 切換後 `data-stage-mode` 等於所選值、播放不中斷、`audio` 恆為 1；
+  shadow root 內尺寸 2560×1306、畫布 1344×685、`data-stage-webgl="true"`；
+  換歌與 120ms 連點兩次 `plNext` 都跟得上；`data-stage-paused` 隨暫停／恢復切換；
+  連開關 20 次後 `style`／`.stage-full-root`／`.stage-root`／`canvas`／`audio` 都不累積；
+  無本機歌詞（陶喆全 131 首）就地說明、不開空舞台
+- Task 04 舞台第二輪（2026-10-15，恢復自動與能力判斷）：
+  舞台回報狀態走 `payload.onState`，`data-stage-*` 新增
+  `auto`／`locks`／`intensity`／`theme-source`／`theme-accent`／`segment`／`segment-energy`／
+  `mode-requested`。實測：手動選模式 → `auto=false`、`locks=m`、`aria-pressed=false`；
+  手動調強度 → `locks=mi` 且主色**未**被灰階覆蓋；按恢復自動 → `auto=true`、`locks` 空、
+  模式與強度回到歌曲自身的選擇、`aria-pressed=true`、可重複；
+  段落強度依能量正確切換（`0.020`→calm、`0.678`→normal、`0.000`→calm），
+  手動鎖強度後段落不再覆蓋。無 WebGL 時 `diorama`／`lumiere` 於渲染器啟動前換成 `classic`
+  並寫出 `no-webgl-mode-fallback:<mode>`（錯誤邊界不再被觸發），
+  `pendolo`／`still` 維持不變；`latent` 背景收斂為 `common`
+- Task 04 舞台第三輪（2026-10-15，本地視覺主題系統）：AI 從核心依賴降為**可選精修**，
+  舞台啟動只依賴本地解析（`js/stage-themes.js`：5 個人工預設＋封面派生的本地規則），
+  段落改為「先服務、後靜態 `storage/segments/`」兩段式取得，服務全關也能運作。
+  `isRealAiTheme()` 是「不得把非真實 AI 寫成 AI 分析成功」的唯一判據。
+  新增 `data-stage-theme-source` 的取值 `preset`／`cover`／`segment`／`manual`／`ai`／`cache`，
+  狀態列為**兩段式**（訊息＋摘要），摘要隨 `syncFromState` 每次現算。
+  三首代表歌曲實測（服務完全關閉、無密鑰）：段落主色／強度／背景逐項與 sidecar 能量相符、
+  手動鎖定後主題與背景都不被段落覆寫、恢復自動回到本地規則、切歌跟隨、關閉後 canvas 歸 0、
+  四平台 `overflowX 0` 且無 <12px、無 WebGL 時歌詞仍可見且 0 個 Paper Shaders 錯誤。
+  逐項數值見 [段落驗證方案](docs/evidence/segment-verification-plan.md)
+- Task 04 兩層分析：`POST /theme` 在無密鑰時回 `reason: provider-unavailable` 的封面降級主題；
+  `GET /segments/jay2000-1` 回 200 且帶 loopback CORS；`node tools/analyze-audio.mjs --only jay2000-1`
+  產出 15 段（239.027 秒、歌詞可用）。**真實 AI 仍未接通**（見待辦）
+- Task 13 可選自訂指針：預設關閉、偏好存 `localStorage` 的 `jc-cursor`；
+  實測開關切換與記憶生效、裝飾只在展品互動區出現、`pointerleave` 收起、
+  兩層裝飾 `pointer-events: none`、`body`／`html` 的 `cursor` 仍為 `auto`
+- `npm run pack`：2463 檔 / 67.3 MB；引用檢查 313 個本地引用 0 缺失；
+  舞台模組「完整且乾淨」；外洩檢查「乾淨」。以 `--root dist` 起服務後實測：
+  入口 8 位歌手 → 真實點擊進入歌手頁（10 個 section、131 列、9 條年表）→
+  官方試聽可播（`duration 10`）→ 狀態列歌詞入口就地說明「這首沒有本機歌詞」；
+  公開資料 `withLocal 0` / `withLyrics 0`
 - `file://` 與 `http://` 兩條路徑：入口 → 歌手 → 播放 全鏈路可用
   （2026-10-14 以 `file://` 逐位實測八位歌手：封面載入、曲目數與年輪數正確、`paused` 皆為 false。
   **歌詞在 `file://` 下讀不出來**：2026-10-15 實測 `XMLHttpRequest` 讀 sidecar `.lrc` 被 CORS 擋掉
@@ -204,15 +252,65 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - [ ] 補 `docs/postmortem/`（暫無值得複盤的事故）
 - [ ] 決定是否把 `assets/fonts/` 212 個 subset 改為按需子集化
 - [ ] 母題只做氛圍層；八套母題（halftone/prism/ink/ripple/groove/midnight/aria/neon）可再按人細修
-- [ ] `js/data.js` 已達 1093 KB（本機態）／1119 KB（公開態，八歌手）；gzip 226 KB
+- [ ] Task 04 第一層「真實 AI 主題」仍受阻：本機沒有可用密鑰（`OPENAI_API_KEY` 為空，
+      服務日誌與 [AI 分析證據](docs/evidence/ai-analysis.md) 都記錄了實際觀察到的 401）。
+      無密鑰時 `/theme` 回封面降級主題，舞台維持**本地主題**，狀態列照實寫
+      「主題：本地規則（封面派生）」（第三輪改的措辭）；真實 AI 與測試替身另寫
+      「主題：真實 AI（…）」「主題：測試替身（非真實 AI）」，三條路徑分開，不會互相冒充。
+      `storage/theme-cache/` 已清空為 0 筆（先前那 2 筆是 `model: test-double` 的測試替身）。
+      接上密鑰後要重跑一次端到端
+- [ ] Task 04 段落 sidecar（`storage/segments/`）目前涵蓋 9 首
+      （`jay2000-1` 239.027 秒 / 15 段，另有 chopin2005-10、jj2004-1、jj2013-2、jj2015-11、
+      lin1998-11、ts2010-10、ts2014-4、ts2024-15）。
+      **側car 的內容是機器產生的**（時間、能量、計數，不含歌詞全文與本機路徑），
+      其餘曲目一律顯示「未接上段落分析」。全量要跑
+      `node tools/analyze-audio.mjs --all`（1098 首，很久）
+- [ ] `storage/theme-cache/` 目前是**空的 0 筆**（2026-10-15 第二輪收尾清掉）。
+      先前那 2 筆是 `model: test-double` 的**測試替身**（`THEME_PROVIDER=stub`），
+      不是真實 AI 結果；本輪已用 `POST /theme-cache/clear {"all":true}` 清空，
+      並在清空前先實測過「替身快取被誤認成真實 AI」這條防線（狀態列照實寫
+      「測試替身（非真實 AI）」）。接上密鑰後重跑端到端即可。
+      這 0 筆與上面 9 個段落 sidecar 是 `storage/` 的全部內容
+- [ ] Task 05 的 `timeline` 節點尚未接到畫面：資料管線已產出
+      `[{ year, count, albums, songs }]`，但 `js/app.js` 沒有引用它；
+      年輪／年表（`.chrono-row` 可點進專輯）／年代分期已可用
+- [ ] Task 17 逐曲文案（`song.description` 歌曲介紹、`song.story` 創作背景）目前 1104 首全空；
+      任務要求「至少八首有來源的介紹或背景」，缺的是可引用的原始記錄與人的判斷，
+      沒有來源就不寫（不得編造）。寫法已備好（`meta.mjs` 的 `songs`，鍵 `<專輯id>-<序號>`）
+- [ ] 本輪仍未驗證的兩條（其餘「未驗證」清單已於 2026-10-15 第二次補測中逐項量測完成）：
+      1. **真實觸控全鏈路**（Task 19）——此環境的瀏覽器 context 沒開 `hasTouch`，
+         `page.touchscreen.tap` 直接拋錯，屬工具限制；窄屏的溢出、字號、命中與選單
+         已用真實指標驗過。要補測得換一個開了 `hasTouch` 的 context。
+      2. **真實 AI 端到端**（Task 04 第一層）——本機無可用密鑰，`/health` 回
+         `available: false`、`configReason: OPENAI_API_KEY 是空的`。
+         封面派生與測試替身兩條已分別實測，且狀態列把三條路徑分開講
+         （替身寫「測試替身（非真實 AI）」，不會被誤認）。WebGL 降級已於
+         2026-10-15 第二輪實測觸發（見 [模式實測證據](docs/evidence/stage-modes.md) 第七節）。
+      逐項數值見 [升級進度表](docs/upgrade-progress.md)
+- [x] ~~`stage/dist/**` 不在 `?v=` 版本戳的範圍內~~ **已修（2026-10-15 第三輪）**：
+      內容雜湊納入 `stage/dist/**`，版本號寫進 `js/lyric-stage.js` 的
+      `/* stamp:stage-version */ var STAGE_VERSION`，由 `stageUrl()` 接到兩個產物 URL。
+      自引用靠「算雜湊前把該常數歸一化」避免。
+      第三輪的受控變更實測是 `e06bc055` → `f50ace0d` → 還原回 `e06bc055`
+      （那是該輪產物的內容，現已不是當前值）。
+      **第四輪複驗（2026-10-15，當前產物）**：連跑兩次 `npm run stamp` 收斂於 `bb4d1762`
+      （0 變動）；把 `/* stamp convergence probe 2026-10-15 */`（無換行）追加到
+      `stage/dist/lyric-stage.js` 後版本變 `75484f83`（三處同步），
+      還原該檔後回到 `bb4d1762`，四個檔的 SHA256 複驗前後一致。
+      瀏覽器實際請求 `stage/dist/lyric-stage.js?v=<版本>` 與 HTML 戳一致（第三輪實測）
+- [ ] 橫屏（845×391）下舞台的視覺化只剩 95px 高（約視窗 24%）：功能與控制項都正常、
+      無溢出，但觀感很擠。待人工視覺驗收判斷是否要另外調整橫屏比例
+- [ ] `?v=` 版本戳**不含 `js/data.js` 的資料內容**（只涵蓋 `js/`、`css/` 檔的版本）。
+      所以改完 `_data/` 重跑 `build` 但沒重跑 `stamp` 時，使用者的瀏覽器仍可能沿用舊資料。
+      公開部署走一般 HTTP 快取，這是既有行為；要做嚴格快取控制就得讓 `data.js` 也帶版本戳
+- [ ] `js/data.js` 已達 1096 KB（本機態）／1119 KB（公開態，八歌手）；gzip 226 KB
       （本機態大小隨登記的歌詞 sidecar 數變動）。
       每首歌自帶 `song` 紀錄（署名與逐曲文案的載體）是主要增量：raw +302 KB、gzip +36 KB。
       繼續擴充歌手時考慮按歌手拆檔或壓縮
-- [ ] 逐曲文案（`song.description` 歌曲介紹、`song.story` 創作背景）目前 1104 首全空；
-      寫法已備好（`meta.mjs` 的 `songs`，鍵 `<專輯id>-<序號>`），缺的是人的判斷
 - [ ] `file://` 下讀不到歌詞（已知落差，不是死代碼）：`js/lyrics.js` 取歌詞文本只有一條路，
       用 `XMLHttpRequest` 讀 sidecar `.lrc`，而該協定下 XHR 被 CORS 擋掉，
       **所以雙擊打開 `artist.html` 時歌詞取不到**（`http://` 一切正常）。
+      Task 04 的 `js/lyric-stage.js` 同理走 XHR，`file://` 下會退回基本舞台並就地說明。
       2026-10-15 收尾：盤上殘留的 81 個 `js/lyrics/<專輯id>.js`（`window.LYRICS[…]`
       形式的歌詞全文、gitignored）已全數移除（現為 0 檔）；`_data/build.mjs` 只留一段
       防禦性刪除（公開建置時清空該目錄，免舊檔被複製出去），**既沒有生成者也沒有載入者**。
@@ -222,6 +320,12 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
       真實 `:hover` 命中 0／5016 點（幾何命中卻有 4980，DOM 斷言會假綠），且仍會下載封面。
       既有行為、非回歸；清理方向是窄屏把 `|off|=2` 一併標 `hidden`。
       窄屏選歌手走底部編目條，真實指標實測 8/8 全中
+- [ ] 跑馬燈的無縫循環靠**兩份逐字相同的內容副本**：`tx ∈ [−週期, 0)` 的兩端落在同一格
+      像素上，所以繞回不跳。這條成立的前提是**一個週期至少蓋滿當前視口**，
+      否則繞回那一刻會露白。八位歌手實測最小的是 gem **4887px**（視口 1440），
+      安全餘量充足；將來若某位歌手的 `signature`／歌名變少，使週期小於視口寬，
+      就得**增加副本數**或改用其他填充策略（動態補足到至少一個視口寬）。**本輪不實作**；
+      只要動到 `marqueeSongs()` 的取樣數或支援更窄的視口，就要回頭重算這一條
 
 ## 活躍坑
 
@@ -324,14 +428,53 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - **動效時長要用頁內 rAF 對帳**：外面的輪詢第一筆就被往返時間吃成 0.855，
   量不出淡入時長。頁內逐幀記錄 `performance.now()` 與 `getComputedStyle` 才有
   可對帳的毫秒數（歌曲狀態列實測淡入完全到位 523ms、換歌兩段 714ms）
+- **動態 `import()` 是相對「腳本自己的 URL」解析，不是相對文件**：
+  `js/lyric-stage.js` 裡的 `import('stage/dist/lyric-stage.js')` 會變成
+  `/js/stage/dist/lyric-stage.js`（實測 404，整個舞台掛不上），而同一支裡的
+  `fetch('stage/dist/…')` 卻正常——兩者基準不同，最陰險的是它看起來「檔案明明在」。
+  一律用具名函式以 `document.baseURI` 解成絕對 URL（`stageUrl()`），別把裸相對路徑丟給 `import()`
+- **文件 CSS 進不了 shadow root，尺寸要在裡面自己給**：舞台渲染在
+  `#sfHost.shadowRoot` 內，站點 `.sf-host` 的尺寸不會傳給裡面的包裝層；
+  少了 `:host{display:block;width:100%;height:100%}` 與 `.stage-full-root{position:relative;…}`，
+  `.stage-root` 高度就是 0（實測畫布 `2640×0`，看起來「有掛上」卻什麼都看不到）。
+  另外 shadow root 要在**注入樣式之前**就存在，且判斷包裝層要用 `querySelector` 而不是 `firstChild`
+  （樣式標籤可能排在前面）
+- **固定高度的格線容器：標記順序要對上 `grid-template-rows`**：`.stagefull` 是
+  `auto minmax(0,1fr) auto`（頂欄／宿主／控制列），標記若寫成宿主在前，
+  頂欄會佔走 `1fr`（實測被撐到 1441px，宿主 0）
+- **Vite lib 模式的產物不能在站點頁面直接 `createRoot` 同一個宿主兩次**：
+  換歌時對同一個宿主再 `createRoot`，React 會沿用舊根，畫面停在前一首；
+  必須先 `handle.dispose()` 再掛新的（`js/lyric-stage.js` 的 `disposeStage()`）
+- **打包腳本對 JS 裡 `'assets/…'` 的解析基準不是唯一的**：`_data/pack-public.mjs`
+  原本一律按「頁面」解析，於是舞台裝載器那條相對 `stage/dist/` 的字串被報成缺失。
+  規則已補：檔案內出現 `'stage/dist/'` 時改以 `stage/dist` 為基準；
+  同時舞台完整性檢查會斷言 `lyric-stage.css` 必須存在（少了舞台就沒有樣式）
+- **`?v=` 版本戳不含 `js/data.js` 的內容**：它刷的是 `js/`、`css/` 檔的版本。
+  所以「切到本機態／改完資料重跑 `build`」之後，瀏覽器仍可能用快取的舊 `data.js`，
+  表現出來是「明明有歌詞卻每首都說沒有本機歌詞」。判站點壞了之前先讀
+  `DISCOGRAPHY.artists[id].tracks[0].lyrics` 有沒有值；量測時用
+  `page.route` 改寫 `js/data.js` 的 URL（加唯一 query）強制重取
+- **主視覺重疊封面：用「幾何中心」去點鄰卡會打到中央那張**：`.fan-card` 有 `perspective`
+  投影且中央卡疊在上層，`cards[live+1]` 的中心點落在中央卡上（實測 `elementFromPoint`
+  回 `IMG`、中央卡 `:hover` 為真而鄰卡為假），連點六次都不換片，看起來像功能壞了。
+  點鄰卡前要先沿卡片內縮、以 `elementFromPoint` 找出「真的屬於該卡」的點
+  （實測取到 0.5/0.1 位置）再 `page.mouse.click`；換片成功後 `--amb` 也會跟著換
+- **`--amb` 的期望值要用 `covers[0].id` 回查 `albums`**：`covers[0]` 不保證是 `albums[0]`，
+  直接拿 `albums[0].sourceAvg` 比會誤判成不符（實測 8 位裡有 3 位會被判錯）
 
 ## 文檔地圖
 
 - 架構與設計決策 → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - 進行中計畫與 UI 改進待辦 → [docs/PLAN.md](docs/PLAN.md)
+- 完整升級效果、逐項提示詞與自主驗收 → [docs/upgrade-roadmap.md](docs/upgrade-roadmap.md)
+- 升級實際進度與檢查證據 → [docs/upgrade-progress.md](docs/upgrade-progress.md)
+- Task 04 完整 Folia 歌詞舞台與兩層 AI → [docs/task-04-folia-stage.md](docs/task-04-folia-stage.md)
 - 首頁立體唱片架執行規劃 → [docs/artist-selector-plan.md](docs/artist-selector-plan.md)
-- 全屏歌詞舞台改版規劃（對標 Folia） → [docs/lyric-stage-plan.md](docs/lyric-stage-plan.md)
+- 早期歌詞舞台勘察（當前範圍見 Task 04） → [docs/lyric-stage-plan.md](docs/lyric-stage-plan.md)
 - 決策與依據記錄 → [.agents/notes/](.agents/notes/)
+- Task 04 舞台模組手冊 → [stage/README.md](stage/README.md)
+- Task 04 兩層分析工具手冊 → [tools/README.md](tools/README.md)
+- Task 04 模式與 AI 實測證據 → [docs/evidence/](docs/evidence/)
 - 樣式手冊 → [css/README.md](css/README.md)
 - 腳本手冊 → [js/README.md](js/README.md)
 - 資料管線手冊 → [_data/README.md](_data/README.md)
@@ -339,5 +482,6 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
 - 校驗腳本手冊 → [scripts/README.md](scripts/README.md)
 - CI 說明 → [.github/workflows/README.md](.github/workflows/README.md)
 - 使用者入口 → [README.md](README.md)
+- 本輪升級的交付說明（交付物、啟動、改動清單、驗收、未完成項） → [DELIVERY.md](DELIVERY.md)
 
 各目錄的規則層見同目錄 `AGENTS.md`。

@@ -794,9 +794,13 @@ html.ld-booting .ht-line span {
 }
 
 /* ── 8. marquee (the only one on the page) ─────────────────────────────────
-   Scroll-driven rather than an infinite CSS loop: the reader controls the
-   movement, so it never auto-plays for more than a moment and needs no
-   pause button (WCAG 2.2.2). The JS pans it from the page scroll position. */
+   A treadmill, not a parallax layer. This file only supplies the clipping
+   band and the edge mask; the transform is written by JS (js/app.js) and
+   advances at a constant ~33px/s. Direction is which half of the viewport
+   the pointer is in (6% dead zone at the centre), so the band keeps moving
+   while the pointer is still, and page scrolling adds no horizontal offset.
+   It stops when the pointer leaves the window and never starts under
+   prefers-reduced-motion, where the band is hand-scrollable instead. */
 .marquee {
   overflow: hidden; padding: clamp(30px, 5vw, 64px) 0;
   border-bottom: 1px solid var(--line);
@@ -890,7 +894,12 @@ html.ld-booting .ht-line span {
   cursor: grab;
 }
 .rack-viewport::-webkit-scrollbar { height: 0; }
-.rack-viewport.is-dragging { cursor: grabbing; }
+/* 拖曳中必須關掉吸附：proximity 吸附會在每一幀把 JS 寫入的 scrollLeft 彈回吸附點，
+   滑鼠拖曳因此完全沒有跟手感（實測 400px 慢拖整段 722ms 的 scrollLeft 恆為 0，
+   只在最後跳滿一格；關掉吸附後同一串寫入立刻 1:1 跟手）。
+   觸控不進 is-dragging（app.js 的 pointerdown 對 pointerType === 'touch' 直接 return），
+   所以手機端原生滑動與吸附不受影響；放開滑鼠後類名移除，吸附照樣把卡片收齊。 */
+.rack-viewport.is-dragging { cursor: grabbing; scroll-snap-type: none; }
 .rack-viewport.is-dragging .album-card { pointer-events: none; }
 .rack-viewport:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .rack-track {
@@ -963,6 +972,17 @@ html.ld-booting .ht-line span {
 .album-year {
   font-family: var(--f-num); color: var(--paper-3);
   font-variant-numeric: tabular-nums;
+}
+
+/* 展櫃卡片未選中時整張壓暗（.album-card opacity .82），文字先被合成過一次才量到：
+   實測 .album-no／.album-year／.album-en 合成後只有 4.02:1（要求 4.5，60 個元素裡 45 個不及格）。
+   這裡只把文字本身換亮一檔（--paper-3 → --paper-2），壓暗與前後景深關係完全不動，
+   合成後 1440 為 5.72:1、391 為 8.15:1（皆 0 不及格）；未選中卡仍是 .82、選中卡仍是 1。
+   註：主視覺輪播（.fan-card）只有封面、沒有文字，所以不在此列。 */
+.album-card .album-no,
+.album-card .album-year,
+.album-card .album-en {
+  color: var(--paper-2);
 }
 
 .album-plate {
@@ -2002,18 +2022,21 @@ html.ld-booting .ht-line span {
   display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
   margin-top: 14px;
 }
-.sl-label { font-size: .72rem; letter-spacing: .12em; color: var(--paper-3); }
+/* 這一段的小字原本是 .72／.74rem（11.52／11.84px），違反全站小字下限 12px
+   （先前的下限掃描只量了 main/header/footer，抽屜關著時量不到這一段，所以漏掉）。
+   統一提到 .75rem：下限是硬約束，沒有例外。 */
+.sl-label { font-size: .75rem; letter-spacing: .12em; color: var(--paper-3); }
 .sl-link {
   display: inline-flex; align-items: center; min-height: 32px; padding: 0 .8em;
   border: 1px solid var(--line-2); border-radius: var(--r-pill);
-  font-size: .74rem; letter-spacing: .06em; color: var(--paper-2);
+  font-size: .75rem; letter-spacing: .06em; color: var(--paper-2);
   transition: color .2s var(--ease), border-color .2s var(--ease), background .2s var(--ease);
 }
 .sl-link:hover,
 .sl-link:focus-visible {
   color: var(--paper); border-color: var(--accent); background: rgba(255, 255, 255, .05);
 }
-.sl-note { flex-basis: 100%; font-size: .72rem; line-height: 1.6; color: var(--paper-3); }
+.sl-note { flex-basis: 100%; font-size: .75rem; line-height: 1.6; color: var(--paper-3); }
 
 .player {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 1005;
@@ -2075,6 +2098,18 @@ html.ld-booting .ht-line span {
 }
 .pl-range:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .pl-range[disabled] { opacity: .4; cursor: default; }
+
+/* ── 緩衝／載入的輕量回饋 ───────────────────────────────────────────────
+   播放列只有在「確認在播」時才有 is-playing（圖示才會翻成暫停），所以請求中
+   與緩衝中要用別的方式表達「正在忙」：進度條輕微呼吸。緩衝中斷（waiting）
+   與網路停滯（stalled）用不同節奏區分，兩者都只是提示、不改按鈕語義。
+   減少動效時由第 32 節的通用規則把時長壓成 .001ms，不會殘留呼吸。 */
+.player.is-loading .pl-range { animation: pl-breathe 1.2s ease-in-out infinite; }
+.player.is-stalled .pl-range { animation: pl-breathe 2.4s ease-in-out infinite; }
+@keyframes pl-breathe {
+  0%, 100% { opacity: .45; }
+  50% { opacity: 1; }
+}
 
 .pl-btns { display: flex; align-items: center; gap: 5px; }
 .pl-btn {
@@ -2695,6 +2730,390 @@ html.ld-booting .ld-hint { opacity: 0; animation: ld-fade .9s var(--ease) 2.9s b
 html.has-lyrics,
 html.has-lyrics body { overflow: hidden; }
 
+/* ── 30. full lyric stage (Task 04 Folia port) ─────────────────────────── */
+/* 站點這一層只畫「舞台的外框」：頂欄、底部控制列、容器尺寸。
+   真正的歌詞渲染在 #sfHost 的 shadow root 裡（stage/dist 的產物），
+   所以上游 199 KB 的 Tailwind 樣式不會外溢到站點，站點的樣式也不會跑進去。
+   堆疊順序沿用 27 節的規定：蓋過歌曲檔案（1000），播放列（1005）仍在上層，
+   讓使用者隨時能停——所以底部讓位要算上播放列。
+
+   **沉浸式布局**：宿主鋪滿整個 #stageFull，頂欄與控制列改成疊在它上面的
+   漸變遮罩（absolute，不再各佔 grid 的一行）。上游量到的尺寸因此就是整個視口，
+   背景畫面從視口頂端一路鋪到視口底端，頂欄與控制列下方仍然是舞台畫面——
+   不會再出現「上下各一條純黑橫欄把舞台切斷」。
+   兩條遮罩都是 pointer-events: none，只有真實控件 auto，所以疊在播放列
+   上方的那段透明區不會攔掉播放器的點擊。z-index 仍留在 1003 這一層，
+   絕不抬到播放列（1005）之上。 */
+.stagefull {
+  position: fixed;
+  inset: 0;
+  z-index: 1003;
+  display: block;
+  background: var(--ink-0);
+  animation: ls-in .34s var(--ease) both;
+}
+.stagefull[hidden] { display: none; }
+.stagefull.is-open { opacity: 1; }
+
+/* 渲染容器：鋪滿整塊舞台。上游以宿主尺寸量測畫布與背景層，
+   所以 #stageFull 有多大，舞台畫面就有多大（背景延伸到頂欄與控制列後面）。 */
+.sf-host {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ink-0);
+}
+/* 播放列在時，舞台的**渲染區**在播放列頂緣結束（實測 1440×901：901 → 827），
+   而不是一路渲染到播放列底下再被那條不透明的播放列蓋住。
+   槓桿必須是 height，不能寫 `bottom: var(--pl-h)`：#sfHost 是 absolute + inset:0，
+   而 shadow 內注入的 `:host{height:100%}` 讓 height 恆為非 auto，三值同時存在時
+   依 CSS 2.1 §10.6.4 會被忽略的是 bottom（實測 host 紋絲不動）。
+   height 由站點這條覆寫，優先於 shadow 的 `:host`。 */
+body.has-player .sf-host { height: calc(100% - var(--pl-h, 74px)); }
+
+/* 頂欄：疊在舞台頂端的漸變遮罩。`--sf-fade` 是渐隐带的高度，同时是
+   padding-bottom：字仍貼著頂緣（align-items: flex-start），下面多出一段
+   由半透明漸變到全透明的帶子，舞台畫面從那裡透出來。
+   不用 backdrop-filter：背後是一整片逐幀變化的畫布，整條模糊成本高，
+   漸變已經足以把文字壓出來。 */
+.sf-bar {
+  --sf-fade: clamp(18px, 2.2vw, 32px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: clamp(12px, 1.6vw, 20px) var(--gutter) var(--sf-fade);
+  background: linear-gradient(
+    180deg,
+    rgba(8, 8, 10, .62) 0,
+    rgba(8, 8, 10, .48) calc(100% - var(--sf-fade)),
+    rgba(8, 8, 10, 0) 100%
+  );
+  pointer-events: none;
+}
+/* 只有標題區與關閉鈕收事件——這是「遮罩不吃掉播放器與舞台點擊」的關鍵 */
+.sf-bar > * { pointer-events: auto; }
+.sf-head { min-width: 0; }
+/* 小字一律 ≥ .75rem（12px）：全站小字下限是硬約束，舞台外框也不例外。
+   初版寫成 .72rem／.74rem（實測 11.52／11.84px），已回歸。 */
+.sf-kicker {
+  margin: 0 0 4px;
+  font-size: .75rem; letter-spacing: .28em; color: var(--paper-3);
+}
+.sf-title {
+  margin: 0;
+  font-family: var(--f-serif); font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  letter-spacing: .04em; color: var(--paper);
+}
+.sf-meta {
+  margin: 4px 0 0;
+  font-size: .76rem; letter-spacing: .1em; color: var(--paper-3);
+}
+
+.sf-close {
+  flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px;
+  border: 1px solid var(--line-3); border-radius: var(--r-pill);
+  background: none; color: var(--paper-2);
+  transition: color .2s var(--ease), border-color .2s var(--ease);
+}
+.sf-close:hover, .sf-close:focus-visible { color: var(--paper); border-color: var(--accent); }
+.sf-close .ico { width: 1.05rem; height: 1.05rem; }
+
+/* 底部控制列：疊在舞台底端的漸變遮罩，理由與頂欄相同。
+   底部的讓位（body.has-player 那條）保留——它把控件抬到播放列之上，
+   但那段內距現在是透明的漸變而不是實心黑塊，舞台畫面在它後面繼續。 */
+.sf-dock {
+  --sf-fade: clamp(40px, 5.4vw, 68px);
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px clamp(12px, 1.6vw, 22px);
+  padding: var(--sf-fade) var(--gutter) calc(12px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    0deg,
+    rgba(8, 8, 10, .84) 0,
+    rgba(8, 8, 10, .8) calc(100% - var(--sf-fade)),
+    rgba(8, 8, 10, 0) 100%
+  );
+  pointer-events: none;
+}
+.sf-dock > * { pointer-events: auto; }
+/* 播放列在時，底部控制列要讓開它的高度，否則會被蓋住（實測播放列 74 / 99px）。
+   讓位改由透明內距承擔：舞台畫面延伸到播放列後面，不留黑色斷層。 */
+body.has-player .sf-dock { padding-bottom: calc(var(--pl-h) + 12px); }
+
+.sf-field { display: grid; gap: 4px; }
+.sf-lab { font-size: .75rem; letter-spacing: .16em; color: var(--paper-3); }
+.sf-select {
+  min-height: 36px; padding: 0 12px;
+  border: 1px solid var(--line-3); border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ink-1) 70%, transparent);
+  color: var(--paper); font-size: .82rem; letter-spacing: .06em;
+  transition: border-color .2s var(--ease), background-color .2s var(--ease);
+}
+.sf-select:hover { border-color: color-mix(in srgb, var(--paper) 26%, transparent); }
+.sf-select:focus-visible { outline-color: var(--accent); }
+
+/* ── 模式選擇器（自繪 combobox／listbox） ─────────────────────────────────
+   這個控件是站點圓角規則的**明列例外**：兩個檔位（控制項 --r-pill／面 --r）
+   在這裡都不合格——大膠囊太廉價、方角又像系統控件，而指定的目標是
+   「高級、圓潤、克制、半透明的藝術裝置感」。所以主框 15px、清單 12px、
+   選項 11px，只作用於 .sf-field-mode，其餘三個 <select> 維持原樣。
+   顏色一律走站點權杖（--ink-*／--paper-*／--line／--accent），跟隨歌手強調色，
+   不引入第二種色相。選中與 hover 都用極低透明度的白與強調色，不用亮藍。 */
+/* 定位脈絡放在整個 .sf-field-mode 上（不是僅按鈕那一層）：清單要浮在
+   「標籤＋按鈕」整組之上，不然它的下緣會切在標籤中間，看起來像漏出一小段字。
+   清單內的 offsetTop 仍然相對清單自己（它是 position: absolute），
+   JS 的捲動計算不受這裡影響。 */
+.sf-field-mode { position: relative; }
+.sf-dd { position: static; }
+.sf-mode-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  justify-content: space-between;
+  /* 固定欄寬：14 個模式的自然寬度是 151–190px（最寬「克拉達 · 詞句繞成一圈」、
+     「十四行 · 海報字版運鏡」），不固定的話每換一個模式整條 dock 就橫向抖一次
+     ——右邊的狀態列 x 實測在 697/722/736 之間跳。12rem = 192px 剛好蓋住最寬的一項，
+     多出來的空間由 space-between 吃掉，箭頭因此固定貼在右緣。
+     窄屏另外在 620px 斷點放寬成 width:100%（並把 min-width 歸零）。 */
+  min-width: 12rem;
+  min-height: 38px; padding: 0 12px 0 15px;
+  border: 1px solid var(--line-2);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--ink-1) 62%, transparent);
+  color: var(--paper);
+  font: inherit; font-size: .82rem; letter-spacing: .04em; text-align: left;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .26);
+  transition: border-color .16s var(--ease), background-color .16s var(--ease),
+    box-shadow .16s var(--ease);
+}
+.sf-mode-btn:hover {
+  border-color: color-mix(in srgb, var(--paper) 30%, transparent);
+  background: color-mix(in srgb, var(--ink-2) 74%, transparent);
+}
+/* 焦點環沿用站點第 1 節的全域 :focus-visible（2px 強調色、offset 3px），
+   不在這裡另寫一組——dock 裡其他控制項就是那一個環，這個控件不該長得不一樣。 */
+.sf-mode-btn[aria-expanded="true"] {
+  border-color: color-mix(in srgb, var(--accent) 48%, transparent);
+  background: color-mix(in srgb, var(--ink-2) 80%, transparent);
+}
+.sf-mode-val { display: inline-flex; align-items: baseline; min-width: 0; }
+.sf-mode-name { font-size: .86rem; letter-spacing: .06em; color: var(--paper); }
+/* 描述與主名稱同列：用小圓點分隔，比多一個節點便宜，也不必多一層結構 */
+.sf-mode-desc { font-size: .75rem; letter-spacing: .03em; color: var(--paper-3); }
+.sf-mode-desc::before { content: '·'; margin: 0 7px; color: var(--line-2); }
+/* 舞台剛打開到清單填好之間（實測 0–425ms）名稱與描述都還是空的，
+   而 ::before 不分內容一律畫那個分隔點，按鈕上就只剩一個孤立的「·」。
+   描述是空的就不畫分隔點；資料一到就恢復「名稱 · 描述」。 */
+.sf-mode-desc:empty::before { content: none; }
+/* 箭頭是站點自己的細線折角（不是系統三角）：展開時原地翻 180° */
+.sf-chev {
+  flex: none;
+  width: 7px; height: 7px; margin-top: -3px;
+  border-right: 1.5px solid var(--paper-2); border-bottom: 1.5px solid var(--paper-2);
+  transform: rotate(45deg);
+  transition: transform .16s var(--ease), border-color .16s var(--ease);
+}
+.sf-mode-btn[aria-expanded="true"] .sf-chev {
+  transform: rotate(225deg); margin-top: 3px; border-color: var(--paper);
+}
+/* 展開的清單：深色半透明＋輕微玻璃感，往上開（控制列在舞台底部）。
+   高度不足時內部滾動，不吃頁面——它絕對定位，不佔格線列高。 */
+.sf-menu {
+  position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 6;
+  width: max-content; min-width: 100%; max-width: min(78vw, 320px);
+  max-height: min(58vh, 460px);
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 6px; list-style: none;
+  border: 1px solid var(--line-2); border-radius: 12px;
+  background: color-mix(in srgb, var(--ink-0) 92%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+  /* 開合只有 140ms 的淡入與 6px 位移，不誇張；收起來時 pointer-events 關掉，
+     免得透明的那 140ms 還攔到點擊（清單本身要在守衛逾時後才 hidden）。 */
+  opacity: 0; transform: translateY(6px) scale(.985); transform-origin: bottom left;
+  transition: opacity .14s var(--ease), transform .14s var(--ease);
+}
+.sf-menu[hidden] { display: none; }
+.sf-menu:not(.is-open) { pointer-events: none; }
+.sf-menu.is-open { opacity: 1; transform: none; }
+/* 每一列＝主名稱＋一句效果，兩行、48px 上下，左右 15px。
+   line-height 要明寫：站點正文的行高偏鬆，不指定的話兩行加起來會把每一列撐到 59px。 */
+.sf-menu-item {
+  display: grid; gap: 1px; align-content: center;
+  min-height: 47px; padding: 6px 15px;
+  border-radius: 11px; cursor: pointer;
+}
+/* 列與列之間的髮絲分隔：用極低對比的白，不做五顏六色的線 */
+.sf-menu-item + .sf-menu-item { box-shadow: inset 0 1px 0 var(--line); }
+.sf-opt-name { font-size: .9rem; line-height: 1.3; letter-spacing: .06em; color: var(--paper-2); }
+.sf-opt-desc { font-size: .75rem; line-height: 1.35; letter-spacing: .03em; color: var(--paper-3); }
+.sf-menu-item:hover,
+.sf-menu-item.is-active { background: rgba(255, 255, 255, .055); }
+.sf-menu-item:hover .sf-opt-name,
+.sf-menu-item.is-active .sf-opt-name { color: var(--paper); }
+/* 選中：低調但明確——強調色的極淡底＋一圈同色細邊＋提亮的名稱。
+   刻意不做整條實色底與打勾，那會把清單變回系統控件的樣子。 */
+.sf-menu-item[aria-selected="true"] {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 34%, transparent);
+}
+.sf-menu-item[aria-selected="true"] .sf-opt-name { color: var(--paper); }
+.sf-menu-item[aria-selected="true"] .sf-opt-desc {
+  color: color-mix(in srgb, var(--paper) 62%, transparent);
+}
+
+/* 展開的清單走瀏覽器的 customizable select（appearance: base-select，Chrome/Edge 135+）：
+   不支援的瀏覽器只套到上面收合後的樣式，展開仍是系統原生外觀——
+   外觀升級不拿可用性交換。面板用 --r（面），每一列用 --r-pill（控制項）。 */
+@supports (appearance: base-select) {
+  .sf-select, .sf-select::picker(select) { appearance: base-select; }
+  .sf-select { display: inline-flex; align-items: center; gap: .5em; padding: 0 12px 0 14px; }
+  /* 箭頭收成站點自己的細線折角（原本是系統三角），展開時翻過去 */
+  .sf-select::picker-icon {
+    content: '';
+    width: 8px; height: 8px; margin-top: -3px;
+    border-right: 1.5px solid var(--paper-2); border-bottom: 1.5px solid var(--paper-2);
+    transform: rotate(45deg);
+    transition: transform .24s var(--ease);
+  }
+  .sf-select:open::picker-icon { transform: rotate(225deg) translate(-1px, -1px); }
+  .sf-select::picker(select) {
+    position-area: top; /* 控制列在舞台底部，清單往上開 */
+    margin-bottom: 8px;
+    max-height: min(52vh, 360px);
+    padding: 6px;
+    border: 1px solid var(--line-3); border-radius: var(--r);
+    background: color-mix(in srgb, var(--ink-0) 96%, transparent);
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .5);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+  /* 列的樣式一律收進 ::picker(select) 作用域：收合後的按鈕會複製所選項目的內容，
+     若規則掛在裸 option 上，說明字有可能被一起帶進收合後的藥丸裡把它撐寬。 */
+  .sf-select::picker(select) option {
+    display: flex; align-items: center; justify-content: space-between; gap: 1.4em;
+    padding: 7px 12px; border-radius: var(--r-pill);
+    color: var(--paper-2); font-size: .82rem; letter-spacing: .06em;
+  }
+  .sf-select::picker(select) option:hover,
+  .sf-select::picker(select) option:focus-visible {
+    background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--paper);
+  }
+  .sf-select::picker(select) option:checked {
+    background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--paper);
+  }
+  /* 這一段原本是給模式選單畫「每一列右側的說明」（option[data-hint]::after）。
+     模式選單改成自繪的 listbox 之後沒有任何選項帶 data-hint，規則不會命中，
+     所以一併移除，不留一組沒有消費者的樣式。 */
+}
+.sf-auto {
+  position: relative;
+  min-height: 36px; padding: 0 4px 6px;
+  border: 0; border-radius: 0; background: none;
+  font-size: .82rem; letter-spacing: .12em; color: var(--paper-2);
+  transition: color .24s var(--ease);
+}
+.sf-auto::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 2px; height: 1px;
+  background: var(--accent); transform: scaleX(0); transform-origin: left;
+  transition: transform .24s var(--ease);
+}
+.sf-auto:hover, .sf-auto:focus-visible { color: var(--paper); }
+.sf-auto:hover::after, .sf-auto:focus-visible::after { transform: scaleX(1); }
+.sf-auto[aria-pressed="true"] { color: var(--accent); }
+.sf-status {
+  flex: 1 1 240px; min-width: 0; margin: 0 0 4px;
+  font-size: .75rem; line-height: 1.5; letter-spacing: .06em; color: var(--paper-3);
+}
+
+@media (max-width: 620px) {
+  /* 頂欄在窄屏只收左右上下內距；渐隐带（--sf-fade）必須留著，
+     否則這個 padding 簡寫會把它一起歸零，頂欄又變回一條硬邊。 */
+  .sf-bar { padding: 10px var(--gutter) var(--sf-fade); }
+  .sf-meta { letter-spacing: .06em; }
+  /* 窄屏把三個選單攤成兩列。狀態行不再獨佔最後一列，而是與「恢復自動」同排：
+     舞台改成鋪滿視口之後，歌詞在整個視口裡居中，而窄屏的控制列本來有
+     63（模式）＋61（三個選單兩列）＋36（恢復自動）＋36（狀態行）四段。
+     實測 391×845 下控制列內容頂在 509.6，主歌詞行落在 514.5–541.9，
+     整行被控件壓住；兩者同排後控制列矮 44px、內容頂下移到 553.6，
+     主歌詞（大於 24px 的行）越界數由 8 個字降為 0。 */
+  .sf-dock { gap: 8px 12px; }
+  .sf-field { flex: 1 1 44%; }
+  .sf-select { width: 100%; }
+  .sf-auto { flex: 0 0 auto; }
+  .sf-status { flex: 1 1 60%; min-width: 0; }
+  /* 模式選擇器：按鈕撐滿欄寬；清單跟著欄寬（不用 max-content），
+     否則在 390px 下會比欄寬還寬、往右頂出視口。
+     min-width 必須在這裡歸零：桌面的 12rem（192px）比 390px 下的欄寬（實測 169px）
+     還寬，不歸零會讓按鈕頂出欄位造成橫向溢出。 */
+  .sf-mode-btn { width: 100%; min-width: 0; justify-content: space-between; }
+  .sf-menu { left: 0; right: 0; width: auto; min-width: 0; max-width: none; }
+}
+
+/* 更窄（≤480px）時收起態只留名稱：390px 實測按鈕可用寬只有 169px，
+   而「名稱 · 描述」的自然寬度需約 174px，會被擠成兩行——按鈕由 38px 變成 50.2px，
+   與同一排的 .sf-select（36px）上緣錯開 14px，看起來像壞了。
+   只藏收起態那一個描述（.sf-field-mode 底下的 .sf-mode-desc）；
+   展開的清單用的是 .sf-opt-desc，14 項的名稱＋描述都完整保留。 */
+@media (max-width: 480px) {
+  .sf-field-mode .sf-mode-desc { display: none; }
+}
+
+/* ── 31. optional custom pointer (Task 13) ─────────────────────────────── */
+/* 預設關閉；開啟後（根元素 .cursor-custom）只在展品互動區畫裝飾。
+   **不設 cursor: none**——輸入欄、捲動條、外部連結與可選文字一律保留原生指針，
+   這是「不強制取代全站游標」的具體做法。兩層都 pointer-events: none。 */
+.cur-dot, .cur-ring { display: none; }
+
+.cursor-custom .cur-dot,
+.cursor-custom .cur-ring {
+  position: fixed; left: 0; top: 0; z-index: 1200;
+  pointer-events: none;
+  transform: translate3d(var(--cx, -100px), var(--cy, -100px), 0);
+  opacity: 0;
+  transition: opacity .18s var(--ease), width .18s var(--ease), height .18s var(--ease);
+}
+.cursor-custom .cur-dot {
+  display: block;
+  width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+}
+.cursor-custom .cur-ring {
+  display: block;
+  width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-pill);
+  opacity: 0;
+}
+/* 只在展品區顯示（js/cursor.js 依指標所在元素切類） */
+.cursor-custom.cursor-on .cur-dot { opacity: 1; }
+.cursor-custom.cursor-on .cur-ring { opacity: .5; }
+/* 指向可操作封面／列時環放大 */
+.cursor-custom.cursor-hot .cur-ring { width: 40px; height: 40px; margin: -20px 0 0 -20px; opacity: .85; }
+.cursor-custom.cursor-hot .cur-dot { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
+
+/* 環境不合適時整組收掉：沒有精細指針、減少動效、高對比 */
+@media (pointer: coarse), (hover: none) {
+  .cursor-custom .cur-dot, .cursor-custom .cur-ring { display: none; }
+}
+@media (prefers-reduced-motion: reduce), (forced-colors: active) {
+  .cursor-custom .cur-dot, .cursor-custom .cur-ring { display: none; }
+}
+
 /* ── 28. song archive (one song, one dossier) ──────────────────────────── */
 /* 一首歌的獨立檔案：頂列是檔案編號與翻頁，主體左邊是博物館說明牌（題名、歌手、
    專輯／年份／時長），右邊是這張唱片（封面是實體，唱片與光影是氛圍），
@@ -3036,7 +3455,6 @@ body.has-player .sa-inner { padding-bottom: calc(clamp(56px, 8vw, 108px) + 76px)
 }
 .sa-note:empty { display: none; }
 
-/* ── 25. responsive
 /* ── 29. mini song bar (current archive card) ──────────────────────────── */
 /* 貼在頁面底部的「當前檔案卡」：只交代現在讀的是哪一首
    （歌名／歌手／專輯／年份）與歌詞入口，**不是播放器**——播放控制仍在 24 節的
@@ -3161,7 +3579,9 @@ body.has-player .msb { --msb-b: calc(var(--pl-h) + 18px); }
    這一組數字要與 .msb 的實際高度對得上，改卡片內距就要一起量。 */
 body.has-msb { padding-bottom: 84px; }
 body.has-player.has-msb { padding-bottom: calc(var(--pl-h) + 18px + 76px); }
-html.has-msb { scroll-padding-bottom: 176px; } ────────────────────────────────────────────────────── */
+html.has-msb { scroll-padding-bottom: 176px; }
+
+/* ── 25. responsive ────────────────────────────────────────────────────── */
 @media (max-width: 1100px) {
   :root { --nav-h: 62px; }
   .nav { gap: 22px; }
@@ -3366,7 +3786,9 @@ html.has-msb { scroll-padding-bottom: 176px; } ───────────
   html.has-msb { scroll-padding-bottom: 176px; }
 }
 
-/* ── 18. reduced motion ────────────────────────────────────────────────── */
+/* ── 32. reduced motion (末節，永遠排在最後) ───────────────────────────── */
+/* 這一節先前標成「18」，與第 18 節「年代分期」撞號；css/README.md 的分節索引
+   一直把它記成「末」。編號已改正，位置不動（reduced-motion 覆蓋必須最後生效）。 */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -3411,6 +3833,13 @@ html.has-msb { scroll-padding-bottom: 176px; } ───────────
 
   /* 歌詞舞台：取消掃光過渡與入場動畫；逐字仍是完整資訊，只是不做動效 */
   .lyric-stage { animation: none; }
+  /* 模式選單的箭頭翻轉是純裝飾的動效，減少動效下直接切換（全域已壓時長，
+     這裡明列是為了讓「展開時翻過去」的兩個狀態一眼可見） */
+  .sf-select::picker-icon { transition: none; }
+  /* 模式選擇器：清單的淡入位移與箭頭翻轉都只是裝飾，減少動效下直接切換；
+     transition 歸零後清單仍然是一般的 .is-open 狀態，內容不受影響。 */
+  .sf-menu { transition: none; transform: none; }
+  .sf-chev { transition: none; }
   .ls-ch { transition: none; }
   .ls-prev,
   .ls-next { filter: none; transition: none; }

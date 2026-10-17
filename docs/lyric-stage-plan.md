@@ -1,7 +1,9 @@
 # 全屏歌詞舞台改版計畫（對標 Folia）
 
-狀態：2026-10-14 勘察完成，方案待維護者拍板範圍後動工。
-本文件是此項工作的執行依據；總待辦見 [PLAN.md](PLAN.md)，全局約束見 [../AGENTS.md](../AGENTS.md)。
+狀態：2026-10-14 的早期勘察與輕量移植方案，保留供查閱。
+2026-10-15 使用者改採完整 Folia 舞台與整曲主題、段落變化組合，當前執行依據為 [Task 04 新規格](task-04-folia-stage.md)。
+本文件內的「待拍板」、零依賴移植限制和舊檢查數字不作當前指令；先核對實際程式碼。
+完整任務順序見 [升級總待辦](upgrade-roadmap.md)，實際狀態見 [進度表](upgrade-progress.md)。
 
 參考對象：[Folia（chthollyphile/folia-major）](https://github.com/chthollyphile/folia-major)，
 本機副本在 `C:\Users\11965\Desktop\folia-major`（已在 `.gitignore` 排除，不入庫）。

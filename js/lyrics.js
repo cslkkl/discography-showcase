@@ -135,6 +135,82 @@
   var rafId = 0;
   var lastIdx = -2;
   var active = false;
+  var lastFocus = null; /* 開舞台前焦點在哪，關掉要還回去 */
+  var inertedNodes = []; /* 這一輪被我們設成 inert 的背景節點（只還原自己設的） */
+
+  /* ── 焦點圍籬與背景隔離 ──────────────────────────────────────
+     這個舞台在 artist.html 上宣告 role="dialog" aria-modal="true"，
+     語意上就是模態對話框，所以三件事要跟 Folia 主舞台（js/lyric-stage.js）
+     一致，否則同一顆「閱讀歌詞」入口會因走了哪條路徑而行為不同：
+       · 焦點要進到舞台裡（開場落在容器，第一次 Tab 到關閉鈕）；
+       · Tab／Shift+Tab 都要在舞台內循環；
+       · 舞台**後面**的頁面要 inert，否則鍵盤會走進看不見的播放列與曲目列；
+       · 關掉要把焦點還給原本觸發它的那顆按鈕。
+     被隔離的是 #lyricStage 的**兄弟節點**，不對祖先（body）下 inert——
+     對祖先下會把舞台自己一起鎖住。 */
+  var INERT_SELECTORS = ['main', '#sheet', '#sarch', '#msb', '.topbar', '#chapters', '#stageFull'];
+
+  function isolateBackground() {
+    releaseBackground(); /* 先清一次：重複開啟不會疊加 */
+    for (var i = 0; i < INERT_SELECTORS.length; i++) {
+      var node = document.querySelector(INERT_SELECTORS[i]);
+      if (!node || node.hasAttribute('inert') || stage.contains(node)) continue;
+      node.setAttribute('inert', '');
+      inertedNodes.push(node);
+    }
+  }
+
+  /* 只還原自己設過的那幾個，不清掉別人（或其他模組）設定的 inert */
+  function releaseBackground() {
+    for (var i = 0; i < inertedNodes.length; i++) inertedNodes[i].removeAttribute('inert');
+    inertedNodes = [];
+  }
+
+  function stageFocusables() {
+    var sel = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    var list = stage.querySelectorAll(sel);
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var n = list[i];
+      /* 用 getClientRects 判可見，不用 offsetParent：舞台是 fixed 定位，
+         fixed 子元素的 offsetParent 會是 null，會被誤判成隱藏 */
+      if (n.disabled || !n.getClientRects().length) continue;
+      out.push(n);
+    }
+    return out;
+  }
+
+  function trapStageFocus(e) {
+    var items = stageFocusables();
+    if (!items.length) return;
+    var first = items[0];
+    var last = items[items.length - 1];
+    var focused = document.activeElement;
+    if (!focused || !stage.contains(focused)) {
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus({ preventScroll: true });
+      return;
+    }
+    if (e.shiftKey && (focused === first || focused === stage)) {
+      e.preventDefault();
+      last.focus({ preventScroll: true });
+    } else if (!e.shiftKey && focused === last) {
+      e.preventDefault();
+      first.focus({ preventScroll: true });
+    }
+  }
+
+  /* 焦點還給觸發元素：元素必須還在文件裡、而且不在（仍被隔離的）inert 子樹中，
+     否則焦點會掉回 body。真的無處可還時退回播放列的歌詞入口。 */
+  function restoreFocus() {
+    var target = lastFocus;
+    if (target && target.focus && document.contains(target) && !target.closest('[inert]')) {
+      target.focus({ preventScroll: true });
+      return;
+    }
+    var fallback = document.querySelector('.pl-btn--lyrics');
+    if (fallback) fallback.focus({ preventScroll: true });
+  }
 
   function ensureDom() {
     if (stage) return true;
@@ -148,6 +224,16 @@
     stage.addEventListener('click', function (e) {
       if (e.target.closest('[data-ls-close]')) close();
     });
+    /* Tab 圍籬掛在 document 的捕獲階段：舞台開著時才生效。
+       Esc 由 js/app.js 統一處理（它知道哪一層在最上面），這裡不重複接。 */
+    document.addEventListener(
+      'keydown',
+      function (e) {
+        if (!isOpen() || e.key !== 'Tab') return;
+        trapStageFocus(e);
+      },
+      true
+    );
     return true;
   }
 
@@ -243,6 +329,16 @@
     if (elMeta) elMeta.textContent = text || '';
   }
 
+  /* 通知站點：基本歌詞舞台的開／關狀態變了（js/app.js 用它同步播放列的歌詞鈕）。
+     與 js/lyric-stage.js 同名同義，兩條舞台路徑對按鈕狀態的交代一致。 */
+  function announce() {
+    try {
+      window.dispatchEvent(new Event('jc-stage-change'));
+    } catch {
+      /* 不支援事件時只影響按鈕狀態的即時性，不影響舞台本身 */
+    }
+  }
+
   function open(albumTitle, trackZh) {
     if (!ensureDom()) return;
     var a = document.getElementById('plAudio');
@@ -258,6 +354,9 @@
       );
       return;
     }
+    /* 只有「從關到開」才記錄來源焦點：換歌時舞台一直開著，
+       記到舞台內部的元素會讓關閉後焦點回不去。 */
+    if (!isOpen()) lastFocus = document.activeElement;
     stage.hidden = false;
     stage.classList.add('is-open');
     document.documentElement.classList.add('has-lyrics');
@@ -269,6 +368,11 @@
     }
     paint(a.currentTime);
     if (!rafId) rafId = window.requestAnimationFrame(tick);
+    isolateBackground();
+    /* 焦點放進舞台容器（不是關閉鈕）：第一次 Tab 就落在關閉鈕，
+       與 Folia 主舞台一致。（容器在 artist.html 帶 tabindex="-1"。） */
+    if (stage.focus) stage.focus({ preventScroll: true });
+    announce();
   }
 
   /* 就地說明，不彈 toast 搶焦點：舞台本身是模態層 */
@@ -291,6 +395,11 @@
     }
     var b = document.querySelector('.pl-btn--lyrics');
     if (b) b.setAttribute('aria-expanded', 'false');
+    /* 先恢復背景互動，再把焦點還回去：順序顛倒時，目標若在剛解除隔離的元素裡，
+       會因為當下仍是 inert 而收不到焦點（與 Folia 主舞台同一個理由） */
+    releaseBackground();
+    restoreFocus();
+    announce();
   }
 
   function isOpen() {

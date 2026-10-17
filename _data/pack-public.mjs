@@ -60,6 +60,16 @@ copyDir('js', (n) => n.endsWith('.js'));
 copyDir('css', (n) => n.endsWith('.css'));
 copyDir('assets/fonts');
 copyDir('assets/covers');
+/* Task 04 的舞台模組：站點以動態 import 按需載入它，所以公開包必須帶上。
+   只抄建置產物 stage/dist，不抄 stage/vendored（那是 Folia 上游原始碼，
+   執行期不需要）與 stage/src。sourcemap 不進公開包：它是給本機除錯用的，
+   帶著只會多出數 MB 並把我們的原始碼路徑洩漏出去。 */
+copyDir('stage/dist', (n) => !n.endsWith('.map'));
+/* 段落 sidecar 進公開包：舞台的段落驅動需要它們，而**它不是歌詞文本**——
+   內容只有時間、能量、計數與雜湊標籤（lyrics 欄位是 lineCount／lyricCharCount／
+   textTag 這種統計，沒有歌詞原文，也沒有本機路徑；驗證見 docs/evidence/）。
+   不進包的話，沒有服務的靜態部署就完全沒有段落，這一輪的「不依賴外部服務」會少一半。 */
+copyDir('storage/segments', (n) => n.endsWith('.json'));
 /* assets/ 根層的零散資源（favicon 等） */
 for (const name of fs.readdirSync(path.join(root, 'assets'))) {
   if (fs.statSync(path.join(root, 'assets', name)).isFile()) copyFile('assets/' + name);
@@ -91,15 +101,25 @@ function walk(dir) {
       continue;
     }
     const ext = path.extname(p).toLowerCase();
+    const rel = path.relative(dist, p).split(path.sep).join('/');
+    /* 舞台模組是 Vite 產物：它的 `assets/…` 字串是給模組自己的 import.meta.url
+       解析的（相對於 stage/ 目錄），照站點頁面基準去解一定全錯。
+       它的完整性由下面「驗證 3」單獨守。 */
+    if (rel.startsWith('stage/')) continue;
     const text = fs.readFileSync(p, 'utf8');
-    const from = path.relative(dist, p);
+    const from = rel;
     if (ext === '.html') {
       for (const m of text.matchAll(/(?:src|href)="([^"]+)"/g)) addRef(from, m[1], dist);
     } else if (ext === '.css') {
       for (const m of text.matchAll(/url\(\s*(['"]?)([^'")]+)\1\s*\)/g))
         addRef(from, m[2], path.dirname(p));
     } else if (ext === '.js') {
-      for (const m of text.matchAll(/["'](assets\/[^"']+)["']/g)) addRef(from, m[1], dist);
+      /* 站點側的舞台裝載器（js/lyric-stage.js）用 `'stage/dist/' + 'assets/…'` 拼出產物
+         路徑，那個 `'assets/…'` 是相對 **stage/dist** 的，不是相對頁面——照頁面基準解析
+         會把一個其實存在的檔案報成缺失（實測：js/lyric-stage.js → assets/lyric-stage.css）。
+         檔案裡只要出現舞台目錄，就以 stage/dist 為基準解析。 */
+      const stageBase = /["']stage\/dist\//.test(text) ? path.join(dist, 'stage', 'dist') : dist;
+      for (const m of text.matchAll(/["'](assets\/[^"']+)["']/g)) addRef(from, m[1], stageBase);
     }
   }
 }
@@ -110,6 +130,43 @@ for (const [abs, info] of refs)
 console.log(`· 引用檢查：${refs.size} 個本地引用，缺失 ${broken.length}`);
 broken.slice(0, 20).forEach((b) => console.error('  x ' + b));
 if (broken.length) process.exitCode = 1;
+
+/* ---------- 驗證 3：舞台模組完整且乾淨 ----------
+   站點用動態 import 載入 stage/dist 的入口；入口不在，公開站一進歌詞舞台就炸。
+   另外它是第三方程式碼打出來的包，獨立掃一次洩漏（音樂/歌詞/密鑰/本機路徑）。 */
+const stageEntry = path.join(dist, 'stage', 'dist', 'lyric-stage.js');
+/* 站點側裝載器會另外 <link> 這一份樣式（Vite 的 lib 模式不會把 CSS 掛進 JS），
+   少了它舞台掛得上但沒有樣式，所以它也是必要產物。 */
+const stageCss = path.join(dist, 'stage', 'dist', 'assets', 'lyric-stage.css');
+const stageIssues = [];
+if (!fs.existsSync(stageEntry)) {
+  stageIssues.push('stage/dist/lyric-stage.js 不存在（先跑 npm --prefix stage run build）');
+} else if (!fs.existsSync(stageCss)) {
+  stageIssues.push('stage/dist/assets/lyric-stage.css 不存在（裝載器要 link 它，少了就沒有樣式）');
+} else {
+  const scanStage = (d) => {
+    for (const name of fs.readdirSync(d)) {
+      const p = path.join(d, name);
+      if (fs.statSync(p).isDirectory()) {
+        scanStage(p);
+        continue;
+      }
+      if (!/\.(js|css|html)$/.test(p)) continue;
+      const text = fs.readFileSync(p, 'utf8');
+      const where = path.relative(dist, p);
+      if (/assets\/audio\//.test(text)) stageIssues.push(`${where}: 出現 assets/audio/ 路徑`);
+      if (/["'][A-Za-z]:[\\/]/.test(text)) stageIssues.push(`${where}: 出現 Windows 絕對路徑`);
+      if (/file:\/\//i.test(text)) stageIssues.push(`${where}: 出現 file:// 路徑`);
+      if (/_data\/local-lyrics/.test(text)) stageIssues.push(`${where}: 出現本機歌詞登記檔路徑`);
+      if (/(sk-[A-Za-z0-9]{16,}|AIza[0-9A-Za-z_-]{30,})/.test(text))
+        stageIssues.push(`${where}: 疑似嵌入 API 密鑰`);
+    }
+  };
+  scanStage(path.join(dist, 'stage'));
+}
+console.log(`· 舞台模組檢查：${stageIssues.length ? stageIssues.join('、') : '完整且乾淨'}`);
+stageIssues.slice(0, 20).forEach((s) => console.error('  x ' + s));
+if (stageIssues.length) process.exitCode = 1;
 
 /* ---------- 驗證 2：不外洩本機資訊 ----------
    公開產物可以帶 `local:false`（前端要知道，且全為 false、不含路徑），

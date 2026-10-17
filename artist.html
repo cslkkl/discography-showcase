@@ -89,7 +89,9 @@
         <h1 class="hero-title">
           <span class="ht-line" id="heroTitleLine"></span>
         </h1>
-        <p class="hero-sub"><span id="heroLine"></span><span>以封面為軸，按年份逐張展開。</span></p>
+  <!-- 補充說明只講前兩處沒說過的事（可試聽）；「按年份逐張展開」已由下方
+       檔案層的 #haNote 承擔，這裡不再重覆 -->
+  <p class="hero-sub"><span id="heroLine"></span><span>全部曲目皆可試聽。</span></p>
         <div class="hero-cta">
           <a class="btn btn-accent btn-lg" href="#albums">
             <span>進入展廳</span>
@@ -377,7 +379,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <!-- 全屏歌詞舞台：由 js/lyrics.js 驅動；沒有本機歌詞時不開，播放列會就地說明 -->
-<div class="lyric-stage" id="lyricStage" role="dialog" aria-modal="true" aria-label="全屏歌詞" hidden>
+<div class="lyric-stage" id="lyricStage" role="dialog" aria-modal="true" aria-label="全屏歌詞" tabindex="-1" hidden>
   <div class="ls-inner">
     <p class="ls-prev" aria-hidden="true"></p>
     <p class="ls-cur" aria-live="polite"></p>
@@ -390,7 +392,77 @@
   </button>
 </div>
 
-<!-- 播放列：
+<!-- Task 04 完整歌詞舞台（Folia 移植）：由 js/lyric-stage.js 裝載 stage/dist/ 的產物。
+     渲染器放在 <div id="sfHost"> 的 shadow root 裡，所以上游的 Tailwind 樣式不會改到站點。
+     沒有本機歌詞、模組產物取不到或載入失敗時，入口會退回上面那個基本舞台或就地說明。 -->
+<div class="stagefull" id="stageFull" role="dialog" aria-modal="true" aria-labelledby="sfTitle" tabindex="-1" hidden>
+  <div class="sf-bar">
+    <div class="sf-head">
+      <p class="sf-kicker">LYRIC STAGE</p>
+      <h2 class="sf-title" id="sfTitle"></h2>
+      <p class="sf-meta" id="sfMeta"></p>
+    </div>
+    <button class="sf-close" id="sfClose" type="button" aria-label="關閉歌詞舞台">
+      <svg class="ico" viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+    </button>
+  </div>
+  <div class="sf-host" id="sfHost"></div>
+  <div class="sf-dock">
+    <!-- 模式選擇器：自繪的 combobox＋listbox（換掉原生 <select>，理由見 js/lyric-stage.js）。
+         原生清單在沒有 customizable select 的瀏覽器上是系統外觀（方角、亮藍選中），
+         而且無法給出「名稱＋一句效果」的兩級資訊與可控的開合動態，所以這裡自繪。
+         焦點一律留在按鈕上（aria-activedescendant 模式），所以舞台的焦點圍籬
+         看到的 Tab 停點與原本一樣只有一個。鍵盤與 ARIA 契約見 js/lyric-stage.js。 -->
+    <div class="sf-field sf-field-mode">
+      <span class="sf-lab" id="sfModeLab">歌詞模式</span>
+      <div class="sf-dd" id="sfModeDd">
+        <button
+          class="sf-mode-btn"
+          id="sfMode"
+          type="button"
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-expanded="false"
+          aria-controls="sfModeList"
+          aria-labelledby="sfModeLab"
+        >
+          <span class="sf-mode-val">
+            <span class="sf-mode-name"></span>
+            <span class="sf-mode-desc"></span>
+          </span>
+          <span class="sf-chev" aria-hidden="true"></span>
+        </button>
+        <!-- tabindex="-1"：可捲動區域在 Chrome 預設會被納入 Tab 順序，
+             那會讓這個控件多出一個 Tab 停點、也讓舞台的焦點圍籬多算一個。
+             指標與鍵盤都由按鈕驅動（aria-activedescendant），清單不必自己收焦點。 -->
+        <ul
+          class="sf-menu"
+          id="sfModeList"
+          role="listbox"
+          tabindex="-1"
+          aria-labelledby="sfModeLab"
+          hidden
+        ></ul>
+      </div>
+    </div>
+    <label class="sf-field"><span class="sf-lab">視覺主題</span>
+      <select class="sf-select" id="sfTheme" aria-label="視覺主題"></select>
+    </label>
+    <label class="sf-field"><span class="sf-lab">背景</span>
+      <select class="sf-select" id="sfBg" aria-label="舞台背景"></select>
+    </label>
+    <label class="sf-field"><span class="sf-lab">動效強度</span>
+      <select class="sf-select" id="sfIntensity" aria-label="動效強度">
+        <option value="calm">收斂</option>
+        <option value="normal">一般</option>
+        <option value="chaotic">奔放</option>
+      </select>
+    </label>
+    <button class="sf-auto" id="sfAuto" type="button" aria-pressed="true">恢復自動</button>
+    <p class="sf-status" id="sfStatus" role="status" aria-live="polite"></p>
+  </div>
+</div>
+
 <!-- 歌曲狀態列 Mini Song Bar。
      貼在頁面底部的「當前檔案卡」：只交代現在讀的是哪一首（歌名／歌手／專輯／年份）
      與歌詞入口。它不是播放器——播放控制仍在底下的播放列上，這裡一格控制項都沒有。
@@ -405,7 +477,10 @@
     </p>
     <button class="msb-act" id="msbLyrics" type="button" data-msb-lyrics>查看歌詞<span class="msb-sym" aria-hidden="true">→</span></button>
   </div>
-</div>音源優先取自有音檔（整首），其次為 Apple 目錄隨附的官方 30 秒試聽片段 -->
+</div>
+
+<!-- 播放列：
+     音源優先取自有音檔（整首），其次為 Apple 目錄隨附的官方 30 秒試聽片段 -->
 <div class="player" id="player">
   <div class="pl-inner">
     <img class="pl-cover" id="plCover" src="assets/favicon.svg" alt="" width="46" height="46">
@@ -454,6 +529,10 @@
 
 <script src="js/data.js?v=db5c3213"></script>
 <script src="js/lyrics.js?v=db5c3213"></script>
+<!-- 本地視覺主題系統：舞台的預設主題來源，先於裝載器載入（人工預設與封面派生規則都在裡面） -->
+<script src="js/stage-themes.js?v=db5c3213"></script>
+<script src="js/lyric-stage.js?v=db5c3213"></script>
+<script src="js/cursor.js?v=db5c3213"></script>
 <script src="js/app.js?v=db5c3213"></script>
 </body>
 </html>

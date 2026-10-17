@@ -6,9 +6,18 @@ node_modules/
 Thumbs.db
 *.log
 
+# 环境变量：真实配置（.env、.env.local、.env.production 等）一律不入库。
+# 只有不含任何真实凭证的范本 .env.example 例外放行——它是给人复制用的，
+# 里面所有密钥栏位都是空的。取反规则必须排在忽略规则之后才生效。
+.env*
+!.env.example
+
 # 临时产物
 *.tmp
 *.bak
+# Python 檢查腳本（scripts/*.py）跑過之後留下的位元組碼快取：
+# 每次 npm run check:docs / check:eol 都會重新生成，屬可重建產物，不入庫
+__pycache__/
 
 # 公开部署包（由 _data/pack-public.mjs 生成，可随时重建，不入库）
 dist/
@@ -33,5 +42,13 @@ _data/_*-report.json
 # 外部参考副本（clone 进来的其他项目）绝不入库：
 # 它们自带 .git 与 node_modules，一旦 git add . 会把上千个文件塞进本站
 folia-major/
+
+# Task 04 舞台模組：vendored/ 是 Folia 上游原始碼的逐字複本，本質與上面的
+# folia-major/ 相同——別人的專案，只是為了「可重現建置」而落盤。它由
+# stage/vendor.mjs 依固定 commit 產生，隨時可重建，所以不入庫。
+# stage/LICENSE.folia 與 stage/SOURCE.md 是版權聲明與來源清單，那兩份要入庫。
+stage/vendored/
+stage/node_modules/
+
 # Playwright MCP 的臨時產物
 .playwright-mcp/

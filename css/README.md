@@ -37,7 +37,9 @@
 | 27 | 全屏歌詞舞台 |
 | 28 | 歌曲檔案 Song Archive（頂列翻頁、唱片視覺、創作資訊、底部兩個文字型入口） |
 | 29 | 歌曲狀態列 Mini Song Bar（底部「當前檔案卡」，含換歌的兩段錯峰與讓位） |
-| 末 | `prefers-reduced-motion` 降級 |
+| 30 | 完整歌詞舞台外框（Task 04：頂欄、渲染宿主、底部控制列；渲染在 shadow root 內） |
+| 31 | 可選自訂指針（Task 13：預設關閉，只在展品互動區顯示，不取代原生游標） |
+| 32 | `prefers-reduced-motion` 降級（永遠排在檔案最後，覆蓋才會生效） |
 
 另有 `motifs.css`：每位歌手的專屬裝飾（母題），鉤子是根元素 `data-motif`，
 由歌手 `meta.mjs` 的 `theme.motif` 聲明。目前八組：
@@ -97,6 +99,30 @@
 整張貼滿螢幕寬度。讓位由 `body.has-msb`（底部內距）與 `html.has-msb`
 （`scroll-padding-bottom`）兩條規則承擔，數字要與卡片實測高度對得上
 （桌面 62px、390px 59px），改內距就要一起量。
+
+**全站小字下限 12px 是硬約束，沒有例外**：本輪在兩處抓到違規並修掉——
+新增的舞台外框（`.sf-kicker`／`.sf-lab` 曾用 `.72rem` = 11.52px、`.sf-status` `.74rem` = 11.84px）
+與**既有**的抽屜官方入口（`.sl-label`／`.sl-link`／`.sl-note` 同為 `.72`／`.74rem`）。
+後者之所以長期沒被發現，是因為下限掃描只量了 `main/header/footer`，
+抽屜關著時那一段 `offsetParent` 為 null、量不到。**做字號下限複驗時要把
+抽屜、歌曲檔案、歌詞舞台都打開再量**，只掃首屏會漏掉一整類。
+現在 `style.css` 與 `motifs.css` 掃 `font-size` 已無低於 12px 的宣告。
+
+**30 節只畫舞台的外框，歌詞渲染在 shadow root 裡**：`#sfHost` 是渲染宿主，
+`stage/src/entry.jsx` 的 React 根與上游 199 KB 的 Tailwind 樣式都留在裡面，
+所以站點樣式與舞台樣式互不外洩。外框是 `position: fixed`、z-index 1003
+（蓋過歌曲檔案 1000，播放列 1005 仍在上層），格線三列 `auto minmax(0,1fr) auto`
+——**標記順序必須是頂欄 → 宿主 → 控制列**，順序寫反會讓頂欄佔走 `1fr`
+（實測頂欄被撐到 1441px、宿主高度 0）。`body.has-player` 時控制列底部要讓開
+播放列高度。宿主在 shadow root 內的尺寸由注入樣式開頭的 `:host` 與
+`.stage-full-root` 兩條決定（文件 CSS 進不去 shadow root）。
+
+**31 節的可選指針不取代原生游標**：`.cursor-custom` 只把兩個裝飾層（`.cur-dot`
+5px 圓點、`.cur-ring` 26px 細環）打開，兩者都 `pointer-events: none`；
+顯示與否由 `js/cursor.js` 依指標所在元素切 `.cursor-on`／`.cursor-hot`，
+不是全域 `cursor: none`，所以輸入欄、捲動條、外部連結與可選文字仍是原生指針。
+`(pointer: coarse)`、`(hover: none)`、`prefers-reduced-motion`、`forced-colors`
+四種情況在 CSS 與 JS 兩邊都停用。
 
 ## 設計權杖
 

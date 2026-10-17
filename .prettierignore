@@ -8,6 +8,17 @@ screenshots/
 # 发布包：由 _data/pack-public.mjs 从源头复制，格式化它毫无意义
 dist/
 
+# ── Task 04 舞台模組 ────────────────────────────────────────────────
+# stage/vendored/ 是 Folia 上游原始碼的逐字複本（AGPL-3.0，由 stage/vendor.mjs 依
+# 固定 commit 落盤）。它是別人的專案，本站不對它排版；動它會讓「上游原文」與
+# 「我們的修改」再也分不清。stage/dist/ 是 Vite 產物，同理。
+stage/node_modules/
+stage/vendored/
+stage/dist/
+# verify-modes.mjs 落盤的實測證據：機器產生的 JSON，不經人手，
+# 幫它排版只會在每次重跑後又變回去（與 _data/_*-report.json 同一條理由）
+stage/dev/evidence.json
+
 # 生成物：源头是 _data/build.mjs，改它无意义
 js/data.js
 # 本机态的歌词内联 payload（生成物，且不进版本库）
@@ -29,6 +40,12 @@ _data/artists/*/credits.json
 # 而且它沒有結尾換行（writeFileSync 直接寫 JSON.stringify），
 # Prettier 會想補一個換行——那會讓每次跑完 fall 落盤都被判格式不合
 _data/_*-report.json
+
+# ── Task 04 本機兩層分析的本機產物 ──────────────────────────────────────
+# storage/ 是 tools/analyze-audio.mjs 與 tools/theme-service.mjs 的機器產物
+# （段落 sidecar 與主題快取）。裡面有長浮點陣列，Prettier 會想重排，
+# 但這些檔案由工具重寫即可，格式化沒有意義——與上面 _data/_*-report.json 同類。
+storage/
 
 # ── 刻意保留手写排版的文档层 ────────────────────────────────────────────
 # css/style.css 与 index.html 采用紧凑分组写法（一行放多个相关属性），

@@ -6,9 +6,12 @@
 
 - 目標：一套可复用的歌手唱片陳列模板——按歌手陳列完整錄音室目錄，
   現收錄周杰倫，新增歌手不需要改渲染層
-- 硬約束一：零執行期依賴，無建置步驟，雙擊 `index.html` 即可開
+- 硬約束一：站點主體零執行期依賴，無建置步驟，雙擊 `index.html` 即可開。
+  **定向例外**：Task 04 的完整歌詞舞台是獨立、按需載入的子專案（`stage/`，可帶執行期
+  依賴與獨立建置），首頁與歌手頁主體不變；範圍見 [Task 04 規格](task-04-folia-stage.md)
 - 硬約束二：離線可用。無網路時頁面完整呈現，僅試聽控制自行停用
-- 硬約束三：唯一深色主題、唯一強調色。不提供淺色模式，不提供主題切換
+- 硬約束三：唯一深色主題、唯一強調色。不提供淺色模式，不提供主題切換。
+  舞台內部例外：逐曲主題只在舞台生效，退出後恢復站點主題
 
 ## 頁面構成
 
@@ -16,6 +19,21 @@
 index.html    入口：立體唱片架，選一位歌手
 artist.html   歌手頁：?a=<id> 決定陳列誰，十四個展示面都在這裡
 ```
+
+## 任務 04 的舞台邊界
+
+- 站點側只有一個裝載器 `js/lyric-stage.js`；渲染器在 `stage/` 子專案，
+  產物是 `stage/dist/lyric-stage.js` 與 `stage/dist/assets/lyric-stage.css`，
+  未進舞台前都不載入
+- 全站只有一個 `<audio id="plAudio">`（`artist.html`，`js/app.js` 擁有）。
+  舞台不得建立第二個音訊元素；停／播／拖進度／上下首一律由站點驅動，舞台只「請求」seek
+- 舞台渲染在 `#sfHost` 的 shadow root 內：上游 Tailwind 樣式（199 KB，含 `:root` 與
+  `html/body` 級選擇器）不外洩，站點樣式也不進去
+- 兩層分析的產物都是本機 sidecar：`storage/segments/<songId>.json`（音訊測量）與
+  `storage/theme-cache/`（整曲主題）；`tools/theme-service.mjs` 只綁 `127.0.0.1`，
+  密鑰只在服務端讀。公開包不含音檔、歌詞、密鑰與本機路徑
+- 上游 Folia 以 AGPL-3.0 逐字複本落在 `stage/vendored/`（gitignored、可重建），
+  站點其餘部分維持 MIT；發佈義務見 [Task 04 架構](task-04-architecture.md)
 
 ## 資料流
 
@@ -198,9 +216,19 @@ _data/artists/<id>/meta.mjs ─────────┘                      
 - 跑馬燈等「清單型」區塊從 `JC.signature` 取，不得寫死歌名陣列。
   `signature` 是每張專輯 2 至 4 首的**編輯挑選**（`meta.mjs` 手寫層），不是串流熱度統計；
   跑馬燈再從中跨專輯均勻抽樣到 30 首，所以每張專輯都會出現，不會被某一張的熱門曲佔滿
-- 跑馬燈的位移由捲動驅動（`marqueePan`），並疊加指標方向：指帶子右側往右推、
-  指左側往左推，移出後回到捲動決定的位置；幅度取內容可位移量的 34%（上限 150px），
-  窄清單不會被一次推到底
+- 跑馬燈是一台**跑步機**，不是視差層：橫向位置只由它自己的 `marqueeOffset` 決定，
+  不讀指標的 X 距離（那會變成「移動多少就跟多少」），也不讀頁面捲動位置
+  （上下捲頁時再疊一段橫向位移，會破壞勻速感）。方向來自**視口**的左右半區
+  （中線兩側各 6% 死區：左 −1／中 0／右 +1），由**常駐 rAF** 以
+  `0.55px/幀 × dt/16.667`（約 33px/s，60/120/144Hz 同速）推進；指標只決定方向，
+  不決定快慢，所以同一側內 x=900 與 x=1300 的速度相同
+- 回繞用**真實佈局週期**：第二份首元素與第一份首元素的螢幕距離，
+  **不能**用 `scrollWidth / 2`——兩份之間那個 gap 會被折半算進去（1440 下實測差 21.2px，
+  繞回時就是一次可見跳動）。兩份內容逐字相同，所以 `tx ∈ [−週期, 0)` 的端點落在同一格像素上，
+  向右與向左的繞回都無縫
+- 指標離開視窗、視窗失焦、分頁轉背景一律歸零並停 rAF，且**不重置** `offset`（回到原位，
+  不回彈）；重新進入按當前所在半區重判方向。`prefers-reduced-motion` 下永不啟動 rAF，
+  CSS 端另有 `.marquee-track { transform: none !important }` 與 `overflow-x: auto` 供手動捲動
 - `service` 生成的網址在 `file://` 下也須可用，不得依賴伺服器
 - 模態疊模態要先解決 `Esc` 的歸屬：歌曲檔案與歌詞舞台都用 capture 階段的
   `document` keydown 加 `stopPropagation`，且**檔案的處理器必須先註冊**
@@ -341,7 +369,16 @@ _data/artists/<id>/meta.mjs ─────────┘                      
   `toSimplified`
 - `timeline` 是「某一年發行了哪些作品」的索引：
   `[{ year, count, albums: [專輯id], songs: [song.id] }]`，依年份遞增。
-  它回答的是「某年的作品」這種查詢，不必讓消費端自己掃 `albums`
+  它回答的是「某年的作品」這種查詢，不必讓消費端自己掃 `albums`。
+  目前畫面用的是年表（`#chronoList`）與年輪／年代分期，`timeline` 只由資料管線產出、
+  尚未接到畫面上（見 [升級進度表](upgrade-progress.md) 的 Task 05）
+- 跨模組的執行期契約（都掛在 `window`，都是唯讀查詢，不暴露渲染）：
+  - `window.JCTracks.trackOf(albumId, n)` → `{ artist, album, track, pos }`；
+    專輯 id 全站唯一（實測 90 張無重複），所以「這首歌屬於哪位歌手」可以直接由 id 解出。
+    **凡是依 albumId 查歌的路徑都要用它**，不可假設就是目前瀏覽的歌手：
+    就地切歌手不動 `<audio>`，正在播的歌仍屬前一位歌手
+  - `window.JCLyrics`（既有基本舞台）與 `window.JCLyricStage`（Task 04 完整舞台）
+  - `window.JCCursor`（可選自訂指針，預設關閉）
 - 曲目欄位：`n` / `disc` / `zh` / `sec` / `len` / `sig` / `audio` / `preview` / `local`，
   加上每首歌自帶的 `song` 紀錄（見「設計決策 → 歌曲檔案」）；`song` 是選填，
   舊資料沒有它時 `app.js` 的 `songOf()` 會就地補出同樣的形狀。

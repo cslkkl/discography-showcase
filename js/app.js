@@ -95,6 +95,10 @@
     var store = attrOrig.get(el);
     if (store) delete store[name];
   }
+  /* 文字的同一件事：改過 textContent 的節點要先清快取，否則切換繁簡會還原成舊字 */
+  function dropText(el) {
+    if (el && el.firstChild) textOrig.delete(el.firstChild);
+  }
 
   function setLang(next) {
     lang = next;
@@ -643,69 +647,144 @@
       });
     }
     host.appendChild(f);
-    marqueeEl = $('.marquee');
     marqueeTrack = host;
-    marqueeRoom = 0;
-    /* 滑鼠在帶子上左右移動時把整條往該側推：指標靠右就往右、
-       靠左就往左，最大位移 MARQ_PAN。觸控裝置沒有 hover，不接。 */
-    var hoverable = !window.matchMedia('(hover: none)').matches;
-    if (marqueeEl && hoverable) {
-      marqueeEl.addEventListener('pointermove', function (e) {
-        if (REDUCED.matches) return;
-        var r = marqueeEl.getBoundingClientRect();
-        marqueeHoverNTarget = clamp(((e.clientX - r.left) / (r.width || 1) - 0.5) * 2, -1, 1);
-        if (!marqueeRaf) marqueeRaf = requestAnimationFrame(marqueeHoverTick);
-      });
-      marqueeEl.addEventListener('pointerleave', function () {
-        marqueeHoverNTarget = 0;
-        if (!marqueeRaf) marqueeRaf = requestAnimationFrame(marqueeHoverTick);
-      });
-    }
+    marqueeLoopWidth = 0; /* 換了內容就得重新量一份副本的寬度 */
+    bindMarqueeOnce();
+    applyMarquee();
   }
 
-  /* The band drifts as the page scrolls: a slow parallax response rather than a
-     timed loop, so nothing animates unattended and no pause control is needed.
-     指標位置也決定方向：指帶子右側整條往右推、指左側往左推，像用手撥。
-     帶子左緣沒有空白可露，所以基準先向左墊一個幅度，指到最右時剛好回到起點。 */
-  var marqueeEl,
-    marqueeTrack,
-    marqueeRoom = 0;
-  var MARQ_PAN = 150;
-  var marqueeHoverN = 0; /* 平滑後的指標位置，-1（最左）到 1（最右） */
-  var marqueeHoverNTarget = 0;
+  /* 帶子是一台跑步機，不是視差層：指標只決定方向，常駐 rAF 以固定速度推進 offset。
+     位移不再讀滑鼠距離（那會變成「移動多少就跟多少」），也不再讀捲動位置
+     （頁面上下捲時帶子會多出一段橫向漂移，破壞勻速感）。 */
+  var marqueeTrack = null;
+  var marqueeOffset = 0; /* 累積位移（px，正 = 向右） */
+  var marqueeLoopWidth = 0; /* 一份副本的寬度；換內容、換字級、字體載入後歸零重算 */
+  var marqueeDir = 0; /* -1 / 0 / 1，只看指標落在視口哪一側 */
   var marqueeRaf = 0;
+  var marqueeLast = 0; /* 上一幀時間戳；0 = 這一輪的第一幀 */
+  var marqueeBound = false;
+  var MARQ_SPEED = 0.55; /* px / 60Hz 幀，約 33px/s */
+  var MARQ_DEAD = 0.06; /* 視口中線兩側各 6% 死區 */
 
-  function marqueeAmp() {
-    /* 幅度取內容可位移量的一部分，窄清單不會被一次推到底 */
-    return Math.min(MARQ_PAN, marqueeRoom * 0.34);
+  /* 指標只回答「哪一側」：左半 −1、右半 +1、中線附近 0。
+     死區是為了不讓指標在中線附近抖一下就換向。 */
+  function marqueeDirAt(clientX) {
+    var vw = document.documentElement.clientWidth || window.innerWidth || 0;
+    if (!vw) return 0;
+    if (clientX < vw * (0.5 - MARQ_DEAD)) return -1;
+    if (clientX > vw * (0.5 + MARQ_DEAD)) return 1;
+    return 0;
   }
 
-  function marqueePan() {
+  /* 一份副本的**真實**寬度：第二份第一個元素與第一份第一個元素的屏幕距離。
+     不能直接用 scrollWidth / 2——120 個子元素之間只有 119 個 gap，兩份之間
+     那個 gap 會被折半算進 scrollWidth，實測 1440 下差 21.22px（= 半個 gap），
+     繞回時就是一次可見的 21px 跳動。用兩份首元素的距離量，才是逐像素嚴格的週期。 */
+  function marqueePeriod() {
+    if (!marqueeTrack) return 0;
+    var kids = marqueeTrack.children;
+    var half = kids.length >> 1;
+    if (half) {
+      var d = kids[half].getBoundingClientRect().left - kids[0].getBoundingClientRect().left;
+      if (d > 0) return d;
+    }
+    return marqueeTrack.scrollWidth / 2;
+  }
+
+  /* transform 的唯一寫入者。tx 落在 [−loopWidth, 0)：兩份內容逐字相同，
+     所以 −loopWidth 與 0 落在同一格像素上，向右繞回、向左繞回都是無縫的。 */
+  function applyMarquee() {
     if (!marqueeTrack || REDUCED.matches) return;
-    if (!marqueeRoom) {
-      marqueeRoom = Math.max(0, marqueeTrack.scrollWidth - document.documentElement.clientWidth);
-      if (!marqueeRoom) return;
+    if (!marqueeLoopWidth) {
+      marqueeLoopWidth = marqueePeriod();
+      if (!marqueeLoopWidth) return;
     }
-    var r = marqueeEl.getBoundingClientRect();
-    var vh = window.innerHeight || 1;
-    var p = clamp((vh - r.top) / (vh + r.height), 0, 1);
-    // ~1.15x the scroll delta, so it reads as depth rather than a race
-    var travel = Math.min((vh + r.height) * 1.15, marqueeRoom);
-    var amp = marqueeAmp();
-    var x = clamp(amp + p * travel - marqueeHoverN * amp, 0, marqueeRoom);
-    marqueeTrack.style.transform = 'translate3d(' + (-x).toFixed(1) + 'px,0,0)';
+    var phase = ((marqueeOffset % marqueeLoopWidth) + marqueeLoopWidth) % marqueeLoopWidth;
+    marqueeTrack.style.transform =
+      'translate3d(' + (phase - marqueeLoopWidth).toFixed(2) + 'px,0,0)';
   }
 
-  /* 指標平移要平滑，否則會跟著每一則 pointermove 抖；用 rAF 收斂到目標值 */
-  function marqueeHoverTick() {
-    marqueeHoverN += (marqueeHoverNTarget - marqueeHoverN) * 0.14;
-    if (Math.abs(marqueeHoverNTarget - marqueeHoverN) > 0.004)
-      marqueeRaf = requestAnimationFrame(marqueeHoverTick);
-    else {
-      marqueeHoverN = marqueeHoverNTarget;
+  /* dt 歸一到 60Hz：120Hz／144Hz 螢幕上是同一個 33px/s，不會變兩倍速 */
+  function marqueeFrame(now) {
+    if (!marqueeDir || REDUCED.matches) {
       marqueeRaf = 0;
+      marqueeLast = 0;
+      return;
     }
-    marqueePan();
+    var dt = marqueeLast ? now - marqueeLast : 16.667;
+    marqueeLast = now;
+    if (dt > 100) dt = 100; /* 分頁回來時別一次跳過一整段 */
+    marqueeOffset += marqueeDir * MARQ_SPEED * (dt / 16.667);
+    applyMarquee();
+    marqueeRaf = requestAnimationFrame(marqueeFrame);
+  }
+
+  function marqueeRun() {
+    if (marqueeRaf || REDUCED.matches) return;
+    marqueeLast = 0;
+    marqueeRaf = requestAnimationFrame(marqueeFrame);
+  }
+
+  function marqueeHalt() {
+    if (marqueeRaf) cancelAnimationFrame(marqueeRaf);
+    marqueeRaf = 0;
+    marqueeLast = 0;
+  }
+
+  function marqueeSetDir(d) {
+    if (d === marqueeDir) return;
+    marqueeDir = d;
+    if (d) marqueeRun();
+    else marqueeHalt();
+  }
+
+  /* 監聽器只能綁一次：renderMarquee() 每次 renderAll() 都跑，綁到 window 上
+     最容易疊成 N 支（舊寫法實測連切兩位後 pointermove 就疊到 3 支）。 */
+  function bindMarqueeOnce() {
+    if (marqueeBound) return;
+    marqueeBound = true;
+    function from(clientX) {
+      if (REDUCED.matches) return;
+      marqueeSetDir(marqueeDirAt(clientX));
+    }
+    window.addEventListener(
+      'pointermove',
+      function (e) {
+        from(e.clientX);
+      },
+      { passive: true }
+    );
+    /* 回到視窗不一定有 pointermove，pointerover 補一次，方向按當前位置重判 */
+    window.addEventListener(
+      'pointerover',
+      function (e) {
+        from(e.clientX);
+      },
+      { passive: true }
+    );
+    /* 只停方向與 rAF：offset 留在原地，不回彈也不歸零 */
+    function off() {
+      marqueeSetDir(0);
+    }
+    document.addEventListener('pointerleave', off);
+    window.addEventListener('blur', off);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) off();
+    });
+    /* 觸控收尾：手指離開後若該環境不補發 pointerleave，方向會永久鎖死
+       （實測以 pointercancel 收尾的手勢就可能如此）。只認 pointerType === 'touch'：
+       滑鼠的 pointerup 不能清方向，否則桌面端一按一放就停了。 */
+    function offTouch(e) {
+      if (e.pointerType === 'touch') marqueeSetDir(0);
+    }
+    window.addEventListener('pointerup', offTouch);
+    window.addEventListener('pointercancel', offTouch);
+    var onReduced = function () {
+      if (REDUCED.matches) marqueeSetDir(0);
+      else applyMarquee();
+    };
+    if (REDUCED.addEventListener) REDUCED.addEventListener('change', onReduced);
+    else if (REDUCED.addListener) REDUCED.addListener(onReduced);
   }
 
   /* ── album rack ─────────────────────────────────────────────────────── */
@@ -895,6 +974,12 @@
     /* -1：初值必须是「未选中」，否则首次 setRingLive(0) 会被去重守卫挡掉，
        读数（封面/年份/专辑名/入口）就永远不会填充 */
     ringsLive = -1;
+  /* 同 marqueeBound：圖例與整個 #rings 都是常駐節點（resetHosts 只清 legend 的
+     子節點），監聽器寫在 renderRings() 裡會隨每次換歌手疊一層。實測連切兩位後
+     #ringsLegend 的 focusin 與 #rings 的 click 各累到 3 支；#rings 那支的
+     [data-open-album] 分支會讓一次點擊執行 N 次 openSheet()（抽屜內容重建 N 次）。 */
+  var ringsLegendBoundEl = null;
+  var ringsSectionBoundEl = null;
 
   /* cover averages can be quite dark; lift them toward paper so a ring keeps
      a readable edge against the ink base without inventing a new accent */
@@ -1073,13 +1158,17 @@
         });
       });
     }
-    legend.addEventListener('focusin', function (e) {
-      var b = e.target.closest ? e.target.closest('[data-ring]') : null;
-      if (b) setRingLive(+b.getAttribute('data-ring'));
-    });
+    if (legend !== ringsLegendBoundEl) {
+      ringsLegendBoundEl = legend;
+      legend.addEventListener('focusin', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-ring]') : null;
+        if (b) setRingLive(+b.getAttribute('data-ring'));
+      });
+    }
     // the legend lives outside the figure, so listen on the whole section
     var section = $('#rings');
-    if (section) {
+    if (section && section !== ringsSectionBoundEl) {
+      ringsSectionBoundEl = section;
       section.addEventListener('click', function (e) {
         /* 读数的「查看專輯」按钮才进入专辑；点圈或图例只切换选中，
            避免探索年轮时误触跳走 */
@@ -1719,6 +1808,41 @@
     })[0];
   }
 
+  /* 全站索引：專輯 id 在八位歌手之間唯一（實測 90 張無重複），
+     所以「這張專輯屬於哪位歌手」可以直接由 id 解出。
+     目前瀏覽的歌手（JC／ALBUMS）與「正在播放或卡片指著的那一首」是兩件事：
+     就地切歌手不動 <audio>，正在播的歌仍屬於前一位歌手。凡是依 albumId 查歌
+     的路徑都要跨歌手解析，否則切走之後卡片上的兩個入口會解析不到歌
+     （實測會誤報「這首沒有可用的試聽片段」）。 */
+  var artistIndex = null;
+  var albumIndex = null;
+
+  function buildGlobalIndex() {
+    if (artistIndex) return;
+    artistIndex = {};
+    albumIndex = {};
+    var order = (DISCOGRAPHY && DISCOGRAPHY.order) || Object.keys(DISCOGRAPHY.artists);
+    order.forEach(function (id) {
+      var A = DISCOGRAPHY.artists[id];
+      if (!A) return;
+      artistIndex[id] = A;
+      A.albums.forEach(function (a) {
+        albumIndex[a.id] = { artist: A, album: a };
+      });
+    });
+  }
+
+  function ownerOfAlbum(albumId) {
+    buildGlobalIndex();
+    return albumIndex[albumId] || null;
+  }
+
+  /* 跨歌手取專輯；抽屜一類以「目前這位歌手」為單位的功能仍用 albumById */
+  function albumAny(albumId) {
+    var own = ownerOfAlbum(albumId);
+    return own ? own.album : null;
+  }
+
   /* 官方入口：平台清單由 meta.mjs 宣告（哪些平台確實有貨是人工判斷）。
      Apple 用目錄自帶的專輯 id 直達該張專輯；其餘為搜尋連結，
      搜尋不保證有貨，只是把使用者送到正確的結果頁。 */
@@ -1864,7 +1988,15 @@
 
   function openSheet(id, silent) {
     var a = albumById(id);
-    if (!a) return;
+    if (!a) {
+      /* 這張專輯屬於別的歌手（例：從正在播的那首的檔案按「查看完整檔案」）：
+         抽屜是頁面層的歌手視圖，先把瀏覽切到那位歌手，再走原本這一條路，
+         免得抽屜用目前這位歌手的資料去渲染別人的專輯 */
+      var own = ownerOfAlbum(id);
+      if (!own || !applyArtist(own.artist.id, { silent: true })) return;
+      a = albumById(id);
+      if (!a) return;
+    }
     currentId = id;
     if (!sheet) {
       sheet = $('#sheet');
@@ -1965,6 +2097,34 @@
     return !!sarch && !sarch.hidden;
   }
 
+  /* 有沒有任何歌詞舞台正蓋在上面。兩條舞台都要算：完整舞台（Task 04）與基本舞台。
+     這是「一次按鍵只關最上一層」的第一道判準，呼叫端不要再各寫一份——
+     先前歌曲檔案的守衛只認基本舞台，於是完整舞台開著時檔案也跟著被 Esc 關掉
+     （同一個 document 捕獲階段的兩個監聽器，stopPropagation 擋不住同節點的另一支）。 */
+  function stageOnTop() {
+    return !!(
+      (window.JCLyricStage && window.JCLyricStage.isOpen()) ||
+      (window.JCLyrics && window.JCLyrics.isOpen())
+    );
+  }
+
+  /* 第二道判準：這一次按鍵有沒有已經被更上層的彈層用掉。
+     光看 stageOnTop() 不夠——舞台那一支監聽器註冊得比較早，會先把舞台關掉，
+     下層再判斷時「上面已經沒有舞台」了，於是同一個 Esc 連關兩層。
+     標記寫在同一個事件物件上（js/lyric-stage.js 設定 __jcModalConsumed）。 */
+  function keyConsumed(e) {
+    return !!(e && e.__jcModalConsumed);
+  }
+
+  function markKeyConsumed(e) {
+    if (!e) return;
+    try {
+      e.__jcModalConsumed = true;
+    } catch {
+      /* 事件不可擴充時只影響下層的讓路判斷，不影響關閉本身 */
+    }
+  }
+
   /* 動態寫入的文字要先清掉 localize() 的原文快取，否則切換語言時會還原成
      上一首的歌名（與 syncPlayingRows 對 .pl-label 的做法同一條理由） */
   function setLive(node, text) {
@@ -1978,10 +2138,10 @@
   /* 檔案編號：把整位歌手的目錄當成一冊卷宗，這首是第幾筆。
      song 紀錄已經帶了同一個數字（build.mjs 依全目錄順序編號），有就直接用；
      舊版資料沒有 song 時才自己數一遍，兩條路徑得到相同的值。 */
-  function archiveNo(a, t) {
+  function archiveNo(A, a, t) {
     if (t.song && t.song.no) return t.song.no;
-    for (var i = 0; i < JC.tracks.length; i++) {
-      var x = JC.tracks[i];
+    for (var i = 0; i < A.tracks.length; i++) {
+      var x = A.tracks[i];
       if (x.album === a.id && String(x.n) === String(t.n)) return i + 1;
     }
     return 0;
@@ -1991,13 +2151,13 @@
      的契約節）；舊版 data.js 沒有這個欄位，所以缺什麼就從曲目與專輯就地補出
      同樣的形狀——HTML 更新而 JS 還是舊版（或反過來）時，畫面與從前一致，
      不會因為多讀一個不存在的欄位而整塊空白。 */
-  function songOf(a, t) {
+  function songOf(A, a, t) {
     if (t.song) return t.song;
     return {
       id: a.id + '-' + t.n,
-      no: archiveNo(a, t),
+      no: archiveNo(A, a, t),
       title: t.zh,
-      artist: JC.name,
+      artist: A.name,
       album: a.title,
       albumId: a.id,
       year: a.year,
@@ -2008,8 +2168,8 @@
   }
 
   /* 這首歌落在那個年代分期裡（分期由 meta.mjs 手寫、build.mjs 依年份歸戶） */
-  function eraOfYear(y) {
-    var list = JC.eras || [];
+  function eraOfYear(A, y) {
+    var list = A.eras || [];
     for (var i = 0; i < list.length; i++) {
       if (y >= list[i].from && y <= list[i].to) return list[i];
     }
@@ -2060,12 +2220,15 @@
     return m ? m[1].trim() : '';
   }
 
-  function archiveHTML(a, t) {
+  /* 檔案要顯示「這首歌所屬的歌手」，不一定是目前瀏覽的那位：
+     播放周杰倫的歌之後切到林志炫，還是要開得出周杰倫那一首的檔案，
+     署名、統計與歌手名都取自 A（該歌所屬歌手）。 */
+  function archiveHTML(A, a, t) {
     var pos = 1;
     a.tracks.forEach(function (x, i) {
       if (String(x.n) === String(t.n)) pos = i + 1;
     });
-    var acc = archiveNo(a, t);
+    var acc = archiveNo(A, a, t);
     var w = playWords(t);
     /* 這首在該專輯裡的長度位置：全部由曲目時長直接算，沒有估算值 */
     var sum = 0;
@@ -2082,8 +2245,8 @@
     var collab = trackCollab(t);
     /* 歌曲的檔案紀錄：署名、逐曲文案與年代都在這裡。全部走 songOf() 的 fallback，
        缺欄位時（舊資料、未收錄）就少一列、少一段，不留空殼。 */
-    var song = songOf(a, t);
-    var era = song.year ? eraOfYear(song.year) : null;
+    var song = songOf(A, a, t);
+    var era = song.year ? eraOfYear(A, song.year) : null;
     var story =
       proseHTML('其他署名', extraCreditsText(song)) +
       proseHTML('歌曲介紹', song.description) +
@@ -2096,15 +2259,15 @@
       '<p class="sa-access">NO. ' +
       String(acc ? acc : 0).padStart(3, '0') +
       ' / ' +
-      JC.stats.tracks +
+      A.stats.tracks +
       ' · ' +
-      esc(JC.en) +
+      esc(A.en) +
       '</p>' +
       '<h2 class="sa-title" id="saTitle">' +
       esc(t.zh) +
       '</h2>' +
       '<p class="sa-by">' +
-      esc(JC.name) +
+      esc(A.name) +
       '</p>' +
       '<dl class="sa-key">' +
       '<div><dt>專輯</dt><dd>《' +
@@ -2255,7 +2418,7 @@
     }
     var amb = ambTriple(hit.album.sourceAvg);
     if (amb) saPanel.style.setProperty('--amb', amb);
-    saScroll.innerHTML = archiveHTML(hit.album, hit.track);
+    saScroll.innerHTML = archiveHTML(hit.artist, hit.album, hit.track);
     saNote = $('#saNote', saScroll);
     saPaintNav(hit);
     localize(saScroll);
@@ -2317,10 +2480,11 @@
     if (target && target.focus) target.focus({ preventScroll: true });
   }
 
-  /* 上一首／下一首只在這張專輯內走，走到頭就停（兩顆鈕各自 disabled） */
+  /* 上一首／下一首只在這張專輯內走，走到頭就停（兩顆鈕各自 disabled）。
+     專輯跨歌手取：檔案可能指著前一位歌手的歌（卡片留著、播放沒斷） */
   function stepArchive(d) {
     if (!saRef) return;
-    var a = albumById(saRef.album);
+    var a = albumAny(saRef.album);
     if (!a) return;
     var i = -1;
     a.tracks.forEach(function (x, k) {
@@ -2333,7 +2497,20 @@
 
   /* 檔案的歌詞入口：先把這一首載進播放列（歌詞要跟著音訊走）再開舞台。
      沒有歌詞檔就地說明，不開一個空舞台。已在播的那一首不動播放狀態——
-     plSelect 對同一首是「切換播放／暫停」，從檔案進來不該把歌停掉。 */
+     plSelect 對同一首是「切換播放／暫停」，從檔案進來不該把歌停掉。
+     舞台優先走 Task 04 的完整舞台（js/lyric-stage.js）；它不存在或產物取不到時
+     才退回原本的 js/lyrics.js，所以兩條路都是可用路徑。 */
+  /* 舞台控制列的文案一律由 js/lyric-stage.js 以**繁體原文**寫入（那個模組不碰站點的
+     語言層），站點在每一次寫入之後補一次 localize()：第一次見到就把繁體原文記成
+     快取原文，之後切繁簡都沿用同一條路徑，不必在舞台模組裡再寫一套轉換。
+     覆蓋整個 #stageFull：標題、副標、模式名稱／描述、背景與主題選項、狀態列都在裡面。
+     舞台非同步填完清單與狀態列後會派 jc-stage-text（見 initAudio 的監聽），
+     在那之後寫入的每一個新文字節點也都會再補一次，所以兩種語言都不會漏。 */
+  function localizeStageUI() {
+    var node = $('#stageFull');
+    if (node) localize(node);
+  }
+
   function openLyricsFor(albumId, n, note) {
     var hit = trackOf(albumId, n);
     var say = note || toast;
@@ -2343,6 +2520,13 @@
     }
     var same = plState.album === albumId && String(plState.n) === String(n);
     if (!same) plSelect(albumId, n);
+    if (window.JCLyricStage) {
+      /* open() 自己處理「沒有本機歌詞」與載入失敗，並用同一個 say 就地說明 */
+      window.JCLyricStage.open(albumId, n, say);
+      /* showShell() 是同步執行完的，標題此刻已經寫上，這裡立刻接回站點的語言層 */
+      localizeStageUI();
+      return true;
+    }
     if (!window.JCLyrics) {
       say('歌詞舞台不在這一頁');
       return false;
@@ -2402,10 +2586,13 @@
       'keydown',
       function (e) {
         if (!saOpen()) return;
-        if (window.JCLyrics && window.JCLyrics.isOpen()) return;
+        /* 舞台蓋在檔案上面時整支讓路（見 stageOnTop／keyConsumed）；
+           方向鍵同理，否則舞台開著按 ←／→ 會把底下的檔案翻到另一首。 */
+        if (keyConsumed(e) || stageOnTop()) return;
         if (e.key === 'Escape') {
           e.preventDefault();
           e.stopPropagation();
+          markKeyConsumed(e); /* 檔案比抽屜上層：這一下不再傳給抽屜 */
           closeArchive();
           return;
         }
@@ -2508,11 +2695,17 @@
     if (!isFinite(sec) || sec < 0) sec = 0;
     return Math.floor(sec / 60) + ':' + String(Math.floor(sec % 60)).padStart(2, '0');
   }
+  /* 一首歌的解析一律跨歌手：專輯所屬歌手由全域索引解出，不假設就是目前瀏覽的這位。
+     回傳的 artist 是這首歌真正所屬的歌手，畫面要顯示姓名、統計時用它，
+     不要用 JC（那會把周杰倫的歌標成林志炫）。 */
   function trackOf(albumId, n) {
-    var a = albumById(albumId);
-    if (!a) return null;
+    var own = ownerOfAlbum(albumId);
+    if (!own) return null;
+    var a = own.album;
     for (var i = 0; i < a.tracks.length; i++) {
-      if (String(a.tracks[i].n) === String(n)) return { album: a, track: a.tracks[i], pos: i };
+      if (String(a.tracks[i].n) === String(n)) {
+        return { artist: own.artist, album: a, track: a.tracks[i], pos: i };
+      }
     }
     return null;
   }
@@ -2524,7 +2717,9 @@
      search, and keep each label describing the action it will perform. */
   function syncPlayingRows() {
     var key = plKey();
-    var playing = !!(plAudio && plAudio.src && !plAudio.paused && !plAudio.ended);
+    /* 只有「確認在播」才算 playing（見 plIsPlaying）：play 事件只是請求，
+       收到它不等於已經出聲（實測未快取的官方試聽要 1293ms 後才有聲音） */
+    var playing = plIsPlaying();
     $$('[data-play]').forEach(function (b) {
       var match = !!key && b.getAttribute('data-play') === key;
       var on = match && playing;
@@ -2553,6 +2748,79 @@
     });
   }
 
+  /* ── 播放狀態：一律由 <audio> 的現況推導，事件只負責叫一次重算 ─────────
+     狀態不另外落地保存，所以快速切歌、請求完成前暫停、舊事件的延遲回報
+     都不會留下過期值：
+       idle    尚未選曲
+       loading 已請求播放，但資料還不夠（readyState < HAVE_FUTURE_DATA）
+       waiting 播放中斷、等資料（waiting 事件）
+       stalled 網路停滯（stalled 事件；緩衝還夠時聲音仍在前進）
+       playing 確認在播
+       paused  已暫停
+       error   媒體錯誤
+     「播放中」只認 playing：play 事件是「請求」而不是已出聲。 */
+  var plWaiting = false; /* waiting 事件：播放中斷等資料 */
+  var plNetStalled = false; /* stalled 事件：網路停滯，可能還有緩衝在播 */
+  var plAttrSrc = null; /* 這一首實際寫進 <audio> 的 src，用來分辨過期事件 */
+
+  function plDerived() {
+    if (!plAudio || !plAudio.getAttribute('src')) return 'idle';
+    if (plAudio.error && plAudio.error.code) return 'error';
+    if (plAudio.paused) return 'paused';
+    if (plWaiting) return 'waiting';
+    if (plAudio.readyState < 3) return 'loading';
+    if (plNetStalled) return 'stalled';
+    return 'playing';
+  }
+
+  /* 「確認在播」＝不暫停、沒有在等資料、資料也夠。
+     stalled 不算中斷：緩衝還夠時聲音仍在前進，圖示不該翻回播放。 */
+  function plIsPlaying() {
+    return !!(
+      plAudio &&
+      plAudio.getAttribute('src') &&
+      !plAudio.error &&
+      !plAudio.paused &&
+      !plWaiting &&
+      plAudio.readyState >= 3
+    );
+  }
+
+  /* 這一顆 <audio> 載的還是不是我們預期的那一首：換歌之後才抵達的舊事件
+     （error／ended／loadedmetadata）用它擋掉，不讓舊歌覆蓋新歌的狀態。 */
+  function plSameSrc() {
+    return !!plAttrSrc && !!plAudio && plAudio.getAttribute('src') === plAttrSrc;
+  }
+
+  function plPaintToggle(st) {
+    var b = $('#plToggle');
+    if (!b) return;
+    var busy = st === 'loading' || st === 'waiting';
+    var playing = plIsPlaying();
+    /* 標籤說真話：只有確認在播才寫「暫停」；請求中／緩衝中寫「載入中」。
+       aria-pressed 只反映「確認在播」，所以緩衝期間不會宣稱已經在播放。 */
+    var label = busy ? '載入中' : playing ? '暫停' : '播放';
+    dropAttr(b, 'aria-label'); /* 與 syncPlayingRows 同一條理由：不清快取會被還原成舊標籤 */
+    b.setAttribute('aria-label', label);
+    b.setAttribute('aria-pressed', String(playing));
+    if (busy || st === 'stalled') b.setAttribute('aria-busy', 'true');
+    else b.removeAttribute('aria-busy');
+    localize(b);
+  }
+
+  /* 播放列的回饋只有這一個出口：類別、狀態屬性、按鈕與行內圖示一起更新，
+     不會出現「按鈕說在播、行內圖示說沒播」這種互相矛盾。 */
+  function applyPlayerState() {
+    if (!plBar) return;
+    var st = plDerived();
+    plBar.classList.toggle('is-playing', plIsPlaying());
+    plBar.classList.toggle('is-loading', st === 'loading' || st === 'waiting');
+    plBar.classList.toggle('is-stalled', st === 'stalled');
+    plBar.setAttribute('data-pl-state', st);
+    plPaintToggle(st);
+    syncPlayingRows();
+  }
+
   function plPaint(a, t) {
     var cov = $('#plCover');
     if (cov) {
@@ -2560,7 +2828,10 @@
       cov.alt = a.title + ' 專輯封面';
     }
     var ti = $('#plTitle');
-    if (ti) ti.textContent = t.zh;
+    /* 歌名是繁體原文：寫入後要立刻走一次 localize()，否則預設簡體下播放列顯示繁體，
+       而同一首在曲目列與狀態列是簡體（實測 可愛女人／可爱女人）。
+       setLive() 先清掉 localize() 的原文快取再寫，切換繁簡時才不會還原成舊歌名。 */
+    if (ti) setLive(ti, t.zh);
     var idx = 0;
     a.tracks.forEach(function (x, i) {
       if (String(x.n) === String(t.n)) idx = i + 1;
@@ -2607,19 +2878,40 @@
     plState.album = ref.albumId;
     plState.n = ref.n;
     plAudio.src = hit.track.audio;
+    plAttrSrc = hit.track.audio; /* 這一首的來源；舊歌的延遲事件靠它擋掉 */
+    plWaiting = false;
+    plNetStalled = false;
     plPaint(hit.album, hit.track);
     plShow();
     /* 卡片跟著「當前這一首」走：按播放是點歌的另一條路徑（見 msbFocus 的說明） */
     msbFocus(hit.album.id, hit.track.n);
-    /* 歌詞隨曲目預載；舞台開著時載完會自動接上（見 js/lyrics.js） */
+    /* 歌詞隨曲目預載；舞台開著時載完會自動接上（見 js/lyrics.js）。
+       Task 04 完整舞台同理：它開著就換到新這一首，沒本機歌詞則收起並說明 */
     if (window.JCLyrics) window.JCLyrics.loadFor(hit.album.title, hit.track);
+    if (window.JCLyricStage && window.JCLyricStage.isOpen()) {
+      window.JCLyricStage.follow(hit.album.id, hit.track.n, toast);
+      /* 換歌時舞台會就地重寫標題，同樣要接回站點的語言層（見 localizeStageUI） */
+      localizeStageUI();
+    }
     if (autoplay !== false) plPlay();
-    syncPlayingRows();
-    setMediaSession(hit.album, hit.track);
+    applyPlayerState();
+    setMediaSession(hit.album, hit.track, hit.artist);
   }
 
+  /* 佇列以「這張專輯」為單位，跨歌手取（播放列可以在切歌手後繼續走下一首） */
+  /* 跨歌手取歌的入口給其他模組（Task 04 舞台裝載器）：舞台要對應「真正播放的那一首」，
+     不能用目前瀏覽的歌手去猜。只暴露查詢，不暴露渲染。 */
+  window.JCTracks = {
+    trackOf: trackOf,
+    albumAny: albumAny,
+    artistOfAlbum: function (albumId) {
+      var own = ownerOfAlbum(albumId);
+      return own ? own.artist : null;
+    }
+  };
+
   function plQueueFor(albumId) {
-    var a = albumById(albumId);
+    var a = albumAny(albumId);
     if (!a) return [];
     return a.tracks
       .filter(function (t) {
@@ -2685,15 +2977,21 @@
     if (plBar) plBar.classList.remove('is-up', 'is-looping');
     document.body.classList.remove('has-player');
     /* 播放列關掉就沒有音源了，歌詞舞台一起收，否則會停在最後一句 */
+    if (window.JCLyricStage && window.JCLyricStage.isOpen()) window.JCLyricStage.close();
     if (window.JCLyrics && window.JCLyrics.isOpen()) window.JCLyrics.close();
     /* 當前曲目清空＝卡片沒有指涉的對象了，一起淡出（見 mini song bar 一節） */
     msbHide();
     plState = { album: null, n: null, queue: [], qi: -1, loop: false, scrubbing: false };
+    /* 狀態重設了，鏡射的 UI 也要一起重新推導：模式鈕的 aria-pressed／圖示／標籤與播放列
+       狀態都從 plState／<audio> 現況算出來，不能只改一半（實測前者會殘留 true）。 */
+    plAttrSrc = null;
+    plWaiting = false;
+    plNetStalled = false;
     ['#plRange', '#plPrev', '#plNext', '#plToggle'].forEach(function (s) {
       var el2 = $(s);
       if (el2) el2.disabled = true;
     });
-    syncPlayingRows();
+    applyPlayerState();
     if ('mediaSession' in navigator) {
       try {
         navigator.mediaSession.metadata = null;
@@ -2703,12 +3001,14 @@
     }
   }
 
-  function setMediaSession(a, t) {
+  /* 歌手名取自這首歌真正所屬的歌手：就地切歌手之後播放仍在繼續，
+     系統媒體資訊不該跟著目前瀏覽的歌手改口。 */
+  function setMediaSession(a, t, A) {
     if (!('mediaSession' in navigator) || typeof MediaMetadata === 'undefined') return;
     try {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: t.zh,
-        artist: JC.name,
+        artist: (A || JC).name,
         album: a.title,
         artwork: [
           { src: new URL(a.cover, location.href).href, sizes: '1200x1200', type: 'image/jpeg' }
@@ -2735,22 +3035,44 @@
     if (!plAudio || !plBar) return;
     plAudio.preload = 'none';
 
-    plAudio.addEventListener('play', function () {
-      plBar.classList.add('is-playing');
-      updateToggle();
-      syncPlayingRows();
+    /* 事件只負責「叫一次重算」；狀態本身由 plDerived() 從 <audio> 現況推導。
+       特別是把 play 與 playing 分開：play 只是請求，playing 才是真的出聲。 */
+    plAudio.addEventListener('play', applyPlayerState);
+    plAudio.addEventListener('playing', function () {
+      plWaiting = false;
+      plNetStalled = false;
+      applyPlayerState();
+    });
+    plAudio.addEventListener('canplay', function () {
+      plNetStalled = false;
+      applyPlayerState();
+    });
+    plAudio.addEventListener('waiting', function () {
+      plWaiting = true;
+      applyPlayerState();
+    });
+    plAudio.addEventListener('stalled', function () {
+      plNetStalled = true;
+      applyPlayerState();
     });
     plAudio.addEventListener('pause', function () {
-      plBar.classList.remove('is-playing');
-      updateToggle();
-      syncPlayingRows();
+      plWaiting = false;
+      applyPlayerState();
+    });
+    plAudio.addEventListener('emptied', function () {
+      /* 換 src 會先把元素清空：舊的等待狀態不該留到新的一首 */
+      plWaiting = false;
+      plNetStalled = false;
+      applyPlayerState();
     });
     plAudio.addEventListener('ended', function () {
-      plBar.classList.remove('is-playing');
-      updateToggle();
+      /* 換歌後才抵達的 ended 不得推進新的佇列位置 */
+      if (!plSameSrc()) return;
+      applyPlayerState();
       plStep(1);
     });
     plAudio.addEventListener('loadedmetadata', function () {
+      if (!plSameSrc()) return;
       var d = plAudio.duration;
       if (isFinite(d) && d > 0) {
         // clip lengths come back like 30.000998; round so the fill percentage
@@ -2778,6 +3100,13 @@
       if (cur) cur.textContent = clock(c);
     });
     plAudio.addEventListener('error', function () {
+      /* 換歌會讓上一首的請求中止並回報 code 1（ABORTED）：那不是這一首的失敗，
+         處理它會把剛選好的新歌誤標成錯誤。 */
+      if (plAudio.error && plAudio.error.code === 1) return;
+      /* 舊歌的延遲錯誤不得改寫新歌的畫面（plState 早就指到新的一首了） */
+      if (!plSameSrc()) return;
+      plWaiting = false;
+      plNetStalled = false;
       var hit = plState.album ? trackOf(plState.album, plState.n) : null;
       // a missing local file falls back to the preview before giving up
       if (
@@ -2787,6 +3116,7 @@
         plAudio.src.indexOf(hit.track.preview) === -1
       ) {
         plAudio.src = hit.track.preview;
+        plAttrSrc = hit.track.preview; /* 這一首的來源換了，之後的事件跟著對齊 */
         plPlay();
         var m = $('#plMeta');
         if (m) {
@@ -2804,15 +3134,12 @@
         var el2 = $(s);
         if (el2) el2.disabled = true;
       });
-      syncPlayingRows();
+      applyPlayerState();
     });
 
+    /* 舊的 updateToggle 由 plPaintToggle + applyPlayerState 取代（狀態只有一個出口） */
     function updateToggle() {
-      var b = $('#plToggle');
-      if (!b) return;
-      var playing = !plAudio.paused && !!plAudio.src;
-      b.setAttribute('aria-label', playing ? '暫停' : '播放');
-      b.setAttribute('aria-pressed', String(playing));
+      plPaintToggle(plDerived());
     }
     initAudio.updateToggle = updateToggle;
 
@@ -2841,32 +3168,59 @@
     });
     $('#plClose').addEventListener('click', plClose);
 
-    /* 全屏歌詞：開關按鈕與舞台本身都在 js/lyrics.js 里 */
+    /* 全屏歌詞：開關按鈕在這一頁，舞台本身在 js/lyrics.js（基本舞台）
+       或 js/lyric-stage.js（Task 04 完整舞台）。按鈕只做切換，選哪個舞台由入口決定。 */
     var lyricBtn = $('#plLyrics');
-    if (lyricBtn && window.JCLyrics) {
+    if (lyricBtn && (window.JCLyricStage || window.JCLyrics)) {
+      var stageOpen = function () {
+        return (
+          (window.JCLyricStage && window.JCLyricStage.isOpen()) ||
+          (window.JCLyrics && window.JCLyrics.isOpen())
+        );
+      };
+      var stageToggle = function (on) {
+        lyricBtn.setAttribute('aria-pressed', String(on));
+        lyricBtn.setAttribute('aria-expanded', String(on));
+      };
       lyricBtn.addEventListener('click', function () {
-        var on = window.JCLyrics.isOpen();
-        if (on) window.JCLyrics.close();
-        else {
-          var hit = plState.album ? trackOf(plState.album, plState.n) : null;
-          window.JCLyrics.open(hit ? hit.album.title : '', hit ? hit.track.zh : '');
+        if (stageOpen()) {
+          if (window.JCLyricStage && window.JCLyricStage.isOpen()) window.JCLyricStage.close();
+          if (window.JCLyrics && window.JCLyrics.isOpen()) window.JCLyrics.close();
+          stageToggle(false);
+          return;
         }
-        lyricBtn.setAttribute('aria-pressed', String(!on));
-        lyricBtn.setAttribute('aria-expanded', String(!on));
+        if (plState.album) openLyricsFor(plState.album, plState.n);
+        stageToggle(stageOpen());
       });
-      /* 舞台是模態層：Esc 先給它，避免同時把抽屜或歌手選單也關掉 */
+      /* 歌詞舞台是模態層：Esc 先給它。舞台自己也在捕獲階段收 Esc（同一個 document
+         節點上的兩支監聽器，stopPropagation 擋不住彼此，所以「誰在上面」要靠
+         stageOnTop() 明講，而不是靠事件傳遞順序）。 */
       document.addEventListener(
         'keydown',
         function (e) {
-          if (e.key !== 'Escape' || !window.JCLyrics.isOpen()) return;
+          if (e.key !== 'Escape') return;
+          if (!stageOnTop()) return;
           e.stopPropagation();
           e.preventDefault();
-          window.JCLyrics.close();
-          lyricBtn.setAttribute('aria-pressed', 'false');
-          lyricBtn.setAttribute('aria-expanded', 'false');
+          markKeyConsumed(e); /* 舞台是最上層：這一下按鍵不再傳給檔案與抽屜 */
+          if (window.JCLyricStage && window.JCLyricStage.isOpen()) window.JCLyricStage.close();
+          if (window.JCLyrics && window.JCLyrics.isOpen()) window.JCLyrics.close();
+          stageToggle(false);
         },
         true
       );
+      /* 舞台模組自己也會關（它的關閉鈕、Esc、換到沒有本機歌詞的一首就收起）：
+         按鈕點擊與上面那支 Esc 處理器都接不到那些路徑，實測關掉舞台之後
+         aria-pressed／aria-expanded 會停在 true。舞台在開／關時派
+         jc-stage-change，這裡一律以「現在到底開著嗎」重新同步按鈕狀態。 */
+      window.addEventListener('jc-stage-change', function () {
+        stageToggle(stageOpen());
+      });
+      /* 舞台把可見文案寫進 DOM 之後派 jc-stage-text（模式名稱／描述、背景與主題
+         選項、狀態列…）。這些字串是繁體原文、且是 JS 執行期寫入的，走不到
+         setLang 那一次 document 級 localize()，所以在這裡補一次：
+         只掃 #stageFull 這一棵子樹，成本與控制列的節點數同級。 */
+      window.addEventListener('jc-stage-text', localizeStageUI);
     }
 
     var range = $('#plRange');
@@ -2891,6 +3245,8 @@
       var hit = trackOf(parts[0], parts[1]);
       if (!hit || !hit.track.audio) b.disabled = true;
     });
+    /* 一開頁就給出明確狀態（idle），不讓 data-pl-state 留空 */
+    applyPlayerState();
   }
 
   /* ── mini song bar ──────────────────────────────────────────────────────
@@ -2938,9 +3294,9 @@
 
   /* 卡片上的動態文字一律走 setLive()：它先清 localize 的原文快取再寫，
      否則切換繁簡時會還原成上一首的歌名（與 syncPlayingRows 同一條理由） */
-  function msbPaint(a, t) {
+  function msbPaint(A, a, t) {
     setLive(msbTitle, t.zh);
-    setLive(msbArtist, JC.name);
+    setLive(msbArtist, A.name);
     setLive(msbAlbum, '《' + a.title + '》');
     setLive(msbYear, String(a.year));
     /* 兩顆入口都是「這一首」的動作，名字裡要帶歌名；寫入前先清屬性快取 */
@@ -3023,7 +3379,7 @@
     msbRef = { album: hit.album.id, n: hit.track.n };
     if (same && !msbEl.hidden) return;
     if (!shown || msbEl.hidden) {
-      msbPaint(hit.album, hit.track);
+      msbPaint(hit.artist, hit.album, hit.track);
       msbShow();
       return;
     }
@@ -3037,13 +3393,13 @@
     }
     msbEl.classList.remove('is-entering', 'is-swapping');
     if (REDUCED.matches) {
-      msbPaint(hit.album, hit.track);
+      msbPaint(hit.artist, hit.album, hit.track);
       return;
     }
     msbEl.classList.add('is-swapping');
     msbSwapTimer = setTimeout(function () {
       msbSwapTimer = 0;
-      msbPaint(hit.album, hit.track);
+      msbPaint(hit.artist, hit.album, hit.track);
       msbEl.classList.remove('is-swapping');
       msbEl.classList.add('is-entering');
       /* 一定要等瀏覽器把「起始態」畫出來再移除，所以要**兩次** rAF：
@@ -3319,6 +3675,17 @@
         '</span>' +
         '<span class="am-meta">' +
         (rw.local ? '整首' : '30 秒') +
+        '</span></button>' +
+        /* 可選的自訂指針（Task 13）：預設關，偏好記在 localStorage；
+           環境不支援（觸控／減少動效／高對比）時開關標成不可用，不假裝成功 */
+        '<button class="am-item am-tool" type="button" role="menuitemcheckbox" data-tool="cursor"' +
+        ' aria-checked="false"' +
+        (window.JCCursor && window.JCCursor.supported() ? '' : ' disabled') +
+        '>' +
+        '<span class="am-seal" aria-hidden="true">標</span>' +
+        '<span class="am-name">自訂指針</span>' +
+        '<span class="am-meta">' +
+        (window.JCCursor && window.JCCursor.supported() ? '關' : '不適用') +
         '</span></button>'
     );
     menu.innerHTML = html.join('');
@@ -3355,6 +3722,11 @@
       setOpen(false);
       if (act === 'lang') setLang(lang === 's' ? 't' : 's');
       else if (act === 'random') pickRandom();
+      else if (act === 'cursor' && window.JCCursor) {
+        var nowOn = window.JCCursor.toggle();
+        /* 標題列的狀態要跟著；菜單項目在下次 renderAll 時重建 */
+        toast(nowOn ? '已開啟自訂指針，只在展品區顯示' : '已關閉自訂指針，回復原生指針');
+      }
     });
     document.addEventListener('keydown', function (e) {
       if (menu.hidden) return;
@@ -3405,7 +3777,7 @@
     if (name === 'rack' && !silent) {
       requestAnimationFrame(function () {
         measureRack();
-        marqueeRoom = 0;
+        marqueeLoopWidth = 0;
       });
     }
   }
@@ -3475,6 +3847,9 @@
   }
 
   /* ── chapters: 窄屏的章节跳转（桌面導覽在 <=860px 隱藏） ─────────────── */
+  /* #chapters 是常駐 <nav>（resetHosts 只清它的子節點），這支監聽器只能綁一次
+     ——理由同 marqueeBound。 */
+  var chaptersBoundEl = null;
   function renderChapters() {
     var host = $('#chapters');
     if (!host) return;
@@ -3488,13 +3863,16 @@
       f.appendChild(b);
     });
     host.appendChild(f);
-    host.addEventListener('click', function (e) {
-      var t = e.target.closest ? e.target.closest('[data-chapter]') : null;
-      if (!t) return;
-      var target = document.getElementById(t.getAttribute('data-chapter'));
-      if (target)
-        target.scrollIntoView({ behavior: REDUCED.matches ? 'auto' : 'smooth', block: 'start' });
-    });
+    if (host !== chaptersBoundEl) {
+      chaptersBoundEl = host;
+      host.addEventListener('click', function (e) {
+        var t = e.target.closest ? e.target.closest('[data-chapter]') : null;
+        if (!t) return;
+        var target = document.getElementById(t.getAttribute('data-chapter'));
+        if (target)
+          target.scrollIntoView({ behavior: REDUCED.matches ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
   }
 
   function paintChapters(id) {
@@ -3518,7 +3896,6 @@
         bar.style.transform = 'scaleX(' + p + ')';
         topbar.classList.toggle('is-stuck', window.scrollY > 24);
         paintRackFromScroll();
-        marqueePan();
       });
     }
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -3678,6 +4055,10 @@
 
     document.addEventListener('keydown', function (e) {
       if (!sheet || sheet.hidden) return;
+      /* 歌詞舞台蓋在抽屜上面時整支讓路：它是最上層，Esc 只歸它（見 stageOnTop）；
+         keyConsumed 是第二道保險——舞台那支監聽器先跑並關掉舞台後，
+         「上面還有舞台嗎」已經不成立，靠記號才不會同一個 Esc 連關兩層。 */
+      if (keyConsumed(e) || stageOnTop()) return;
       if (e.key === 'Escape') {
         closeSheet();
       } else if (e.key === 'ArrowLeft') {
@@ -3899,8 +4280,8 @@
       clearTimeout(rt);
       rt = setTimeout(function () {
         measureRack();
-        marqueeRoom = 0;
-        marqueePan();
+        marqueeLoopWidth = 0;
+        applyMarquee();
       }, 140);
     });
 
@@ -3946,8 +4327,8 @@
     runBoot();
     window.addEventListener('load', function () {
       measureRack();
-      marqueeRoom = 0; // webfonts change the band width
-      marqueePan();
+      marqueeLoopWidth = 0; // webfonts change the band width
+      applyMarquee();
     });
   }
 
@@ -3979,6 +4360,8 @@
 
   /* 這些宿主是 appendChild 型（不清空就重跑會愈疊愈多）。實測第一次換歌手後
      曲目表 126→301、卷宗 10→26、年表 10→26、年代 3→7、精選 35→73，都是同一原因。
+     合作者卡片漏在這個清單外時同樣會疊：實測 jay-chou(5 張)→taylor-swift 之後
+     #collabList 有 18 張卡而 #collabTotal 寫 13，上一頁的合作者還留在列上。
      其餘渲染器用 innerHTML= 自己覆蓋，不必也不該先清。 */
   var APPEND_HOSTS = [
     'heroArt',
@@ -3993,7 +4376,8 @@
     'erasList',
     'wallGrid',
     'picksList',
-    'ringsLegend'
+    'ringsLegend',
+    'collabList'
   ];
   function resetHosts() {
     APPEND_HOSTS.forEach(function (id) {
@@ -4005,7 +4389,7 @@
     ringNodes = [];
     legendNodes = [];
     ringsLive = -1; /* 讓 setRingLive(0) 不被去重守衛擋掉 */
-    marqueeRoom = 0;
+    marqueeLoopWidth = 0;
     /* 換片狀態機也要收：見 resetFanShift 的說明 */
     resetFanShift();
   }
@@ -4031,7 +4415,7 @@
     setLang(lang);
     observeReveals(document);
     measureRack();
-    marqueePan();
+    applyMarquee();
     /* 曲目表重建後，正在播的那一列要重新標成播放中；播放列的資訊保留
        （那是正在播的歌，不因切歌手而清空） */
     syncPlayingRows();
