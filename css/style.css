@@ -2821,19 +2821,23 @@ body.has-player .sf-host { height: calc(100% - var(--pl-h, 74px)); }
   margin: 4px 0 0;
   font-size: .76rem; letter-spacing: .1em; color: var(--paper-3);
 }
-/* 舞台自己會畫「歌手／歌名／專輯」時，站點這兩行就是重複資訊，而且會與舞台內容
+/* 舞台自己會畫「歌手／歌名／專輯」時，站點這幾行就是重複資訊，而且會與舞台內容
    疊在同一高度：`.sf-bar` 是 absolute 覆蓋層，`#sfHost` 從 0 起畫，monet 左列的
    大號歌手名落在 74–113，與站點歌名 45–90、meta 94–115 相交（實測 1440×901 為
    170×16 與 170×19；1920×1080、1366×768、390×845 亦有）。
+   `LYRIC STAGE` 小標同樣是站點冗餘，但它只在窄屏與橫屏才撞上舞台自己的字：
+   375×667 與 monet 歌手名重疊 160×5、845×391 與 monet 歌名重疊 170×21；
+   ≥768 寬時兩個都不撞，仍照樣收掉——它是同一類「站點在 monet 下重複渲染」的
+   信息，按模式限定比按視口打補丁一致。
    類由 js/lyric-stage.js 依「舞台實際生效的模式」掛上／取下（無 WebGL 回落
-   classic 時會取下，站點標題就回來）。只收這兩行：`LYRIC STAGE` 小標與關閉鍵
-   任何模式都保留。
+   classic 時會取下，站點標題就回來）。關閉鍵任何模式都保留。
    用 `visibility` 而不是 `display`：`.sf-bar` 是內容撐高的覆蓋層（其 `--sf-fade`
    漸變帶同時是上緣壓暗），改成 `display: none` 會讓它由 146.7 縮到 96、
    頂部漸變帶跟著變短，那屬於「版面位移」，不在這條修復的範圍內。
    `visibility: hidden` 一樣不進無障礙樹，但保留佔位，`.sf-bar` 高度一字不變。 */
 #stageFull.is-title-duplicated .sf-title,
-#stageFull.is-title-duplicated .sf-meta { visibility: hidden; }
+#stageFull.is-title-duplicated .sf-meta,
+#stageFull.is-title-duplicated .sf-kicker { visibility: hidden; }
 
 .sf-close {
   flex: none;
