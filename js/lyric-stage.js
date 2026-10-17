@@ -29,7 +29,7 @@
      為什麼需要：舞台產物是固定檔名，HTML 引用不到它們，只蓋 HTML 的章對它們無效——
      重建舞台之後瀏覽器仍會沿用舊模組，是同一個混版事故換一個入口。
      這一行是 stamp 唯一的寫入點（標記不可改字串），下面兩個 URL 都吃它。 */
-  /* stamp:stage-version */ var STAGE_VERSION = '6642d1bb';
+  /* stamp:stage-version */ var STAGE_VERSION = 'f7248777';
   var SERVICE = 'http://127.0.0.1:8788';
   var SERVICE_TIMEOUT = 2500;
 
