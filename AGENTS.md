@@ -241,12 +241,19 @@ CI 在 push 後自動執行；本節數字與 CI 結果互相校對，發現漂�
   既有結構零回歸（`main` 下 10 個 `<section>`、175 列曲目、展櫃仍可捲、`Esc` 分層不變）
 - 站點截圖 **20 張**，另有 [歌手入口概念參考](screenshots/concepts/)，見 `screenshots/`。
   一律 1:1 CSS 像素、獨立 `chromium.launch()` 拍攝（共用 MCP 瀏覽器視窗帶縮放，用它拍不到 1:1）。
-  **2026-10-17 重拍 3 張**（品牌圖示改版後，尺寸統一為 1440×901）：
-  `18-landing`、`01-desktop-hero`、新增 `20-lyric-stage`（歌詞舞台，monet／明亮／莫內背景）。
-  2026-10-14 視覺升級後重拍的 3 張仍在用：`19-mobile-landing` 390×844、
-  `03-mobile-hero` 300×700、`10-cover-wall` 1440×900。
-  其餘 14 張是 2026-10-12 至 10-14 期間的擷取，**早於品牌圖示改版**，
-  圖裡的入口與頂欄仍是舊的圓形「聲」印章；要更新就按同一口徑重拍，不要只換檔名
+  **全部 20 張已於 2026-10-17 按當前實現重拍**（品牌圖示改版後）：3 張在 T34 換（`18-landing`、
+  `01-desktop-hero`、新增 `20-lyric-stage`，皆 1440×901），其餘 14 張在 T37 逐張重拍，
+  **尺寸與舊圖一致**：`02-album-detail`／`08-year-rings`／`09-eras`／`11-data`／`12-ranks`／
+  `13-collaborators`／`14-signature-picks`／`15-player`／`16-sheet-player`／`17-offline-audio` 1440×900、
+  `04-mobile-rack` 420×900、`05-mobile-chronology` 300×700、`06-offline-file-load` 1280×860、
+  `07-desktop-chronology` 1600×1000。
+  **T37 的取景變化（不是只換文件）**：`02-album-detail` 換成首張《Jay》抽屜（舊圖是另一張專輯）；
+  `15-player`／`17-offline-audio` 是當前 hero 版式（舊版 hero 已改）；
+  `04`／`05`／`07` 停在區塊起點（舊圖滾到列表中部）。理由：舊圖攝於 2026-10-12，
+  **早於 2026-10-14 視覺升級**，要把圖拉回舊取景只能還原已不存在的版式。
+  `17-offline-audio` 在 `file://` 下拍，畫面上有 **2 條 `XMLHttpRequest` 報錯屬既有已知限制**
+  （該協定讀不到 `.lrc`），圖本身正常，播放列顯示「本機音檔」。
+  重拍口徑：視口內圖片 0 破圖、`overflowX` 0、0 pageerror（`17` 的兩條 XHR 除外）
 - 截圖索引（`screenshots/`，檔名即主題，逐張對應）：入口 `18-landing`／`19-mobile-landing`；
   歌手頁主視覺 `01-desktop-hero`／`03-mobile-hero`；陳列面 `02-album-detail`／`04-mobile-rack`／
   `07-desktop-chronology`／`05-mobile-chronology`／`08-year-rings`／`09-eras`／`10-cover-wall`／
