@@ -232,6 +232,9 @@
     if (lastMessage) parts.push(lastMessage);
     if (lastSummary) parts.push(lastSummary);
     sfStatus.textContent = parts.join(' · ');
+    /* 沒有話要說就整塊不佔位：控制列是 flex 版面（.sf-status 有 flex: 1 1 60%），
+       空節點留著會多一段空白。用 hidden 語意化隱藏空容器，不是拿 CSS 藏文字。 */
+    sfStatus.hidden = parts.length === 0;
     /* 每一次寫入都是新的文字節點，站點切換語言時掃不到「還沒寫出來」的字，
        所以寫完就請站點補一次轉換（見 notifyStageText）。 */
     notifyStageText();
@@ -582,15 +585,33 @@
              零餘量（內容 726.7 / 盒子 726.6），所以容器的 Y 就等於上方兩塊之和，
              表現在畫面上是構圖偏下：實測 1440×901 中心差 +81.09px、390×845 +60.8px。
              修法只做一件事：容器留在流內，用 transform 把它整體上移（不影響任何兄弟
-             與頁腳的排版，也不改高度）。上移量隨視口漂（52.8～81.1），所以按寬度分檔，
+             與頁腳的排版，也不改高度）。上移量隨視口漂（原 52.8～81.1，徽章隱藏後各 +24），
+             所以按寬度分檔，
              五檔殘差都 ≤5px；不用絕對定位——那會把包含塊換成左列的 padding box，
              實測容器 x 由 3 漂到 −53、歌詞整體左移 56px（已驗證為回歸，故否掉）。
              只作用於 monet：其餘 13 個模式命中 0；diorama／cadenza 的「等待音樂」
-             空態帶不在這條選擇器路徑上。 */
-          ".stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-57px);}" +
-          "@media (min-width:640px){.stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-69px);}}" +
-          "@media (min-width:1100px){.stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-77px);}}" +
-          "@media (min-width:1200px){.stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-81px);}}" +
+             空態帶不在這條選擇器路徑上。
+
+             四檔在 2026-10-17 各再加 24px（−57／−69／−77／−81 → −81／−93／−101／−105）：
+             下面的「主題說明徽章」改成 display:none 之後，左列少了那 48px 內容，
+             `justify-center` 於是整體下移 24.00px（五檔實測位移差一律 24.00），
+             把已經調好的歌詞位置推低了。補回 24px 後中心差回到原本驗收過的
+             +0.09／−3.59／−0.07／+3.80／+3.80（768×1024 −6.92、1920×1080 +6.72 屬檔外殘差）。
+             若日後恢復那枚徽章，這 24px 必須一併退回。 */
+          ".stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-81px);}" +
+          "@media (min-width:640px){.stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-93px);}}" +
+          "@media (min-width:1100px){.stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-101px);}}" +
+          "@media (min-width:1200px){.stage-root[data-stage-mode='monet'] .stage-layer .relative.select-none.overflow-hidden{transform:translateY(-105px);}}" +
+          /* monet 與 tempera 各自在左列底部渲染一枚「主題說明」徽章（上游
+             VisualizerMonet.tsx / VisualizerTempera 的 `.mt-auto.pt-4` 容器內那個
+             `.rounded-full`），文字是 theme.rationale，例如「青綠與冷白；中等動效」。
+             那是**給設計者看的推理說明**，不是使用者需要的操作資訊，而且預設模式改成
+             monet 之後它正好壓在控制列的標籤行上：徽章 y=752、高 16，`歌词模式` 標籤
+             y=751，兩行字疊在一起（實測重疊 16px，截圖可辨）。
+             這裡是站點側覆蓋（與上面那條位移補丁同一條路徑），只隱藏這一個容器：
+             選擇器限定 `.stage-root .stage-layer` 底下，其餘 11 個模式命中 0，
+             上游 vendored 一個位元組都沒動。 */
+          '.stage-root .stage-layer .mt-auto.pt-4{display:none !important;}' +
           text;
         root.appendChild(style);
         cssInjected = true;
@@ -1198,29 +1219,12 @@
      （provenance.modelJudgment 為 false，不含模型的情緒判斷），
      本輪為三首代表歌曲補的是**逐段人工預設**，其餘歌曲只有能量驅動的動效強度。 */
   function describe(theme, segments, degraded) {
+    /* 使用者介面只留「會影響他看到什麼」的話：降級原因與渲染失敗。
+       主題來源、段落數、實際主色都屬內部狀態，已移到 data-status-detail（不顯示）；
+       它們仍然算得出來、排查時讀得到，只是不再擠進控制列下方那一行。
+       參數保留原樣（theme／segments）：呼叫端與 statusDetail 都還依賴這條路徑，
+       刪參數會連帶動到不該動的業務邏輯。 */
     var parts = [];
-    parts.push(themeLine(theme));
-    /* 段落：只講「有幾段」與「這首有沒有逐段人工配置」。
-       原本把「音訊測量」「驅動了模式／背景／主題／動效強度」「此曲無逐段人工預設
-       （僅能量驅動）」全部串進可見文字，變成一行讀不完的內部術語；
-       那些細節改由 statusDetail 這條診斷字串承載（見 renderStatus）。 */
-    if (segments && segments.length) {
-      var presetCount = 0;
-      for (var i = 0; i < segments.length; i++) {
-        if (segments[i].presetSource === 'manual-preset') presetCount++;
-      }
-      var segLine = '段落 ' + segments.length + ' 段';
-      if (presetCount) segLine += '（含 ' + presetCount + ' 段人工配置）';
-      parts.push(segLine);
-    } else {
-      parts.push('未接上段落分析');
-    }
-    /* 目前**實際套用**的主色：段落有覆寫時它與歌曲級的主題不同，
-       不寫出來會讓人以為狀態列那句就是畫面上的顏色（實測：第二天堂第 0 段
-       套的是憂傷色 #6f8bb5，狀態列卻寫著激昂）。 */
-    var applied = lastStageState && lastStageState.accent;
-    if (applied) parts.push('主色 ' + applied);
-    /* 降級原因與渲染失敗要照實講：它關係到使用者看到的畫面（沒有 WebGL 等） */
     if (degraded) parts.push(degraded);
     return parts.join(' · ');
   }
@@ -1229,7 +1233,27 @@
      排查時仍讀得到（鎖定項目、段落驅動哪些東西、信心值、逐字精度、AI 來源）。 */
   function statusDetail() {
     var parts = [];
+    /* 主題來源的判定仍然要算：themeLine 是唯一分得清
+       manual／segment／ai／cache／preset／cover 六條路徑的地方。
+       它不再進可見文案（使用者不需要看「手動選擇，已鎖定」这种内部状态），
+       但排查要讀得到，所以改由 data-status-detail 承載。 */
+    try {
+      parts.push('theme=' + themeLine(statusTheme));
+    } catch {
+      /* 診斷字串壞掉不影響任何可見輸出 */
+    }
     var locks = (lastStageState && lastStageState.locks) || null;
+    /* 目前生效的動效強度：可見文案不再寫它，但排查要知道「現在是哪一檔」，
+       否則「三檔到底有沒有生效」只能靠肉眼看動畫。 */
+    if (lastStageState && lastStageState.intensity) {
+      parts.push(
+        'intensity=' +
+          lastStageState.intensity +
+          '(' +
+          (INTENSITY_LABEL[lastStageState.intensity] || '') +
+          ')'
+      );
+    }
     if (locks && (locks.mode || locks.theme || locks.intensity)) {
       var held = [];
       if (locks.mode) held.push('模式');
@@ -1800,7 +1824,8 @@
                 (MODE_LABEL[fb.applied] || fb.applied)
             );
           } else {
-            say('已鎖定模式：' + (MODE_LABEL[wanted] || wanted));
+            /* 成功切模式不再寫「已鎖定模式：莫內」：下拉框與按鈕上顯示的名稱就是
+               回饋，控制列只留「使用者需要知道才能行動」的話（降級、錯誤）。 */
           }
         });
       });
@@ -1819,9 +1844,9 @@
               (BG_LABEL[latest.background] || latest.background)
           );
           sfBg.value = latest.background;
-        } else {
-          say('背景：' + (BG_LABEL[sfBg.value] || sfBg.value));
         }
+        /* 成功換背景就不再寫一行「背景：莫內」：下拉框本身就是回饋，
+           控制列下方只留错误与降級這類使用者真的需要读的话。 */
         if (latest) syncFromState(latest);
       });
     }
@@ -1867,7 +1892,9 @@
         /* 摘要來源跟著換成手動的那一份主題：不同步的話摘要會繼續報歌曲預設的名字，
            於是同一行裡出現「訊息說憂傷、摘要說懷舊」的自我矛盾（實測踩過）。 */
         setStatusSource(manualTheme, statusSegments);
-        say('已鎖定主題為「' + preset.label + '」，按「恢復自動」交還');
+        /* 成功選主題也不寫確認語：下拉框顯示的就是目前值。
+           要交還給自動的人需要知道「按恢復自動」，但那顆按鈕就在旁邊、本身有標籤，
+           不必再用一行字重複講。 */
       });
     }
     if (sfIntensity) {
@@ -1877,11 +1904,9 @@
            舊版借用 applyTheme 的 manual 通道，會把主題一起鎖死：
            使用者調過一次強度之後，再按「恢復自動」也回不到 AI／封面主題。 */
         handle.setIntensity(sfIntensity.value, { lock: true });
-        say(
-          '動效強度：' +
-            (INTENSITY_LABEL[sfIntensity.value] || sfIntensity.value) +
-            '（已鎖定強度；按「恢復自動」交還給段落）'
-        );
+        /* 同樣不寫確認語：強度下拉框本身就是回饋。
+           （「已鎖定強度、按恢復自動交還」屬操作說明，不是狀態；
+           按鈕標籤已寫「恢復自動」，重複講只會讓控制列變吵。） */
         var latest = handle.getState ? handle.getState() : null;
         if (latest) syncFromState(latest);
       });
