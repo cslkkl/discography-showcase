@@ -99,8 +99,15 @@
     PRESET_BY_ID[PRESETS[i].id] = PRESETS[i];
   }
 
-  /* 沒有可用預設時的預設值：中性、安全，不宣稱任何風格。 */
-  var DEFAULT_PRESET = 'nostalgic';
+  /* 站點預設搭配：沒有逐曲指派時一律用這一組（首開、清空偏好後都是）。
+     三件事一起定，缺一件首開的搭配就不對：
+       · DEFAULT_PRESET   視覺主題「明亮」（PRESETS.bright，主色 #5fc8d0）
+       · DEFAULT_MODE     歌詞模式「莫內・左側歌詞滾動」
+       · DEFAULT_BACKGROUND 背景「莫內」（bright 預設自帶 latent，必須覆寫）
+     逐曲人工預設（SONG_PRESETS）仍然優先：那是對特定歌曲的編輯選擇。 */
+  var DEFAULT_PRESET = 'bright';
+  var DEFAULT_MODE = 'monet';
+  var DEFAULT_BACKGROUND = 'monet';
 
   /* ── 2. 逐曲人工預設 ────────────────────────────────────────────────────
      只列**真的量過段落的歌**（storage/segments/ 目前 9 首），其餘一律走本地規則。
@@ -314,6 +321,25 @@
         };
       }
     }
+    /* 沒有逐曲指派時走**站點預設搭配**（不是封面派生）：
+       歌詞模式「莫內・左側歌詞滾動」＋視覺主題「明亮」＋背景「莫內」。
+       三件事都必須在這裡定，不能只改下拉框顯示——lyric-stage.js 只會應用
+       theme.mode／theme.background，值給 null 就等於「交給舞台自己的預設」，
+       首開就會變成 classic + latent，與要求的搭配不一致。
+       注意 bright 預設自帶 background: 'latent'，所以背景要**覆寫**成 monet。 */
+    var fallbackPreset = PRESET_BY_ID[DEFAULT_PRESET];
+    if (fallbackPreset) {
+      var fallbackTheme = themeFromPreset(fallbackPreset, song && song.id);
+      fallbackTheme.mode = DEFAULT_MODE;
+      fallbackTheme.background = DEFAULT_BACKGROUND;
+      fallbackTheme.intensity = fallbackTheme.intensity || 'normal';
+      return {
+        theme: fallbackTheme,
+        origin: 'preset',
+        presetId: fallbackPreset.id,
+        note: null
+      };
+    }
     var derived = coverTheme(album, song);
     return { theme: derived, origin: 'cover', presetId: null, note: null };
   }
@@ -379,6 +405,8 @@
   window.JCStageThemes = {
     PRESETS: PRESETS,
     DEFAULT_PRESET: DEFAULT_PRESET,
+    DEFAULT_MODE: DEFAULT_MODE,
+    DEFAULT_BACKGROUND: DEFAULT_BACKGROUND,
     BACKGROUNDS: BACKGROUNDS,
     SEGMENT_TOLERANCE_SEC: SEGMENT_TOLERANCE_SEC,
     presetById: function (id) {
